@@ -1,5 +1,5 @@
 export enum Model {
-  LLAMA_3_8B_INSTRUCT_Q4F16_1 = "Llama-3-8B-Instruct-q4f16_1",
+  TINYLAMA_1_1B_CHAT_V0_4_Q4F32_1_1K = "TinyLlama-1.1B-Chat-v0.4-q4f32_1-1k",
 }
 
 export const MODELS: {
@@ -8,9 +8,9 @@ export const MODELS: {
     size: string;
   };
 } = {
-  [Model.LLAMA_3_8B_INSTRUCT_Q4F16_1]: {
-    displayName: "Llama 3.8B",
-    size: "3.8B",
+  [Model.TINYLAMA_1_1B_CHAT_V0_4_Q4F32_1_1K]: {
+    displayName: "Tiny Llama 1.1B",
+    size: "1.1B",
   },
 };
 

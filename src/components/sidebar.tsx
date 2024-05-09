@@ -8,7 +8,7 @@ import { Message } from "ai/react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import UserSettings from "./user-settings";
-
+import * as webllm from "@mlc-ai/web-llm";
 import {
   Dialog,
   DialogContent,
@@ -30,7 +30,11 @@ interface SidebarProps {
   isCollapsed: boolean;
   messages: Message[];
   chatId: string;
-  setMessages: (messages: Message[]) => void;
+  setMessages: (
+    fn: (
+      messages: webllm.ChatCompletionMessageParam[]
+    ) => webllm.ChatCompletionMessageParam[]
+  ) => void;
 }
 
 export function Sidebar({
@@ -104,7 +108,7 @@ export function Sidebar({
           onClick={() => {
             router.push("/");
             // Clear messages
-            setMessages([]);
+            setMessages(() => []);
           }}
           variant="ghost"
           className="flex justify-between w-full h-14 text-sm font-normal items-center shrink-0"
