@@ -12,11 +12,11 @@ interface State {
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
 
-  messages: webllm.ChatCompletionMessage[];
+  messages: webllm.ChatCompletionMessageParam[];
   setMessages: (
     fn: (
-      messages: webllm.ChatCompletionMessage[]
-    ) => webllm.ChatCompletionMessage[]
+      messages: webllm.ChatCompletionMessageParam[]
+    ) => webllm.ChatCompletionMessageParam[]
   ) => void;
 }
 
