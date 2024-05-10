@@ -9,6 +9,7 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Button } from "../ui/button";
 import { ChatProps } from "@/lib/types";
+import MessageLoading from "../ui/message-loading";
 
 export default function ChatList({
   messages,
@@ -98,7 +99,7 @@ export default function ChatList({
             <div className="flex gap-3 items-center">
               {message.role === "user" && (
                 <div className="flex items-end gap-3">
-                  <span className="bg-accent p-3 rounded-md max-w-xs sm:max-w-xl overflow-x-auto">
+                  <span className="bg-accent p-3 rounded-l-md rounded-tr-md max-w-xs sm:max-w-xl overflow-x-auto">
                     {message.content}
                   </span>
                   <Avatar className="flex justify-start items-center overflow-hidden">
@@ -126,7 +127,7 @@ export default function ChatList({
                       className="object-contain dark:invert"
                     />
                   </Avatar>
-                  <span className="bg-accent p-3 rounded-md max-w-xs sm:max-w-xl overflow-x-auto">
+                  <span className="bg-accent p-3 rounded-r-md rounded-tl-md max-w-xs sm:max-w-xl overflow-x-auto">
                     {/* Check if the message content contains a code block */}
                     {message.content
                       .split("```")
@@ -145,11 +146,9 @@ export default function ChatList({
                           );
                         }
                       })}
-                    {isLoading &&
+                    {loadingSubmit &&
                       messages.indexOf(message) === messages.length - 1 && (
-                        <span className="animate-pulse" aria-label="Typing">
-                          ...
-                        </span>
+                        <MessageLoading />
                       )}
                   </span>
                 </div>
@@ -157,26 +156,6 @@ export default function ChatList({
             </div>
           </motion.div>
         ))}
-        {loadingSubmit && (
-          <div className="flex pl-4 pb-4 gap-2 items-center">
-            <Avatar className="flex justify-start items-center">
-              <AvatarImage
-                src="/ollama.png"
-                alt="AI"
-                width={6}
-                height={6}
-                className="object-contain dark:invert"
-              />
-            </Avatar>
-            <div className="bg-accent p-3 rounded-md max-w-xs sm:max-w-xl overflow-x-auto">
-              <div className="flex gap-1">
-                <span className="size-1.5 rounded-full bg-slate-700 motion-safe:animate-[bounce_1s_ease-in-out_infinite] dark:bg-slate-300"></span>
-                <span className="size-1.5 rounded-full bg-slate-700 motion-safe:animate-[bounce_0.5s_ease-in-out_infinite] dark:bg-slate-300"></span>
-                <span className="size-1.5 rounded-full bg-slate-700 motion-safe:animate-[bounce_1s_ease-in-out_infinite] dark:bg-slate-300"></span>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
       <div id="anchor" ref={bottomRef}></div>
     </div>

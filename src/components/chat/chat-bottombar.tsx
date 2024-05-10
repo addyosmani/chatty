@@ -48,7 +48,7 @@ export default function ChatBottombar({
   };
 
   return (
-    <div className="p-4 flex justify-between w-full items-center gap-2">
+    <div className="p-1 flex justify-between w-full items-center gap-2">
       <AnimatePresence initial={false}>
         <motion.div
           key="input"
@@ -69,16 +69,15 @@ export default function ChatBottombar({
             onSubmit={handleSubmit}
             className="w-full items-center flex relative gap-2"
           >
-            <div className="flex">
-              <Link
-                href="#"
-                className={cn(
-                  buttonVariants({ variant: "secondary", size: "icon" })
-                )}
-              >
-                <PaperclipIcon className="w-6 h-6 text-muted-foreground" />
-              </Link>
-            </div>
+            <Link
+              href="#"
+              className={cn(
+                buttonVariants({ variant: "ghost", size: "icon" }),
+                "shrink-0 absolute left-3 rounded-full"
+              )}
+            >
+              <PaperclipIcon className="w-5 h-5 text-muted-foreground" />
+            </Link>
 
             <TextareaAutosize
               autoComplete="off"
@@ -88,29 +87,39 @@ export default function ChatBottombar({
               onChange={handleInputChange}
               name="message"
               placeholder="Ask Ollama anything..."
-              className="border-input max-h-20 px-5 py-4 text-sm shadow-lg placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 w-full border rounded-full flex items-center h-14 resize-none overflow-hidden dark:bg-card/35"
+              className=" max-h-24 px-14 bg-accent/20 py-[21px] text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 w-full border border-opacity-50 rounded-full flex items-center h-16 resize-none overflow-hidden dark:bg-card/35"
             />
             {!isLoading ? (
               <Button
-                className="shrink-0"
-                variant="secondary"
+                className="shrink-0 absolute right-3 rounded-full"
+                variant="ghost"
                 size="icon"
                 type="submit"
                 disabled={isLoading || !input.trim()}
               >
-                <PaperPlaneIcon className=" w-6 h-6 text-muted-foreground" />
+                <PaperPlaneIcon className=" w-5 h-5 " />
               </Button>
             ) : (
               <Button
-                className="shrink-0"
-                variant="secondary"
+                className="shrink-0 absolute right-3 rounded-full"
+                variant="ghost"
                 size="icon"
-                onClick={stop}
+                type="submit"
+                onClick={(e) => {
+                  e.preventDefault();
+                  stop();
+                }}
               >
-                <StopIcon className="w-6 h-6  text-muted-foreground" />
+                <StopIcon className="w-5 h-5  " />
               </Button>
             )}
           </form>
+          <div className="w-full flex justify-center text-center px-10 md:px-0">
+            <p className="text-xs pt-2 text-muted-foreground">
+              The first response might take a little longer to process as the
+              model is being downloaded.
+            </p>
+          </div>
         </motion.div>
       </AnimatePresence>
     </div>
