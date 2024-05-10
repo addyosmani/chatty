@@ -156,12 +156,12 @@ export default function ChatList({
                           onClick={copyToClipboard(message.content, index)}
                           variant="ghost"
                           size="icon"
-                          className="h-5 w-5"
+                          className="h-4 w-4"
                         >
                           {isCopied[index] ? (
-                            <CheckIcon className="w-4 h-4 scale-100 transition-all" />
+                            <CheckIcon className="w-3.5 h-3.5 transition-all" />
                           ) : (
-                            <CopyIcon className="w-4 h-4 scale-100 transition-all" />
+                            <CopyIcon className="w-3.5 h-3.5 transition-all" />
                           )}
                         </Button>
                       )}
@@ -172,12 +172,14 @@ export default function ChatList({
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-5 w-5"
+                            className="h-4 w-4"
                           >
-                            <RefreshCcw className="w-4 h-4 scale-100 transition-all" />
+                            <RefreshCcw className="w-3.5 h-3.5 scale-100 transition-all" />
                           </Button>
                         )}
                     </div>
+
+                    {/* Loading dots */}
                     {loadingSubmit &&
                       messages.indexOf(message) === messages.length - 1 && (
                         <MessageLoading />

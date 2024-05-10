@@ -202,7 +202,7 @@ export function Sidebar({
         </div>
       </div>
 
-      <div className="justify-end p-4 border-t">
+      <div className="justify-end p-2 border-t">
         <UserSettings />
       </div>
     </div>
