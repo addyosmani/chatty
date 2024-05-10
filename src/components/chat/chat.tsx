@@ -20,7 +20,7 @@ export default function Chat({
   isMobile,
 }: ChatProps) {
   return (
-    <div className="flex flex-col justify-between w-full max-w-2xl h-full  ">
+    <div className="flex flex-col justify-between w-full max-w-3xl h-full  ">
       <ChatTopbar
         setSelectedModel={setSelectedModel}
         isLoading={isLoading}

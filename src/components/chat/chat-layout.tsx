@@ -53,7 +53,7 @@ export default function ChatLayout({
           key="sidebar"
           animate={{ width: isCollapsed ? 0 : 288 }}
           exit={{ width: 0 }}
-          transition={{ duration: 0.35, ease: "easeInOut" }}
+          transition={{ duration: 0.2, ease: "easeInOut" }}
           className="w-72 hidden md:block shrink-0"
         >
           <Sidebar
@@ -68,13 +68,13 @@ export default function ChatLayout({
           className=" items-center relative left-1 hidden md:flex"
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
-          <TooltipProvider>
+          <TooltipProvider delayDuration={0}>
             <Tooltip>
               <TooltipTrigger asChild>
                 {isCollapsed ? (
                   <ChevronRightIcon className="h-6 w-6 cursor-pointer hover:text-muted-foreground" />
                 ) : (
-                  <DividerVerticalIcon className="h-6 w-6 cursor-pointer" />
+                  <DividerVerticalIcon className="h-6 w-6 cursor-pointer hover:text-muted-foreground" />
                 )}
               </TooltipTrigger>
               <TooltipContent side="right">

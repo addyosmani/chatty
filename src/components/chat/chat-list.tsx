@@ -56,9 +56,11 @@ export default function ChatList({
               height={60}
               className="h-20 w-14 object-contain dark:invert"
             />
-            <p className="text-center text-lg text-muted-foreground">
-              How can I help you today?
-            </p>
+            <div className="flex flex-col gap-2">
+              <p className="text-center text-lg text-muted-foreground">
+                How can I help you today?
+              </p>
+            </div>
           </div>
 
           <div className="absolute bottom-0 w-full px-4 sm:max-w-3xl grid gap-2 sm:grid-cols-2 sm:gap-4 text-sm"></div>
@@ -126,21 +128,23 @@ export default function ChatList({
                   </Avatar>
                   <span className="bg-accent p-3 rounded-md max-w-xs sm:max-w-xl overflow-x-auto">
                     {/* Check if the message content contains a code block */}
-                    {message.content.split("```").map((part, index) => {
-                      if (index % 2 === 0) {
-                        return (
-                          <Markdown key={index} remarkPlugins={[remarkGfm]}>
-                            {part}
-                          </Markdown>
-                        );
-                      } else {
-                        return (
-                          <pre className="whitespace-pre-wrap" key={index}>
-                            <CodeDisplayBlock code={part} lang="" />
-                          </pre>
-                        );
-                      }
-                    })}
+                    {message.content
+                      .split("```")
+                      .map((part: string, index: number) => {
+                        if (index % 2 === 0) {
+                          return (
+                            <Markdown key={index} remarkPlugins={[remarkGfm]}>
+                              {part}
+                            </Markdown>
+                          );
+                        } else {
+                          return (
+                            <pre className="whitespace-pre-wrap" key={index}>
+                              <CodeDisplayBlock code={part} lang="" />
+                            </pre>
+                          );
+                        }
+                      })}
                     {isLoading &&
                       messages.indexOf(message) === messages.length - 1 && (
                         <span className="animate-pulse" aria-label="Typing">

@@ -8,6 +8,7 @@ import TextareaAutosize from "react-textarea-autosize";
 import { motion, AnimatePresence } from "framer-motion";
 import { ImageIcon, PaperPlaneIcon, StopIcon } from "@radix-ui/react-icons";
 import { ChatProps } from "@/lib/types";
+import { PaperclipIcon } from "lucide-react";
 
 export default function ChatBottombar({
   messages,
@@ -75,7 +76,7 @@ export default function ChatBottombar({
                   buttonVariants({ variant: "secondary", size: "icon" })
                 )}
               >
-                <ImageIcon className="w-6 h-6 text-muted-foreground" />
+                <PaperclipIcon className="w-6 h-6 text-muted-foreground" />
               </Link>
             </div>
 
@@ -87,7 +88,7 @@ export default function ChatBottombar({
               onChange={handleInputChange}
               name="message"
               placeholder="Ask Ollama anything..."
-              className="border-input max-h-20 px-5 py-4 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 w-full border rounded-full flex items-center h-14 resize-none overflow-hidden dark:bg-card/35"
+              className="border-input max-h-20 px-5 py-4 text-sm shadow-lg placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 w-full border rounded-full flex items-center h-14 resize-none overflow-hidden dark:bg-card/35"
             />
             {!isLoading ? (
               <Button
