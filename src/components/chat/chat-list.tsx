@@ -10,23 +10,18 @@ import remarkGfm from "remark-gfm";
 import { Button } from "../ui/button";
 import { ChatProps } from "@/lib/types";
 import MessageLoading from "../ui/message-loading";
+import { CheckIcon, CopyIcon, RefreshCcw } from "lucide-react";
 
 export default function ChatList({
   messages,
-  input,
-  handleInputChange,
-  handleSubmit,
   isLoading,
-  error,
-  stop,
   loadingSubmit,
-  isMobile,
 }: ChatProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const [name, setName] = React.useState<string>("");
   const [localStorageIsLoading, setLocalStorageIsLoading] =
     React.useState(true);
-  const [initialQuestions, setInitialQuestions] = React.useState<Message[]>([]);
+  const [isCopied, setisCopied] = React.useState<Record<number, boolean>>({});
 
   const scrollToBottom = () => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -43,6 +38,14 @@ export default function ChatList({
       setLocalStorageIsLoading(false);
     }
   }, []);
+
+  const copyToClipboard = (response: string, index: number) => () => {
+    navigator.clipboard.writeText(response);
+    setisCopied((prevState) => ({ ...prevState, [index]: true }));
+    setTimeout(() => {
+      setisCopied((prevState) => ({ ...prevState, [index]: false }));
+    }, 1500);
+  };
 
   if (messages.length === 0) {
     return (
@@ -146,6 +149,35 @@ export default function ChatList({
                           );
                         }
                       })}
+                    <div className="pt-2 flex gap-1 text-muted-foreground">
+                      {(!isLoading ||
+                        messages.indexOf(message) !== messages.length - 1) && (
+                        <Button
+                          onClick={copyToClipboard(message.content, index)}
+                          variant="ghost"
+                          size="icon"
+                          className="h-5 w-5"
+                        >
+                          {isCopied[index] ? (
+                            <CheckIcon className="w-4 h-4 scale-100 transition-all" />
+                          ) : (
+                            <CopyIcon className="w-4 h-4 scale-100 transition-all" />
+                          )}
+                        </Button>
+                      )}
+
+                      {/* Only show regenerate button on the last ai message */}
+                      {!isLoading &&
+                        messages.indexOf(message) === messages.length - 1 && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-5 w-5"
+                          >
+                            <RefreshCcw className="w-4 h-4 scale-100 transition-all" />
+                          </Button>
+                        )}
+                    </div>
                     {loadingSubmit &&
                       messages.indexOf(message) === messages.length - 1 && (
                         <MessageLoading />
