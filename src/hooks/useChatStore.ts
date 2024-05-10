@@ -1,18 +1,21 @@
-import { Model } from "@/lib/models";
+import { Model, Models } from "@/lib/models";
 import * as webllm from "@mlc-ai/web-llm";
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
+
+const LOCAL_SELECTED_MODEL = "selectedModel";
 
 interface State {
   selectedModel: Model;
-  setSelectedModel: (model: Model) => void;
-
-  userInput: string;
-  setUserInput: (input: string) => void;
-
+  modelHasChanged: boolean;
   isLoading: boolean;
-  setIsLoading: (loading: boolean) => void;
-
   messages: webllm.ChatCompletionMessageParam[];
+}
+
+interface Actions {
+  setSelectedModel: (model: Model) => void;
+  setModelHasChanged: (changed: boolean) => void;
+  setIsLoading: (loading: boolean) => void;
   setMessages: (
     fn: (
       messages: webllm.ChatCompletionMessageParam[]
@@ -20,18 +23,34 @@ interface State {
   ) => void;
 }
 
-const useChatStore = create<State>((set) => ({
-  selectedModel: Model.LLAMA_3_8B_INSTRUCT_Q4F16_1,
-  setSelectedModel: (model) => set({ selectedModel: model }),
+const useChatStore = create<State & Actions>()(
+  persist(
+    (set) => ({
+      selectedModel: Models[0],
+      setSelectedModel: (model: Model) =>
+        set((state: State) => ({
+          selectedModel:
+            state.selectedModel !== model ? model : state.selectedModel,
+          modelHasChanged: true,
+        })),
+      modelHasChanged: false,
+      setModelHasChanged: (changed) => set({ modelHasChanged: changed }),
 
-  userInput: "",
-  setUserInput: (input) => set({ userInput: input }),
+      isLoading: false,
+      setIsLoading: (loading) => set({ isLoading: loading }),
 
-  isLoading: false,
-  setIsLoading: (loading) => set({ isLoading: loading }),
-
-  messages: [],
-  setMessages: (fn) => set((state) => ({ messages: fn(state.messages) })),
-}));
+      messages: [],
+      setMessages: (fn) => set((state) => ({ messages: fn(state.messages) })),
+    }),
+    {
+      name: LOCAL_SELECTED_MODEL,
+      // Only save selectedModel to local storage with partialize
+      partialize: (state) => ({
+        selectedModel: state.selectedModel,
+      }),
+      skipHydration: true,
+    }
+  )
+);
 
 export default useChatStore;
