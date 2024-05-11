@@ -2,8 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import { Sidebar } from "../sidebar";
-import { Message } from "ai/react";
-import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { DividerVerticalIcon } from "@radix-ui/react-icons";
 import { ChevronRightIcon } from "lucide-react";

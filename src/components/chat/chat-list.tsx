@@ -153,7 +153,7 @@ export default function ChatList({
                           );
                         }
                       })}
-                    <div className="pt-2 flex gap-1 text-muted-foreground">
+                    <div className="pt-2 flex gap-1 items-center text-muted-foreground">
                       {(!isLoading ||
                         messages.indexOf(message) !== messages.length - 1) && (
                         <Button
