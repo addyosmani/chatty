@@ -14,28 +14,9 @@ import useChatStore from "@/hooks/useChatStore";
 export default function ChatBottombar({ handleSubmit, stop }: ChatProps) {
   const input = useChatStore((state) => state.input);
   const handleInputChange = useChatStore((state) => state.handleInputChange);
-  const [message, setMessage] = React.useState(input);
-  const [isMobile, setIsMobile] = React.useState(false);
   const inputRef = React.useRef<HTMLTextAreaElement>(null);
 
   const isLoading = useChatStore((state) => state.isLoading);
-
-  React.useEffect(() => {
-    const checkScreenWidth = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-
-    // Initial check
-    checkScreenWidth();
-
-    // Event listener for screen width changes
-    window.addEventListener("resize", checkScreenWidth);
-
-    // Cleanup the event listener on component unmount
-    return () => {
-      window.removeEventListener("resize", checkScreenWidth);
-    };
-  }, []);
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
