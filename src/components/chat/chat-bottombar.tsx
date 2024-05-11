@@ -65,7 +65,7 @@ export default function ChatBottombar({ handleSubmit, stop }: ChatProps) {
               onChange={handleInputChange}
               name="message"
               placeholder="Ask Ollama anything..."
-              className=" max-h-24 px-14 bg-accent/20 py-[21px] text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 w-full border border-opacity-50 rounded-full flex items-center h-16 resize-none overflow-hidden dark:bg-card/35"
+              className=" max-h-24 px-14 bg-accent/70 py-[22px] text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 w-full  rounded-full flex items-center h-16 resize-none overflow-hidden dark:bg-card/70"
             />
             {!isLoading ? (
               <Button

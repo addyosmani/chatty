@@ -94,7 +94,7 @@ export function Sidebar({ isCollapsed, chatId }: SidebarProps) {
   };
 
   return (
-    <div className="relative overflow-hidden justify-between group bg-accent/20 dark:bg-card/35 flex flex-col h-full gap-4 ">
+    <div className="relative overflow-hidden justify-between group bg-accent/70 dark:bg-card/70 flex flex-col h-full gap-4 ">
       <div className=" flex flex-col justify-between p-2 max-h-fit overflow-y-auto ">
         <Button
           onClick={() => {

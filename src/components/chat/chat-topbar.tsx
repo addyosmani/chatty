@@ -42,10 +42,10 @@ export default function ChatTopbar({ chatId }: ChatTopbarProps) {
         <PopoverTrigger asChild>
           <Button
             disabled={isLoading}
-            variant="outline"
+            variant="ghost"
             role="combobox"
             aria-expanded={open}
-            className="w-[200px] lg:w-[300px] justify-between"
+            className="w-[200px] lg:w-[300px] justify-between bg-accent/70 dark:bg-card/70"
           >
             {selectedModel.displayName}
             <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -56,7 +56,7 @@ export default function ChatTopbar({ chatId }: ChatTopbarProps) {
             <Button
               key={model.name}
               variant="ghost"
-              className="w-full"
+              className="w-full justify-start"
               onClick={() => {
                 setSelectedModel(model);
                 setOpen(false);

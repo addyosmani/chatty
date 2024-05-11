@@ -53,7 +53,7 @@ export default function ChatList({
 
   if (messages.length === 0) {
     return (
-      <div className="w-full h-full flex justify-center items-center">
+      <div className="w-full h-full flex justify-center items-center p-5 md:p-0">
         <div className="relative flex flex-col gap-4 items-center justify-center w-full h-full">
           <div></div>
           <div className="flex flex-col gap-4 items-center">
@@ -65,8 +65,12 @@ export default function ChatList({
               className="h-20 w-14 object-contain dark:invert"
             />
             <div className="flex flex-col gap-2">
-              <p className="text-center text-lg text-muted-foreground">
+              <p className="text-center text-2xl font-semibold text-muted-foreground/75">
                 How can I help you today?
+              </p>
+              <p className="text-center text-sm text-muted-foreground/60 max-w-lg">
+                Models with <strong>1k</strong> suffix lowers VRAM requirements
+                by ~2-3GB. Feel free to start with those model.
               </p>
             </div>
           </div>
@@ -153,7 +157,7 @@ export default function ChatList({
                           );
                         }
                       })}
-                    <div className="pt-2 flex gap-1 text-muted-foreground">
+                    <div className="pt-2 flex gap-1 items-center text-muted-foreground">
                       {(!isLoading ||
                         messages.indexOf(message) !== messages.length - 1) && (
                         <Button
