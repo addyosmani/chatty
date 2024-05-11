@@ -34,9 +34,10 @@ export const WebLLMProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [selectedModel]);
 
-  useEffect(() => {
-    useChatStore.persist.rehydrate();
-  }, []);
+  // Gives warnings in console, need to fix
+  // useEffect(() => {
+  //   useChatStore.persist.rehydrate();
+  // }, []);
 
   return (
     <WebLLMContext.Provider value={webLLMHelper}>
