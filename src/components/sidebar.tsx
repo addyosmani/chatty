@@ -25,29 +25,21 @@ import {
 import { TrashIcon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
 import SidebarSkeleton from "./ui/sidebar-skeleton";
+import useChatStore from "@/hooks/useChatStore";
 
 interface SidebarProps {
   isCollapsed: boolean;
-  messages: Message[];
   chatId: string;
-  setMessages: (
-    fn: (
-      messages: webllm.ChatCompletionMessageParam[]
-    ) => webllm.ChatCompletionMessageParam[]
-  ) => void;
 }
 
-export function Sidebar({
-  messages,
-  isCollapsed,
-  chatId,
-  setMessages,
-}: SidebarProps) {
+export function Sidebar({ isCollapsed, chatId }: SidebarProps) {
   const [localChats, setLocalChats] = useState<
     { chatId: string; messages: Message[] }[]
   >([]);
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const setMessages = useChatStore((state) => state.setMessages);
+
   const router = useRouter();
 
   useEffect(() => {
