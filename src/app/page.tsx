@@ -29,7 +29,7 @@ export default function Home() {
   const setStoredMessages = useChatStore((state) => state.setMessages);
   const modelHasChanged = useChatStore((state) => state.modelHasChanged);
   const engine = useChatStore((state) => state.engine);
-  const setEngine = useChatStore((state) => state.setEngine);
+  const selectedModel = useChatStore((state) => state.selectedModel);
 
   // Global provider
   const webLLMHelper = useWebLLM();
@@ -73,7 +73,7 @@ export default function Home() {
 
       // Load engine
       try {
-        loadedEngine = await webLLMHelper.initialize();
+        loadedEngine = await webLLMHelper.initialize(selectedModel);
       } catch (e) {
         setIsLoading(false);
 
