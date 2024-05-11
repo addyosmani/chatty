@@ -14,9 +14,8 @@ import ChatLayout from "@/components/chat/chat-layout";
 import { v4 as uuidv4 } from "uuid";
 import { useWebLLM } from "@/providers/web-llm-provider";
 
-export default function Home() {
+export default function Page({ params }: { params: { id: string } }) {
   const [open, setOpen] = useState(false);
-  const [chatId, setChatId] = useState<string>("");
   const [loadingSubmit, setLoadingSubmit] = useState(false);
 
   // zustand store
@@ -34,25 +33,20 @@ export default function Home() {
   const webLLMHelper = useWebLLM();
 
   useEffect(() => {
-    if (!isLoading && chatId && storedMessages.length > 0) {
-      // Save messages to local storage
-      localStorage.setItem(`chat_${chatId}`, JSON.stringify(storedMessages));
-      // Trigger the storage event to update the sidebar component
-      window.dispatchEvent(new Event("storage"));
+    if (params.id) {
+      const item = localStorage.getItem(`chat_${params.id}`);
+      if (item) {
+        setStoredMessages((message) => [...JSON.parse(item)]);
+      }
     }
-  }, [storedMessages, chatId, isLoading]);
+  }, [setStoredMessages]);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     let loadedEngine = engine;
+    console.log(storedMessages);
 
     e.preventDefault();
     setIsLoading(true);
-
-    if (storedMessages.length === 0) {
-      // Generate a random id for the chat
-      const id = uuidv4();
-      setChatId(id);
-    }
 
     const userMessage: webllm.ChatCompletionMessageParam = {
       role: "user",
@@ -64,6 +58,15 @@ export default function Home() {
       userMessage,
       { role: "assistant", content: "" },
     ]);
+    localStorage.setItem(
+      `chat_${params.id}`,
+      JSON.stringify([
+        ...storedMessages,
+        userMessage,
+        { role: "assistant", content: "" },
+      ])
+    );
+    window.dispatchEvent(new Event("storage"));
 
     setInput("");
 
@@ -106,6 +109,16 @@ export default function Home() {
 
       setIsLoading(false);
       setLoadingSubmit(false);
+      localStorage.setItem(
+        `chat_${params.id}`,
+        JSON.stringify([
+          ...storedMessages,
+          userMessage,
+          { role: "assistant", content: assistantMessage },
+        ])
+      );
+
+      window.dispatchEvent(new Event("storage"));
 
       console.log(await loadedEngine.runtimeStatsText());
     } catch (e) {
@@ -137,7 +150,7 @@ export default function Home() {
           messages={storedMessages}
           handleSubmit={onSubmit}
           stop={onStop}
-          chatId={chatId}
+          chatId={params.id}
           loadingSubmit={loadingSubmit}
         />
 
