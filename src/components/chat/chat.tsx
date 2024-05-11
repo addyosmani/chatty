@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import ChatTopbar from "./chat-topbar";
 import ChatList from "./chat-list";
@@ -7,49 +9,29 @@ import { ChatRequestOptions } from "ai";
 import { ChatProps } from "@/lib/types";
 
 export default function Chat({
-  messages,
-  input,
-  handleInputChange,
   handleSubmit,
-  isLoading,
-  error,
   stop,
-  setSelectedModel,
   chatId,
   loadingSubmit,
   isMobile,
+  messages,
 }: ChatProps) {
   return (
     <div className="flex flex-col justify-between w-full max-w-3xl h-full  ">
-      <ChatTopbar
-        setSelectedModel={setSelectedModel}
-        isLoading={isLoading}
-        chatId={chatId}
-        messages={messages}
-      />
+      <ChatTopbar chatId={chatId} />
 
       <ChatList
-        setSelectedModel={setSelectedModel}
         messages={messages}
-        input={input}
-        handleInputChange={handleInputChange}
         handleSubmit={handleSubmit}
-        isLoading={isLoading}
         loadingSubmit={loadingSubmit}
-        error={error}
         stop={stop}
         isMobile={isMobile}
       />
 
       <ChatBottombar
-        setSelectedModel={setSelectedModel}
-        messages={messages}
-        input={input}
-        handleInputChange={handleInputChange}
         handleSubmit={handleSubmit}
-        isLoading={isLoading}
-        error={error}
         stop={stop}
+        messages={messages}
       />
     </div>
   );

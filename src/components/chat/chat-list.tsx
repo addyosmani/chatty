@@ -11,17 +11,17 @@ import { Button } from "../ui/button";
 import { ChatProps } from "@/lib/types";
 import MessageLoading from "../ui/message-loading";
 import { CheckIcon, CopyIcon, RefreshCcw } from "lucide-react";
+import useChatStore from "@/hooks/useChatStore";
 
-export default function ChatList({
-  messages,
-  isLoading,
-  loadingSubmit,
-}: ChatProps) {
+export default function ChatList({ messages, loadingSubmit }: ChatProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const [name, setName] = React.useState<string>("");
   const [localStorageIsLoading, setLocalStorageIsLoading] =
     React.useState(true);
   const [isCopied, setisCopied] = React.useState<Record<number, boolean>>({});
+
+  // Zustand
+  const isLoading = useChatStore((state) => state.isLoading);
 
   const scrollToBottom = () => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });

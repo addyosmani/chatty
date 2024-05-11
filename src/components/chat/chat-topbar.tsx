@@ -16,25 +16,16 @@ import useChatStore from "@/hooks/useChatStore";
 import { Models, Model } from "@/lib/models";
 
 interface ChatTopbarProps {
-  setSelectedModel: React.Dispatch<React.SetStateAction<string>>;
-  isLoading: boolean;
   chatId?: string;
-  messages: Message[];
 }
 
-export default function ChatTopbar({
-  isLoading,
-  chatId,
-  messages,
-}: ChatTopbarProps) {
+export default function ChatTopbar({ chatId }: ChatTopbarProps) {
   const [open, setOpen] = React.useState(false);
 
+  // Zustand store
   const selectedModel = useChatStore((state) => state.selectedModel);
   const setSelectedModel = useChatStore((state) => state.setSelectedModel);
-
-  useEffect(() => {
-    useChatStore.persist.rehydrate();
-  }, []);
+  const isLoading = useChatStore((state) => state.isLoading);
 
   return (
     <div className="w-full flex px-4 py-6  items-center justify-between lg:justify-center ">
@@ -43,12 +34,7 @@ export default function ChatTopbar({
           <HamburgerMenuIcon className="md:hidden w-5 h-5" />
         </SheetTrigger>
         <SheetContent side="left">
-          <Sidebar
-            chatId={chatId || ""}
-            isCollapsed={false}
-            messages={messages}
-            setMessages={() => {}}
-          />
+          <Sidebar chatId={chatId || ""} isCollapsed={false} />
         </SheetContent>
       </Sheet>
 

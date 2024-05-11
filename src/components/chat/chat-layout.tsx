@@ -15,19 +15,14 @@ import {
 } from "@/components/ui/tooltip";
 import Chat from "./chat";
 import { MergedProps } from "@/lib/types";
+import useChatStore from "@/hooks/useChatStore";
 
 export default function ChatLayout({
   messages,
-  input,
-  handleInputChange,
-  handleSubmit,
-  isLoading,
-  error,
   stop,
   chatId,
-  setSelectedModel,
   loadingSubmit,
-  setMessages,
+  handleSubmit,
 }: MergedProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -56,12 +51,7 @@ export default function ChatLayout({
           transition={{ duration: 0.2, ease: "easeInOut" }}
           className="w-72 hidden md:block shrink-0"
         >
-          <Sidebar
-            isCollapsed={isCollapsed}
-            messages={messages}
-            chatId={chatId}
-            setMessages={setMessages}
-          />
+          <Sidebar isCollapsed={isCollapsed} chatId={chatId} />
         </motion.div>
         <div
           key="divider"
@@ -86,14 +76,9 @@ export default function ChatLayout({
         <div className="h-full w-full flex flex-col items-center justify-center">
           <Chat
             messages={messages}
-            input={input}
-            handleInputChange={handleInputChange}
             handleSubmit={handleSubmit}
-            isLoading={isLoading}
-            error={error}
             stop={stop}
             chatId={chatId}
-            setSelectedModel={setSelectedModel}
             loadingSubmit={loadingSubmit}
           />
         </div>

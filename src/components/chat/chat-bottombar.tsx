@@ -6,22 +6,19 @@ import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "../ui/button";
 import TextareaAutosize from "react-textarea-autosize";
 import { motion, AnimatePresence } from "framer-motion";
-import { ImageIcon, PaperPlaneIcon, StopIcon } from "@radix-ui/react-icons";
+import { PaperPlaneIcon, StopIcon } from "@radix-ui/react-icons";
 import { ChatProps } from "@/lib/types";
 import { PaperclipIcon } from "lucide-react";
+import useChatStore from "@/hooks/useChatStore";
 
-export default function ChatBottombar({
-  messages,
-  input,
-  handleInputChange,
-  handleSubmit,
-  isLoading,
-  error,
-  stop,
-}: ChatProps) {
+export default function ChatBottombar({ handleSubmit, stop }: ChatProps) {
+  const input = useChatStore((state) => state.input);
+  const handleInputChange = useChatStore((state) => state.handleInputChange);
   const [message, setMessage] = React.useState(input);
   const [isMobile, setIsMobile] = React.useState(false);
   const inputRef = React.useRef<HTMLTextAreaElement>(null);
+
+  const isLoading = useChatStore((state) => state.isLoading);
 
   React.useEffect(() => {
     const checkScreenWidth = () => {
