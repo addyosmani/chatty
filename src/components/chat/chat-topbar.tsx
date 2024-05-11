@@ -56,7 +56,7 @@ export default function ChatTopbar({ chatId }: ChatTopbarProps) {
             <Button
               key={model.name}
               variant="ghost"
-              className="w-full"
+              className="w-full justify-start"
               onClick={() => {
                 setSelectedModel(model);
                 setOpen(false);
