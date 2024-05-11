@@ -23,6 +23,7 @@ export default function ChatLayout({
   chatId,
   loadingSubmit,
   handleSubmit,
+  onRegenerate,
 }: MergedProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -80,6 +81,7 @@ export default function ChatLayout({
             stop={stop}
             chatId={chatId}
             loadingSubmit={loadingSubmit}
+            onRegenerate={onRegenerate}
           />
         </div>
       </AnimatePresence>

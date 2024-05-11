@@ -12,6 +12,7 @@ export interface ChatProps {
   loadingSubmit?: boolean;
   stop: () => void;
   isMobile?: boolean;
+  onRegenerate?: () => void;
 }
 
 export type MergedProps = ChatLayoutProps & ChatProps;
