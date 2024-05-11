@@ -14,6 +14,7 @@ import ChatLayout from "@/components/chat/chat-layout";
 import { v4 as uuidv4 } from "uuid";
 import { useWebLLM } from "@/providers/web-llm-provider";
 import { set } from "zod";
+import UsernameForm from "@/components/username-form";
 
 export default function Home() {
   const [open, setOpen] = useState(false);
@@ -42,6 +43,14 @@ export default function Home() {
       window.dispatchEvent(new Event("storage"));
     }
   }, [storedMessages, chatId, isLoading]);
+
+  useEffect(() => {
+    if (window !== undefined) {
+      if (!localStorage.getItem("ollama_user")) {
+        setOpen(true);
+      }
+    }
+  }, []);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     let loadedEngine = engine;
@@ -197,6 +206,7 @@ export default function Home() {
               Enter your name to get started. This is just to personalize your
               experience.
             </DialogDescription>
+            <UsernameForm setOpen={setOpen} />
           </DialogHeader>
         </DialogContent>
       </Dialog>
