@@ -1,20 +1,18 @@
-export enum Model {
-  LLAMA_3_8B_INSTRUCT_Q4F16_1 = "Llama-3-8B-Instruct-q4f16_1",
+export interface Model {
+  name: string;
+  displayName: string;
+  size: string;
 }
 
-export const MODELS: {
-  [key in Model]: {
-    displayName: string;
-    size: string;
-  };
-} = {
-  [Model.LLAMA_3_8B_INSTRUCT_Q4F16_1]: {
-    displayName: "Llama 3.8B",
-    size: "3.8B",
+export const Models: Model[] = [
+  {
+    name: "TinyLlama-1.1B-Chat-v0.4-q4f32_1-1k",
+    displayName: "Tiny Llama 1.1B",
+    size: "1.1B",
   },
-};
-
-export const MODEL_OPTIONS = Object.entries(MODELS).map(([key, value]) => ({
-  value: key,
-  label: value.displayName,
-}));
+  {
+    name: "gemma-2b-it-q4f16_1",
+    displayName: "Gemma 2B",
+    size: "2B",
+  },
+];
