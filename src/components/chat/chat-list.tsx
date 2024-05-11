@@ -95,7 +95,7 @@ export default function ChatList({
               layout: {
                 type: "spring",
                 bounce: 0.3,
-                duration: messages.indexOf(message) * 0.05 + 0.2,
+                duration: messages.indexOf(message) * 0.025,
               },
             }}
             className={cn(
