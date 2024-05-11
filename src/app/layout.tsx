@@ -3,6 +3,7 @@ import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/providers/theme-provider";
+import { WebLLMProvider } from "@/providers/web-llm-provider";
 
 export const metadata: Metadata = {
   title: "WebChat",
@@ -24,10 +25,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={GeistSans.className}>
-        <ThemeProvider attribute="class" defaultTheme="dark">
-          {children}
-          <Toaster />
-        </ThemeProvider>
+        <WebLLMProvider>
+          <ThemeProvider attribute="class" defaultTheme="dark">
+            {children}
+            <Toaster />
+          </ThemeProvider>
+        </WebLLMProvider>
       </body>
     </html>
   );
