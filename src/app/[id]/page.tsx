@@ -28,6 +28,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const modelHasChanged = useChatStore((state) => state.modelHasChanged);
   const engine = useChatStore((state) => state.engine);
   const setEngine = useChatStore((state) => state.setEngine);
+  const selectedModel = useChatStore((state) => state.selectedModel);
 
   // Global provider
   const webLLMHelper = useWebLLM();
@@ -75,7 +76,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
       // Load engine
       try {
-        loadedEngine = await webLLMHelper.initialize();
+        loadedEngine = await webLLMHelper.initialize(selectedModel);
       } catch (e) {
         setIsLoading(false);
 
@@ -143,6 +144,52 @@ export default function Page({ params }: { params: { id: string } }) {
     engine.interruptGenerate();
   };
 
+  const onRegenerate = async () => {
+    if (!engine) {
+      return;
+    }
+
+    // Set the input to the last user message
+    const lastMsg = storedMessages[storedMessages.length - 2]?.content;
+
+    if (!lastMsg) {
+      return;
+    }
+
+    setIsLoading(true);
+    setLoadingSubmit(true);
+
+    // Set the input to the last user message
+    setInput(lastMsg.toString());
+
+    // Remove the last assistant message
+    setStoredMessages((message) => [
+      ...message.slice(0, -1),
+      { role: "assistant", content: "" },
+    ]);
+
+    setInput("");
+
+    const completion = webLLMHelper.generateCompletion(
+      engine,
+      lastMsg.toString()
+    );
+
+    let assistantMessage = "";
+    // Iterate over the AsyncGenerator completion to get the response
+    for await (const chunk of completion) {
+      assistantMessage += chunk;
+      setLoadingSubmit(false);
+      setStoredMessages((message) => [
+        ...message.slice(0, -1),
+        { role: "assistant", content: assistantMessage },
+      ]);
+    }
+
+    setIsLoading(false);
+    setLoadingSubmit(false);
+  };
+
   return (
     <main className="flex h-[calc(100dvh)] flex-col items-center ">
       <Dialog open={open} onOpenChange={setOpen}>
@@ -152,6 +199,7 @@ export default function Page({ params }: { params: { id: string } }) {
           stop={onStop}
           chatId={params.id}
           loadingSubmit={loadingSubmit}
+          onRegenerate={onRegenerate}
         />
 
         {/* This only shows first time using the app */}

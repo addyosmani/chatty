@@ -1,11 +1,11 @@
 import useChatStore from "@/hooks/useChatStore";
 import * as webllm from "@mlc-ai/web-llm";
+import { Model } from "./models";
 
 export default class WebLLMHelper {
   engine: webllm.EngineInterface | null;
   storedMessages = useChatStore((state) => state.messages);
   setStoredMessages = useChatStore((state) => state.setMessages);
-  selectedModel = useChatStore((state) => state.selectedModel);
   setEngine = useChatStore((state) => state.setEngine);
   appConfig = webllm.prebuiltAppConfig;
 
@@ -24,7 +24,9 @@ export default class WebLLMHelper {
   };
 
   // Initialize the engine
-  public async initialize(): Promise<webllm.EngineInterface> {
+  public async initialize(
+    selectedModel: Model
+  ): Promise<webllm.EngineInterface> {
     this.setStoredMessages((message) => [
       ...message.slice(0, -1),
       {
@@ -36,7 +38,7 @@ export default class WebLLMHelper {
       new Worker(new URL("./worker.ts", import.meta.url), {
         type: "module",
       }),
-      this.selectedModel.name,
+      selectedModel.name,
       {
         initProgressCallback: this.initProgressCallback,
         appConfig: this.appConfig,

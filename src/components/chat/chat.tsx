@@ -15,6 +15,7 @@ export default function Chat({
   loadingSubmit,
   isMobile,
   messages,
+  onRegenerate,
 }: ChatProps) {
   return (
     <div className="flex flex-col justify-between w-full max-w-3xl h-full  ">
@@ -26,6 +27,7 @@ export default function Chat({
         loadingSubmit={loadingSubmit}
         stop={stop}
         isMobile={isMobile}
+        onRegenerate={onRegenerate}
       />
 
       <ChatBottombar

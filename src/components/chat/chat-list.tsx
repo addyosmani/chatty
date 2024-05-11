@@ -13,7 +13,11 @@ import MessageLoading from "../ui/message-loading";
 import { CheckIcon, CopyIcon, RefreshCcw } from "lucide-react";
 import useChatStore from "@/hooks/useChatStore";
 
-export default function ChatList({ messages, loadingSubmit }: ChatProps) {
+export default function ChatList({
+  messages,
+  loadingSubmit,
+  onRegenerate,
+}: ChatProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const [name, setName] = React.useState<string>("");
   const [localStorageIsLoading, setLocalStorageIsLoading] =
@@ -91,7 +95,7 @@ export default function ChatList({ messages, loadingSubmit }: ChatProps) {
               layout: {
                 type: "spring",
                 bounce: 0.3,
-                duration: messages.indexOf(message) * 0.05 + 0.2,
+                duration: messages.indexOf(message) * 0.025,
               },
             }}
             className={cn(
@@ -173,6 +177,7 @@ export default function ChatList({ messages, loadingSubmit }: ChatProps) {
                             variant="ghost"
                             size="icon"
                             className="h-4 w-4"
+                            onClick={onRegenerate}
                           >
                             <RefreshCcw className="w-3.5 h-3.5 scale-100 transition-all" />
                           </Button>

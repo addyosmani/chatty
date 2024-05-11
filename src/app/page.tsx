@@ -13,6 +13,7 @@ import useChatStore from "@/hooks/useChatStore";
 import ChatLayout from "@/components/chat/chat-layout";
 import { v4 as uuidv4 } from "uuid";
 import { useWebLLM } from "@/providers/web-llm-provider";
+import { set } from "zod";
 
 export default function Home() {
   const [open, setOpen] = useState(false);
@@ -28,7 +29,7 @@ export default function Home() {
   const setStoredMessages = useChatStore((state) => state.setMessages);
   const modelHasChanged = useChatStore((state) => state.modelHasChanged);
   const engine = useChatStore((state) => state.engine);
-  const setEngine = useChatStore((state) => state.setEngine);
+  const selectedModel = useChatStore((state) => state.selectedModel);
 
   // Global provider
   const webLLMHelper = useWebLLM();
@@ -72,7 +73,7 @@ export default function Home() {
 
       // Load engine
       try {
-        loadedEngine = await webLLMHelper.initialize();
+        loadedEngine = await webLLMHelper.initialize(selectedModel);
       } catch (e) {
         setIsLoading(false);
 
@@ -130,6 +131,52 @@ export default function Home() {
     engine.interruptGenerate();
   };
 
+  const onRegenerate = async () => {
+    if (!engine) {
+      return;
+    }
+
+    // Set the input to the last user message
+    const lastMsg = storedMessages[storedMessages.length - 2]?.content;
+
+    if (!lastMsg) {
+      return;
+    }
+
+    setIsLoading(true);
+    setLoadingSubmit(true);
+
+    // Set the input to the last user message
+    setInput(lastMsg.toString());
+
+    // Remove the last assistant message
+    setStoredMessages((message) => [
+      ...message.slice(0, -1),
+      { role: "assistant", content: "" },
+    ]);
+
+    setInput("");
+
+    const completion = webLLMHelper.generateCompletion(
+      engine,
+      lastMsg.toString()
+    );
+
+    let assistantMessage = "";
+    // Iterate over the AsyncGenerator completion to get the response
+    for await (const chunk of completion) {
+      assistantMessage += chunk;
+      setLoadingSubmit(false);
+      setStoredMessages((message) => [
+        ...message.slice(0, -1),
+        { role: "assistant", content: assistantMessage },
+      ]);
+    }
+
+    setIsLoading(false);
+    setLoadingSubmit(false);
+  };
+
   return (
     <main className="flex h-[calc(100dvh)] flex-col items-center ">
       <Dialog open={open} onOpenChange={setOpen}>
@@ -139,6 +186,7 @@ export default function Home() {
           stop={onStop}
           chatId={chatId}
           loadingSubmit={loadingSubmit}
+          onRegenerate={onRegenerate}
         />
 
         {/* This only shows first time using the app */}
