@@ -45,6 +45,7 @@ export default function ChatLayout({
       <AnimatePresence>
         <motion.div
           key="sidebar"
+          initial={{ width: 0 }}
           animate={{ width: isCollapsed ? 0 : 288 }}
           exit={{ width: 0 }}
           transition={{ duration: 0.2, ease: "easeInOut" }}
