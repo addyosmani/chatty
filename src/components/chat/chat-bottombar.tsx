@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "../ui/button";
@@ -24,6 +24,12 @@ export default function ChatBottombar({ handleSubmit, stop }: ChatProps) {
       handleSubmit(e as unknown as React.FormEvent<HTMLFormElement>);
     }
   };
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
 
   return (
     <div className="p-1 flex justify-between w-full items-center gap-2">
