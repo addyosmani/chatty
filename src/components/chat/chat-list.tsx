@@ -69,8 +69,8 @@ export default function ChatList({
                 How can I help you today?
               </p>
               <p className="text-center text-sm text-muted-foreground/60 max-w-lg">
-                Models with <strong>1k</strong> suffix lowers VRAM requirements
-                by ~2-3GB. Feel free to start with those model.
+                Models with <strong>(1k)</strong> suffix lowers VRAM
+                requirements by ~2-3GB.
               </p>
             </div>
           </div>

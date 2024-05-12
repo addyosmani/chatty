@@ -29,6 +29,10 @@ export const Models: Model[] = [
     displayName: "Llama2 7B - (1k)",
   },
   {
+    name: "Llama-2-13b-chat-hf-q4f16_1",
+    displayName: "Llama2 13B",
+  },
+  {
     name: "Llama-3-8B-Instruct-q4f16_1",
     displayName: "Llama3 8B Instruct",
   },

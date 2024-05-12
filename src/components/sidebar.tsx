@@ -94,7 +94,7 @@ export function Sidebar({ isCollapsed, chatId }: SidebarProps) {
   };
 
   return (
-    <div className="relative overflow-hidden justify-between group bg-accent/70 dark:bg-card/70 flex flex-col h-full gap-4 ">
+    <div className="relative overflow-hidden justify-between group md:bg-accent/70 md:dark:bg-card/70 flex flex-col h-full gap-4 ">
       <div className=" flex flex-col justify-between p-2 max-h-fit overflow-y-auto ">
         <Button
           onClick={() => {
@@ -103,7 +103,7 @@ export function Sidebar({ isCollapsed, chatId }: SidebarProps) {
             setMessages(() => []);
           }}
           variant="ghost"
-          className="flex justify-between w-full h-14 text-sm font-normal items-center shrink-0"
+          className="flex justify-between w-full h-16 text-sm font-normal items-center shrink-0 rounded-full"
         >
           <div className="flex gap-3 items-center ">
             <Image
@@ -133,7 +133,7 @@ export function Sidebar({ isCollapsed, chatId }: SidebarProps) {
                       [buttonVariants({ variant: "ghost" })]:
                         chatId.substring(5) !== selectedChatId,
                     },
-                    "flex justify-between w-full h-14 text-base font-normal items-center "
+                    "flex justify-between w-full h-14 text-base font-normal items-center rounded-full "
                   )}
                 >
                   <div className="flex gap-3 items-center truncate">
@@ -147,7 +147,7 @@ export function Sidebar({ isCollapsed, chatId }: SidebarProps) {
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="ghost"
-                        className="flex justify-end items-center"
+                        className="flex justify-end items-center rounded-full"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <MoreHorizontal size={15} className="shrink-0" />
