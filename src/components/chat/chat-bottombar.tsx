@@ -12,7 +12,17 @@ import { PaperclipIcon, RemoveFormatting } from "lucide-react";
 import useChatStore from "@/hooks/useChatStore";
 import FileLoader from "../file-loader";
 
-export default function ChatBottombar({ handleSubmit, stop }: ChatProps) {
+interface MergedProps extends ChatProps {
+  files: File[] | undefined;
+  setFiles: React.Dispatch<React.SetStateAction<File[] | undefined>>;
+}
+
+export default function ChatBottombar({
+  handleSubmit,
+  stop,
+  files,
+  setFiles,
+}: MergedProps) {
   const input = useChatStore((state) => state.input);
   const handleInputChange = useChatStore((state) => state.handleInputChange);
   const inputRef = React.useRef<HTMLTextAreaElement>(null);
@@ -54,7 +64,11 @@ export default function ChatBottombar({ handleSubmit, stop }: ChatProps) {
         >
           <div className="w-full items-center flex relative gap-2">
             <div className="absolute left-3 z-10">
-              <FileLoader setFileText={setFileText} />
+              <FileLoader
+                setFileText={setFileText}
+                files={files}
+                setFiles={setFiles}
+              />
             </div>
             <form
               onSubmit={handleSubmit}
@@ -67,8 +81,8 @@ export default function ChatBottombar({ handleSubmit, stop }: ChatProps) {
                 onKeyDown={handleKeyPress}
                 onChange={handleInputChange}
                 name="message"
-                placeholder="Ask Ollama anything..."
-                className=" max-h-24 px-14 bg-accent/70 py-[22px] text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 w-full  rounded-full flex items-center h-16 resize-none overflow-hidden dark:bg-card/70"
+                placeholder={"Enter a prompt here"}
+                className=" max-h-24 px-14 bg-accent py-[22px] text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 w-full  rounded-full flex items-center h-16 resize-none overflow-hidden dark:bg-card"
               />
               {!isLoading ? (
                 <Button
