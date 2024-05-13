@@ -9,14 +9,8 @@ export default function FileLoader({ setFileText }: { setFileText: any }) {
   const [uploadStatus, setUploadStatus] = useState("Embed");
 
   const handleEmbed = async (files: File[]) => {
-    setFiles(files);
-
-    // Read the content of the file
-    const file = files[0];
-    const text = await readFileContent(file);
-    setFileText(text);
-
     if (files && files.length) {
+      setFiles(files);
       const file = files[0];
       let text;
       const blob = new Blob([file]);

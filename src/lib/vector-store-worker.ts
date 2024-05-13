@@ -19,12 +19,11 @@ self.onmessage = async (e: MessageEvent) => {
 
   let results;
   try {
-    const vectorStore = await MemoryVectorStore.fromTexts(
-      [...docs.map((doc) => doc.pageContent)],
-      [...docs.map((v, k) => k)],
+    const vectorStore = await MemoryVectorStore.fromDocuments(
+      docs,
       new XenovaTransformersEmbeddings()
     );
-    results = await vectorStore.similaritySearch(userInput, 2);
+    results = await vectorStore.similaritySearch(userInput);
     console.log("Vector search worker results:", results);
     postMessage(results);
   } catch (err) {
