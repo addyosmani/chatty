@@ -1,6 +1,10 @@
 import useChatStore from "@/hooks/useChatStore";
 import * as webllm from "@mlc-ai/web-llm";
 import { Model } from "./models";
+import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+import { XenovaTransformersEmbeddings } from "../lib/embed";
+import { MemoryVectorStore } from "langchain/vectorstores/memory";
+import { Document } from "@langchain/core/documents";
 
 export default class WebLLMHelper {
   engine: webllm.EngineInterface | null;
@@ -74,5 +78,52 @@ export default class WebLLMHelper {
         yield delta;
       }
     }
+  }
+
+  // Handle document processing using WebWorker to avoid freezing the UI
+  public async processDocuments(
+    fileText: Document<Record<string, any>>[],
+    userInput: string
+  ): Promise<string | undefined> {
+    console.log("Processing documents in WebLLMHelper");
+
+    return new Promise((resolve, reject) => {
+      const worker = new Worker(
+        new URL("./vector-store-worker.ts", import.meta.url),
+        {
+          type: "module",
+        }
+      );
+
+      worker.onmessage = (e: MessageEvent) => {
+        const results = e.data;
+        console.log("Worker returned results:", results);
+        if (results) {
+          // Process results
+          const qaPrompt = `You are an AI assistant providing helpful advice. You are given content from a file/document that is provided to you inbetween the <context> HTML tags.
+          The user will ask a question about the context and your job is to create a conversational answer based on the context provided.
+          If you need to provide the user with a link to a resource from the context, you can do so by providing the URL formatted as such: [URL](https://www.example.com).
+          If the question is not related to the context, politely respond that you are tuned to only answer questions that are related to the context.
+          If you don't know the answer to the question, politely respond that you don't know the answer. Never come up your with own answer!
+          User question: ${userInput}
+          =========
+          <context>
+          ${results.map((result: any) => result.pageContent).join("")}
+          </context>
+          =========`;
+          console.log("Processed QA prompt:", qaPrompt);
+          resolve(qaPrompt);
+        } else {
+          reject("Error processing documents");
+        }
+      };
+
+      worker.onerror = (err) => {
+        console.error("Vector search worker error:", err);
+        reject(err);
+      };
+
+      worker.postMessage({ fileText, userInput });
+    });
   }
 }
