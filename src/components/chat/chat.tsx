@@ -19,7 +19,9 @@ export default function Chat({
   messages,
   onRegenerate,
 }: ChatProps) {
-  const [files, setFiles] = React.useState<File[] | undefined>(undefined);
+  const files = useChatStore((state) => state.files);
+  const setFiles = useChatStore((state) => state.setFiles);
+  const fileText = useChatStore((state) => state.fileText);
   const setFileText = useChatStore((state) => state.setFileText);
 
   return (
@@ -35,7 +37,7 @@ export default function Chat({
         onRegenerate={onRegenerate}
       />
 
-      {files && (
+      {files && fileText && (
         <div className="ml-6 -mt-2 relative w-fit max-w-full top-4">
           <div className=" px-2 py-1.5 h-11 bg-muted-foreground/20 flex w-fit flex-col truncate gap-2 p-1 border-t border-x rounded-tl-md rounded-tr-md">
             <div className="flex text-sm">

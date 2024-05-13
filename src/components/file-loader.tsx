@@ -13,7 +13,7 @@ export default function FileLoader({
 }: {
   setFileText: any;
   files: File[] | undefined;
-  setFiles: React.Dispatch<React.SetStateAction<File[] | undefined>>;
+  setFiles: (files: File[] | undefined) => void;
 }) {
   const handleEmbed = async (files: File[]) => {
     if (files && files.length) {

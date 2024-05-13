@@ -14,7 +14,7 @@ import FileLoader from "../file-loader";
 
 interface MergedProps extends ChatProps {
   files: File[] | undefined;
-  setFiles: React.Dispatch<React.SetStateAction<File[] | undefined>>;
+  setFiles: (files: File[] | undefined) => void;
 }
 
 export default function ChatBottombar({
