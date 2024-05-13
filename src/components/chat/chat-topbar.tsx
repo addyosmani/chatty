@@ -45,7 +45,7 @@ export default function ChatTopbar({ chatId }: ChatTopbarProps) {
             variant="ghost"
             role="combobox"
             aria-expanded={open}
-            className="w-[200px] lg:w-[300px] justify-between bg-accent/70 dark:bg-card/70"
+            className="w-[200px] lg:w-[300px] justify-between bg-accent dark:bg-card"
           >
             {selectedModel.displayName}
             <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />

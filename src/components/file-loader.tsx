@@ -1,13 +1,20 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import FileEmbedder from "./file-embedder";
 import { WebPDFLoader } from "langchain/document_loaders/web/pdf";
 import { Button } from "./ui/button";
 import { Cross2Icon } from "@radix-ui/react-icons";
+import { PaperclipIcon } from "lucide-react";
+import { toast } from "sonner";
 
-export default function FileLoader({ setFileText }: { setFileText: any }) {
-  const [files, setFiles] = useState<File[]>();
-  const [uploadStatus, setUploadStatus] = useState("Embed");
-
+export default function FileLoader({
+  setFileText,
+  files,
+  setFiles,
+}: {
+  setFileText: any;
+  files: File[] | undefined;
+  setFiles: React.Dispatch<React.SetStateAction<File[] | undefined>>;
+}) {
   const handleEmbed = async (files: File[]) => {
     if (files && files.length) {
       setFiles(files);
@@ -19,7 +26,9 @@ export default function FileLoader({ setFileText }: { setFileText: any }) {
       text = await pdfLoader.load();
 
       setFileText(text);
-      setUploadStatus("Embed Complete");
+      toast.success(
+        "File embedded successfully. Start asking questions about it."
+      );
     }
   };
 
@@ -41,21 +50,12 @@ export default function FileLoader({ setFileText }: { setFileText: any }) {
         <FileEmbedder handleEmbed={handleEmbed} />
       ) : (
         <Button
+          disabled={files.length > 0}
           variant="ghost"
           size="icon"
-          className="relative rounded-full shrink-0"
+          className="rounded-full shrink-0"
         >
-          <span>.pdf</span>
-          <span className="absolute top-0 right-0 text-white bg-red-400 hover:bg-red-600 w-3 h-3 rounded-full flex items-center justify-center">
-            <Cross2Icon
-              className="w-3 h-3"
-              onClick={() => {
-                setFiles(undefined);
-                setFileText(null);
-                setUploadStatus("Embed");
-              }}
-            />
-          </span>
+          <PaperclipIcon className="w-5 h-5 text-muted-foreground" />
         </Button>
       )}
     </div>
