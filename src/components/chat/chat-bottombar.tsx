@@ -47,21 +47,7 @@ export default function ChatBottombar({
   return (
     <div className="p-1 flex justify-between w-full items-center gap-2">
       <AnimatePresence initial={false}>
-        <motion.div
-          key="input"
-          className="w-full relative mb-2 items-center"
-          layout
-          initial={{ opacity: 0, scale: 1 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 1 }}
-          transition={{
-            opacity: { duration: 0.05 },
-            layout: {
-              type: "spring",
-              bounce: 0.15,
-            },
-          }}
-        >
+        <div className="w-full relative mb-2 items-center">
           <div className="w-full items-center flex relative gap-2">
             <div className="absolute left-3 z-10">
               <FileLoader
@@ -116,7 +102,7 @@ export default function ChatBottombar({
               model is being downloaded.
             </p>
           </div>
-        </motion.div>
+        </div>
       </AnimatePresence>
     </div>
   );

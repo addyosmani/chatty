@@ -36,8 +36,8 @@ export default function Chat({
       />
 
       {files && (
-        <div className="ml-5 relative w-fit top-2">
-          <div className=" px-2 py-1.5 bg-muted-foreground/20 flex w-fit flex-col truncate gap-2 p-1 border-t border-x rounded-tl-md rounded-tr-md">
+        <div className="ml-6 -mt-2 relative w-fit max-w-full top-4">
+          <div className=" px-2 py-1.5 h-11 bg-muted-foreground/20 flex w-fit flex-col truncate gap-2 p-1 border-t border-x rounded-tl-md rounded-tr-md">
             <div className="flex text-sm">
               {files.map((file) => (
                 <div key={file.name} className="flex flex-col">
