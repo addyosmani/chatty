@@ -14,6 +14,7 @@ interface State {
   messages: webllm.ChatCompletionMessageParam[];
   engine: webllm.EngineInterface | null;
   fileText: Document<Record<string, any>>[] | null;
+  files: File[] | undefined;
 }
 
 interface Actions {
@@ -33,6 +34,7 @@ interface Actions {
   ) => void;
   setEngine: (engine: webllm.EngineInterface | null) => void;
   setFileText: (text: Document<Record<string, any>>[] | null) => void;
+  setFiles: (files: File[] | undefined) => void;
 }
 
 const useChatStore = create<State & Actions>()(
@@ -68,6 +70,9 @@ const useChatStore = create<State & Actions>()(
 
       fileText: null,
       setFileText: (text) => set({ fileText: text }),
+
+      files: undefined,
+      setFiles: (files) => set({ files }),
     }),
     {
       name: LOCAL_SELECTED_MODEL,
