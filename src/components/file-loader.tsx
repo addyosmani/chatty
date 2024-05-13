@@ -4,6 +4,7 @@ import { WebPDFLoader } from "langchain/document_loaders/web/pdf";
 import { Button } from "./ui/button";
 import { Cross2Icon } from "@radix-ui/react-icons";
 import { PaperclipIcon } from "lucide-react";
+import { toast } from "sonner";
 
 export default function FileLoader({
   setFileText,
@@ -14,8 +15,6 @@ export default function FileLoader({
   files: File[] | undefined;
   setFiles: React.Dispatch<React.SetStateAction<File[] | undefined>>;
 }) {
-  const [uploadStatus, setUploadStatus] = useState("Embed");
-
   const handleEmbed = async (files: File[]) => {
     if (files && files.length) {
       setFiles(files);
@@ -27,7 +26,9 @@ export default function FileLoader({
       text = await pdfLoader.load();
 
       setFileText(text);
-      setUploadStatus("Embed Complete");
+      toast.success(
+        "File embedded successfully. Start asking questions about it."
+      );
     }
   };
 
