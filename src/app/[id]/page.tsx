@@ -29,6 +29,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const engine = useChatStore((state) => state.engine);
   const setEngine = useChatStore((state) => state.setEngine);
   const selectedModel = useChatStore((state) => state.selectedModel);
+  const fileText = useChatStore((state) => state.fileText);
 
   // Global provider
   const webLLMHelper = useWebLLM();
@@ -41,6 +42,40 @@ export default function Page({ params }: { params: { id: string } }) {
       }
     }
   }, [setStoredMessages]);
+
+  const generateCompletion = async (
+    loadedEngine: webllm.EngineInterface,
+    prompt: string,
+    userMessage: webllm.ChatCompletionMessageParam
+  ) => {
+    const completion = webLLMHelper.generateCompletion(loadedEngine, prompt);
+
+    let assistantMessage = "";
+    // Iterate over the AsyncGenerator completion to get the response
+    for await (const chunk of completion) {
+      assistantMessage += chunk;
+      setLoadingSubmit(false);
+      setStoredMessages((message) => [
+        ...message.slice(0, -1),
+        { role: "assistant", content: assistantMessage },
+      ]);
+    }
+    localStorage.setItem(
+      `chat_${params.id}`,
+      JSON.stringify([
+        ...storedMessages,
+        userMessage,
+        { role: "assistant", content: assistantMessage },
+      ])
+    );
+
+    window.dispatchEvent(new Event("storage"));
+
+    setIsLoading(false);
+    setLoadingSubmit(false);
+
+    console.log(await loadedEngine.runtimeStatsText());
+  };
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     let loadedEngine = engine;
@@ -95,33 +130,17 @@ export default function Page({ params }: { params: { id: string } }) {
     try {
       setLoadingSubmit(true);
 
-      const completion = webLLMHelper.generateCompletion(loadedEngine, input);
-
-      let assistantMessage = "";
-      // Iterate over the AsyncGenerator completion to get the response
-      for await (const chunk of completion) {
-        assistantMessage += chunk;
-        setLoadingSubmit(false);
-        setStoredMessages((message) => [
-          ...message.slice(0, -1),
-          { role: "assistant", content: assistantMessage },
-        ]);
+      if (fileText) {
+        console.log("Uploaded file exists");
+        console.log({ fileText });
+        const qaPrompt = await webLLMHelper.processDocuments(fileText, input);
+        if (!qaPrompt) {
+          return;
+        }
+        await generateCompletion(loadedEngine, qaPrompt, userMessage);
+      } else {
+        await generateCompletion(loadedEngine, input, userMessage);
       }
-
-      setIsLoading(false);
-      setLoadingSubmit(false);
-      localStorage.setItem(
-        `chat_${params.id}`,
-        JSON.stringify([
-          ...storedMessages,
-          userMessage,
-          { role: "assistant", content: assistantMessage },
-        ])
-      );
-
-      window.dispatchEvent(new Event("storage"));
-
-      console.log(await loadedEngine.runtimeStatsText());
     } catch (e) {
       setIsLoading(false);
       setLoadingSubmit(false);
