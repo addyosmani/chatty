@@ -2,6 +2,7 @@ import { Model, Models } from "@/lib/models";
 import * as webllm from "@mlc-ai/web-llm";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { Document } from "@langchain/core/documents";
 
 const LOCAL_SELECTED_MODEL = "selectedModel";
 
@@ -12,6 +13,7 @@ interface State {
   isLoading: boolean;
   messages: webllm.ChatCompletionMessageParam[];
   engine: webllm.EngineInterface | null;
+  fileText: Document<Record<string, any>>[] | null;
 }
 
 interface Actions {
@@ -30,6 +32,7 @@ interface Actions {
     ) => webllm.ChatCompletionMessageParam[]
   ) => void;
   setEngine: (engine: webllm.EngineInterface | null) => void;
+  setFileText: (text: Document<Record<string, any>>[] | null) => void;
 }
 
 const useChatStore = create<State & Actions>()(
@@ -62,6 +65,9 @@ const useChatStore = create<State & Actions>()(
 
       engine: null,
       setEngine: (engine) => set({ engine }),
+
+      fileText: null,
+      setFileText: (text) => set({ fileText: text }),
     }),
     {
       name: LOCAL_SELECTED_MODEL,

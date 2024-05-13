@@ -11,6 +11,13 @@ const nextConfig = {
         perf_hooks: false,
       };
     }
+    // This is to fix transformers.js error
+    // https://github.com/xenova/transformers.js/blob/main/examples/next-client/next.config.js
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      sharp$: false,
+      "onnxruntime-node$": false,
+    };
 
     return config;
   },

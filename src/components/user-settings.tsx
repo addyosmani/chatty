@@ -65,7 +65,7 @@ export default function UserSettings() {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="flex justify-start gap-3 w-full h-14 text-base font-normal items-center  "
+          className="flex justify-start gap-3 w-full h-14 text-base font-normal items-center  rounded-full"
         >
           <Avatar className="flex justify-start items-center overflow-hidden">
             <AvatarImage

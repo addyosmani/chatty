@@ -15,6 +15,10 @@ import { v4 as uuidv4 } from "uuid";
 import { useWebLLM } from "@/providers/web-llm-provider";
 import { set } from "zod";
 import UsernameForm from "@/components/username-form";
+import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+import { XenovaTransformersEmbeddings } from "../lib/embed";
+import { MemoryVectorStore } from "langchain/vectorstores/memory";
+import { Document } from "@langchain/core/documents";
 
 export default function Home() {
   const [open, setOpen] = useState(false);
@@ -31,6 +35,7 @@ export default function Home() {
   const modelHasChanged = useChatStore((state) => state.modelHasChanged);
   const engine = useChatStore((state) => state.engine);
   const selectedModel = useChatStore((state) => state.selectedModel);
+  const fileText = useChatStore((state) => state.fileText);
 
   // Global provider
   const webLLMHelper = useWebLLM();
@@ -51,6 +56,29 @@ export default function Home() {
       }
     }
   }, []);
+
+  const generateCompletion = async (
+    loadedEngine: webllm.EngineInterface,
+    prompt: string
+  ) => {
+    const completion = webLLMHelper.generateCompletion(loadedEngine, prompt);
+
+    let assistantMessage = "";
+    // Iterate over the AsyncGenerator completion to get the response
+    for await (const chunk of completion) {
+      assistantMessage += chunk;
+      setLoadingSubmit(false);
+      setStoredMessages((message) => [
+        ...message.slice(0, -1),
+        { role: "assistant", content: assistantMessage },
+      ]);
+    }
+
+    setIsLoading(false);
+    setLoadingSubmit(false);
+
+    console.log(await loadedEngine.runtimeStatsText());
+  };
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     let loadedEngine = engine;
@@ -101,23 +129,17 @@ export default function Home() {
     try {
       setLoadingSubmit(true);
 
-      const completion = webLLMHelper.generateCompletion(loadedEngine, input);
-
-      let assistantMessage = "";
-      // Iterate over the AsyncGenerator completion to get the response
-      for await (const chunk of completion) {
-        assistantMessage += chunk;
-        setLoadingSubmit(false);
-        setStoredMessages((message) => [
-          ...message.slice(0, -1),
-          { role: "assistant", content: assistantMessage },
-        ]);
+      if (fileText) {
+        console.log("Uploaded file exists");
+        console.log({ fileText });
+        const qaPrompt = await webLLMHelper.processDocuments(fileText, input);
+        if (!qaPrompt) {
+          return;
+        }
+        await generateCompletion(loadedEngine, qaPrompt);
+      } else {
+        await generateCompletion(loadedEngine, input);
       }
-
-      setIsLoading(false);
-      setLoadingSubmit(false);
-
-      console.log(await loadedEngine.runtimeStatsText());
     } catch (e) {
       setIsLoading(false);
       setLoadingSubmit(false);
