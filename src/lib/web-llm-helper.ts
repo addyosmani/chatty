@@ -1,3 +1,5 @@
+// https://github.com/mlc-ai/web-llm/blob/main/examples/get-started-web-worker
+
 import useChatStore from "@/hooks/useChatStore";
 import * as webllm from "@mlc-ai/web-llm";
 import { Model } from "./models";
@@ -16,7 +18,6 @@ export default class WebLLMHelper {
   public constructor(engine: webllm.EngineInterface | null) {
     this.appConfig.useIndexedDBCache = true;
     this.engine = engine;
-    this.setEngine(engine);
   }
 
   // Initialize progress callback
