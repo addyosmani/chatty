@@ -19,6 +19,7 @@ import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { XenovaTransformersEmbeddings } from "../lib/embed";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { Document } from "@langchain/core/documents";
+import useMemoryStore from "@/hooks/useMemoryStore";
 
 export default function Home() {
   const [open, setOpen] = useState(false);
@@ -36,6 +37,12 @@ export default function Home() {
   const engine = useChatStore((state) => state.engine);
   const selectedModel = useChatStore((state) => state.selectedModel);
   const fileText = useChatStore((state) => state.fileText);
+  const customizedInstructions = useMemoryStore(
+    (state) => state.customizedInstructions
+  );
+  const isCustomizedInstructionsEnabled = useMemoryStore(
+    (state) => state.isCustomizedInstructionsEnabled
+  );
 
   // Global provider
   const webLLMHelper = useWebLLM();
@@ -61,7 +68,12 @@ export default function Home() {
     loadedEngine: webllm.EngineInterface,
     prompt: string
   ) => {
-    const completion = webLLMHelper.generateCompletion(loadedEngine, prompt);
+    const completion = webLLMHelper.generateCompletion(
+      loadedEngine,
+      prompt,
+      customizedInstructions,
+      isCustomizedInstructionsEnabled
+    );
 
     let assistantMessage = "";
     // Iterate over the AsyncGenerator completion to get the response
@@ -129,6 +141,7 @@ export default function Home() {
     try {
       setLoadingSubmit(true);
 
+      // If file is uploaded and text is extracted, process the documents
       if (fileText) {
         console.log("Uploaded file exists");
         console.log({ fileText });
@@ -188,20 +201,18 @@ export default function Home() {
 
     setInput("");
 
-    const completion = webLLMHelper.generateCompletion(
-      engine,
-      lastMsg.toString()
-    );
+    if (fileText) {
+      const qaPrompt = await webLLMHelper.processDocuments(
+        fileText,
+        lastMsg.toString()
+      );
+      if (!qaPrompt) {
+        return;
+      }
 
-    let assistantMessage = "";
-    // Iterate over the AsyncGenerator completion to get the response
-    for await (const chunk of completion) {
-      assistantMessage += chunk;
-      setLoadingSubmit(false);
-      setStoredMessages((message) => [
-        ...message.slice(0, -1),
-        { role: "assistant", content: assistantMessage },
-      ]);
+      await generateCompletion(engine, qaPrompt);
+    } else {
+      await generateCompletion(engine, lastMsg.toString());
     }
 
     setIsLoading(false);

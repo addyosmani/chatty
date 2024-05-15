@@ -23,9 +23,11 @@ import {
 } from "./ui/tooltip";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import useMemoryStore from "@/hooks/useMemoryStore";
+import { Switch } from "./ui/switch";
 
 const formSchema = z.object({
   customInstructions: z.string().optional(),
+  isCustomizedInstructionsEnabled: z.boolean().optional(),
 });
 
 interface EditCustomMemoryFormProps {
@@ -38,11 +40,15 @@ export default function EditCustomMemoryForm({
   const customisedInstructions = useMemoryStore(
     (state) => state.customizedInstructions
   );
+  const isCustomizedInstructionsEnabled = useMemoryStore(
+    (state) => state.isCustomizedInstructionsEnabled
+  );
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       customInstructions: customisedInstructions,
+      isCustomizedInstructionsEnabled: isCustomizedInstructionsEnabled,
     },
   });
 
@@ -50,14 +56,27 @@ export default function EditCustomMemoryForm({
     (state) => state.setCustomizedInstructions
   );
 
+  const setIsCustomizedInstructionsEnabled = useMemoryStore(
+    (state) => state.setIsCustomizedInstructionsEnabled
+  );
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     setCustomizedInstructions(values.customInstructions || "");
+    setIsCustomizedInstructionsEnabled(
+      values.isCustomizedInstructionsEnabled || false
+    );
+
+    if (!values.customInstructions) {
+      setIsCustomizedInstructionsEnabled(false);
+    }
     setOpen(false);
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     e.preventDefault();
-    form.setValue("customInstructions", e.currentTarget.value);
+    form.setValue("customInstructions", e.currentTarget.value, {
+      shouldDirty: true,
+    });
   };
 
   return (
@@ -100,20 +119,48 @@ export default function EditCustomMemoryForm({
                           <p>- What are your hobbies?</p>
                         </div>
                       </TooltipContent>
-                      <div className="flex gap-2 justify-end">
-                        <Button
-                          variant="outline"
-                          onClick={() => setOpen(false)}
-                        >
-                          Close
-                        </Button>
-                        <Button type="submit">Save</Button>
-                      </div>
                     </div>
                   </FormControl>
                 </Tooltip>
               </TooltipProvider>
               <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="isCustomizedInstructionsEnabled"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl className="flex w-full justify-between">
+                <div className="flex items-center">
+                  <div className="flex gap-2">
+                    <p className="text-sm">Enable for new chats</p>
+                    <Switch
+                      className=""
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </div>
+                  <div className="flex gap-2 justify-end">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setOpen(false)}
+                    >
+                      Close
+                    </Button>
+                    <Button
+                      // Disabled if form has not been changed
+                      disabled={!form.formState.isDirty}
+                      type="submit"
+                    >
+                      Save
+                    </Button>
+                  </div>
+                </div>
+              </FormControl>
             </FormItem>
           )}
         />

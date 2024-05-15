@@ -1,6 +1,7 @@
 "use client";
 
 import useChatStore from "@/hooks/useChatStore";
+import useMemoryStore from "@/hooks/useMemoryStore";
 import WebLLMHelper from "@/lib/web-llm-helper";
 import React, { useEffect } from "react";
 
@@ -34,10 +35,10 @@ export const WebLLMProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [selectedModel]);
 
-  // Gives warnings in console, need to fix
-  // useEffect(() => {
-  //   useChatStore.persist.rehydrate();
-  // }, []);
+  useEffect(() => {
+    useChatStore.persist.rehydrate();
+    useMemoryStore.persist.rehydrate();
+  }, []);
 
   return (
     <WebLLMContext.Provider value={webLLMHelper}>
