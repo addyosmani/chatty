@@ -35,7 +35,7 @@ export default function UserSettingsDialog({
       </DialogTrigger>
       <DialogContent>
         <DialogHeader className="space-y-4">
-          <DialogTitle>Settings</DialogTitle>
+          <DialogTitle className="mb-5">Settings</DialogTitle>
           <EditUsernameForm setOpen={setOpen} />
         </DialogHeader>
       </DialogContent>

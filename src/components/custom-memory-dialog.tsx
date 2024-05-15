@@ -41,7 +41,7 @@ export default function CustomMemoryDialog({
       </DialogTrigger>
       <DialogContent>
         <DialogHeader className="space-y-4">
-          <DialogTitle>Customize Memory</DialogTitle>
+          <DialogTitle className="mb-5">Customize Memory</DialogTitle>
           <EditCustomMemoryForm setOpen={setOpen} />
         </DialogHeader>
       </DialogContent>

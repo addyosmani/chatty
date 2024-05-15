@@ -78,6 +78,10 @@ export default function EditCustomMemoryForm({
                           <InfoCircledIcon className="w-3.5 h-3.5 text-gray-500" />
                         </TooltipTrigger>
                       </div>
+                      <FormDescription>
+                        What would you like the AI to know about you to provide
+                        better responses?
+                      </FormDescription>
                       <TextareaAutosize
                         itemType="text"
                         className="w-full text-sm p-2 border border-gray-300 rounded-md resize-none min-h-40 max-h-40 bg-inherit"
@@ -94,9 +98,18 @@ export default function EditCustomMemoryForm({
                           <p>- What is your name?</p>
                           <p>- What do you do for a living?</p>
                           <p>- What are your hobbies?</p>
+                          <p>This lets the AI </p>
                         </div>
                       </TooltipContent>
-                      <Button type="submit">Save</Button>
+                      <div className="flex gap-2 justify-end">
+                        <Button
+                          variant="outline"
+                          onClick={() => setOpen(false)}
+                        >
+                          Close
+                        </Button>
+                        <Button type="submit">Save</Button>
+                      </div>
                     </div>
                   </FormControl>
                 </Tooltip>
