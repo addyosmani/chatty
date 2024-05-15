@@ -56,7 +56,7 @@ export default function EditUsernameForm({ setOpen }: EditUsernameFormProps) {
 
   return (
     <Form {...form}>
-      <div className="w-full flex flex-col gap-4 pt-8">
+      <div className="w-full flex flex-col gap-4">
         <FormLabel>Theme</FormLabel>
         <ModeToggle />
       </div>

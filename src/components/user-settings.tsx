@@ -19,18 +19,21 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { GearIcon } from "@radix-ui/react-icons";
+import { CardStackPlusIcon, GearIcon } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Skeleton } from "./ui/skeleton";
 import { set } from "zod";
 import UsernameForm from "./username-form";
 import EditUsernameForm from "./edit-username-form";
+import UserSettingsDialog from "./user-settings-dialog";
+import CustomMemoryDialog from "./custom-memory-dialog";
 
 export default function UserSettings() {
   const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [open, setOpen] = useState(false);
+  const [openCustomMemoryDialog, setOpenCustomMemoryDialog] = useState(false);
+  const [openUserSettingsDialog, setOpenUserSettingsDialog] = useState(false);
 
   useEffect(() => {
     const handleStorageChange = () => {
@@ -88,24 +91,15 @@ export default function UserSettings() {
           </div>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-48 p-2">
-        <Dialog>
-          <DialogTrigger className="w-full">
-            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-              <div className="flex w-full gap-2 p-1 items-center cursor-pointer">
-                <GearIcon className="w-4 h-4" />
-                Settings
-              </div>
-            </DropdownMenuItem>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader className="space-y-4">
-              <DialogTitle>Settings</DialogTitle>
-              <EditUsernameForm setOpen={setOpen} />
-            </DialogHeader>
-          </DialogContent>
-        </Dialog>
-        <Dialog></Dialog>
+      <DropdownMenuContent className="p-2">
+        <CustomMemoryDialog
+          setOpen={setOpenCustomMemoryDialog}
+          open={openCustomMemoryDialog}
+        />
+        <UserSettingsDialog
+          setOpen={setOpenUserSettingsDialog}
+          open={openUserSettingsDialog}
+        />
       </DropdownMenuContent>
     </DropdownMenu>
   );

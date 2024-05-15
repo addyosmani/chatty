@@ -28,7 +28,7 @@ export default function RootLayout({
         <WebLLMProvider>
           <ThemeProvider attribute="class" defaultTheme="dark">
             {children}
-            <Toaster />
+            <Toaster position="top-right" />
           </ThemeProvider>
         </WebLLMProvider>
       </body>
