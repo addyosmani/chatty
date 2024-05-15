@@ -98,7 +98,6 @@ export default function EditCustomMemoryForm({
                           <p>- What is your name?</p>
                           <p>- What do you do for a living?</p>
                           <p>- What are your hobbies?</p>
-                          <p>This lets the AI </p>
                         </div>
                       </TooltipContent>
                       <div className="flex gap-2 justify-end">
