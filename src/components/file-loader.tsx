@@ -15,23 +15,6 @@ export default function FileLoader({
   files: File[] | undefined;
   setFiles: (files: File[] | undefined) => void;
 }) {
-  const handleEmbed = async (files: File[]) => {
-    if (files && files.length) {
-      setFiles(files);
-      const file = files[0];
-      let text;
-      const blob = new Blob([file]);
-
-      const pdfLoader = new WebPDFLoader(blob);
-      text = await pdfLoader.load();
-
-      setFileText(text);
-      toast.success(
-        "File embedded successfully. Start asking questions about it."
-      );
-    }
-  };
-
   const readFileContent = async (file: File) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -42,6 +25,47 @@ export default function FileLoader({
       reader.onerror = reject;
       reader.readAsText(file); // Read file as text
     });
+  };
+
+  const handleEmbed = async (files: File[]) => {
+    if (files && files.length) {
+      switch (files[0].type) {
+        case "application/pdf":
+          setFiles(files);
+          let text;
+          const blob = new Blob([files[0]]);
+
+          const pdfLoader = new WebPDFLoader(blob);
+          text = await pdfLoader.load();
+
+          setFileText(text);
+          toast.success(
+            "File embedded successfully. Start asking questions about it."
+          );
+          break;
+        case "text/plain":
+          setFiles(files);
+          const fileText = await readFileContent(files[0]);
+          setFileText(fileText as string);
+          toast.success(
+            "File embedded successfully. Start asking questions about it."
+          );
+          break;
+        case "text/csv":
+          setFiles(files);
+          const fileContent = await readFileContent(files[0]);
+          setFileText(fileContent as string);
+          toast.success(
+            "File embedded successfully. Start asking questions about it."
+          );
+          break;
+        default:
+          toast.error(
+            "Unsupported file type. Please upload a PDF or a text file."
+          );
+          return;
+      }
+    }
   };
 
   return (

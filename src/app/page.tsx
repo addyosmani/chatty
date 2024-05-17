@@ -37,6 +37,7 @@ export default function Home() {
   const engine = useChatStore((state) => state.engine);
   const selectedModel = useChatStore((state) => state.selectedModel);
   const fileText = useChatStore((state) => state.fileText);
+  const files = useChatStore((state) => state.files);
   const customizedInstructions = useMemoryStore(
     (state) => state.customizedInstructions
   );
@@ -142,10 +143,14 @@ export default function Home() {
       setLoadingSubmit(true);
 
       // If file is uploaded and text is extracted, process the documents
-      if (fileText) {
+      if (fileText && files) {
         console.log("Uploaded file exists");
         console.log({ fileText });
-        const qaPrompt = await webLLMHelper.processDocuments(fileText, input);
+        const qaPrompt = await webLLMHelper.processDocuments(
+          fileText,
+          files[0].type,
+          input
+        );
         if (!qaPrompt) {
           return;
         }
@@ -201,9 +206,10 @@ export default function Home() {
 
     setInput("");
 
-    if (fileText) {
+    if (fileText && files) {
       const qaPrompt = await webLLMHelper.processDocuments(
         fileText,
+        files[0].type,
         lastMsg.toString()
       );
       if (!qaPrompt) {

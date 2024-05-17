@@ -13,9 +13,6 @@ const FileEmbedder: React.FC<FileEmbedderProps> = ({ handleEmbed }) => {
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
-      if (acceptedFiles.length > 1) {
-        return;
-      }
       handleEmbed(acceptedFiles);
       setIsDragActive(false);
     },
@@ -26,6 +23,8 @@ const FileEmbedder: React.FC<FileEmbedderProps> = ({ handleEmbed }) => {
     onDrop,
     accept: {
       "application/pdf": [".pdf"],
+      "text/plain": [".txt"],
+      "text/csv": [".csv"],
     },
     maxFiles: 1,
     // 10 mb - this might be too much.
