@@ -3,9 +3,6 @@
 import useChatStore from "@/hooks/useChatStore";
 import * as webllm from "@mlc-ai/web-llm";
 import { Model } from "./models";
-import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
-import { XenovaTransformersEmbeddings } from "../lib/embed";
-import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { Document } from "@langchain/core/documents";
 
 export default class WebLLMHelper {
@@ -61,6 +58,8 @@ export default class WebLLMHelper {
   ): AsyncGenerator<string> {
     const storedMessages = useChatStore.getState().messages;
 
+    console.log(storedMessages);
+
     const completion = await engine.chat.completions.create({
       stream: true,
       messages: [
@@ -88,7 +87,8 @@ export default class WebLLMHelper {
 
   // Handle document processing using WebWorker to avoid freezing the UI
   public async processDocuments(
-    fileText: Document<Record<string, any>>[],
+    fileText: Document<Record<string, any>>[] | string,
+    fileType: string,
     userInput: string
   ): Promise<string | undefined> {
     console.log("Processing documents in WebLLMHelper");
@@ -107,11 +107,9 @@ export default class WebLLMHelper {
         if (results) {
           // Process results
           const qaPrompt = `You are now given content from a file that is provided to you as text within the <context> HTML tag. The user might ask a question about the context, and your job is to create a conversational answer based on the context provided.
-         
-          Your guidelines:
-          1. Only provide with an answer from the context if the user asks a question about it. Dont provide any information that is not asked for.
-          2. If the question is not related to the context, politely respond that you are tuned to only answer questions that are related to the context.
-          3. If you don't know the answer to the question, politely respond that you don't know the answer and NEVER come up with your own answer!          
+          Only provide with an answer from the context if the user asks a question about it. Dont provide any information that is not asked for.
+          If the question is not related to the context, politely respond that you are tuned to only answer questions that are related to the context.
+          If you don't know the answer to the question, politely respond that you don't know the answer and NEVER come up with your own answer!          
           
           =========
           <context>
@@ -134,7 +132,7 @@ export default class WebLLMHelper {
         reject(err);
       };
 
-      worker.postMessage({ fileText, userInput });
+      worker.postMessage({ fileText, fileType, userInput });
     });
   }
 }
