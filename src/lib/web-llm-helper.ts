@@ -106,19 +106,17 @@ export default class WebLLMHelper {
         console.log("Worker returned results:", results);
         if (results) {
           // Process results
-          const qaPrompt = `You are now given content from a file that is provided to you as text within the <context> HTML tag. The user might ask a question about the context, and your job is to create a conversational answer based on the context provided.
-          Only provide with an answer from the context if the user asks a question about it. Dont provide any information that is not asked for.
-          If the question is not related to the context, politely respond that you are tuned to only answer questions that are related to the context.
-          If you don't know the answer to the question, politely respond that you don't know the answer and NEVER come up with your own answer!          
+          const qaPrompt = `Answer the question based on the context provided below. Also, always keep old messages in mind when answering questions.
+          If the question cannot be answered using the information provided, answer with "I don't know" and never make up your own information.
           
-          =========
-          <context>
-          ${results.map((result: any) => result.pageContent).join("")}
-          </context>
-          =========
+          Context:
+          "${results.map((result: any) => result.pageContent).join("")}"
 
-          User input (question):
+          Question:
           "${userInput}"
+
+          Answer:
+          ""
           `;
           console.log("Processed QA prompt:", qaPrompt);
           resolve(qaPrompt);
