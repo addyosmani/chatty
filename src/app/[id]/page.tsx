@@ -13,6 +13,7 @@ import useChatStore from "@/hooks/useChatStore";
 import ChatLayout from "@/components/chat/chat-layout";
 import { v4 as uuidv4 } from "uuid";
 import { useWebLLM } from "@/providers/web-llm-provider";
+import useMemoryStore from "@/hooks/useMemoryStore";
 
 export default function Page({ params }: { params: { id: string } }) {
   const [open, setOpen] = useState(false);
@@ -30,6 +31,13 @@ export default function Page({ params }: { params: { id: string } }) {
   const setEngine = useChatStore((state) => state.setEngine);
   const selectedModel = useChatStore((state) => state.selectedModel);
   const fileText = useChatStore((state) => state.fileText);
+  const files = useChatStore((state) => state.files);
+  const customizedInstructions = useMemoryStore(
+    (state) => state.customizedInstructions
+  );
+  const isCustomizedInstructionsEnabled = useMemoryStore(
+    (state) => state.isCustomizedInstructionsEnabled
+  );
 
   // Global provider
   const webLLMHelper = useWebLLM();
@@ -45,10 +53,19 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const generateCompletion = async (
     loadedEngine: webllm.EngineInterface,
-    prompt: string,
-    userMessage: webllm.ChatCompletionMessageParam
+    prompt: string
   ) => {
-    const completion = webLLMHelper.generateCompletion(loadedEngine, prompt);
+    const completion = webLLMHelper.generateCompletion(
+      loadedEngine,
+      prompt,
+      customizedInstructions,
+      isCustomizedInstructionsEnabled
+    );
+
+    const userMessage: webllm.ChatCompletionMessageParam = {
+      role: "user",
+      content: prompt,
+    };
 
     let assistantMessage = "";
     // Iterate over the AsyncGenerator completion to get the response
@@ -130,16 +147,20 @@ export default function Page({ params }: { params: { id: string } }) {
     try {
       setLoadingSubmit(true);
 
-      if (fileText) {
+      if (fileText && files) {
         console.log("Uploaded file exists");
         console.log({ fileText });
-        const qaPrompt = await webLLMHelper.processDocuments(fileText, input);
+        const qaPrompt = await webLLMHelper.processDocuments(
+          fileText,
+          files[0].type,
+          input
+        );
         if (!qaPrompt) {
           return;
         }
-        await generateCompletion(loadedEngine, qaPrompt, userMessage);
+        await generateCompletion(loadedEngine, qaPrompt);
       } else {
-        await generateCompletion(loadedEngine, input, userMessage);
+        await generateCompletion(loadedEngine, input);
       }
     } catch (e) {
       setIsLoading(false);
@@ -189,20 +210,19 @@ export default function Page({ params }: { params: { id: string } }) {
 
     setInput("");
 
-    const completion = webLLMHelper.generateCompletion(
-      engine,
-      lastMsg.toString()
-    );
+    if (fileText && files) {
+      const qaPrompt = await webLLMHelper.processDocuments(
+        fileText,
+        files[0].type,
+        lastMsg.toString()
+      );
+      if (!qaPrompt) {
+        return;
+      }
 
-    let assistantMessage = "";
-    // Iterate over the AsyncGenerator completion to get the response
-    for await (const chunk of completion) {
-      assistantMessage += chunk;
-      setLoadingSubmit(false);
-      setStoredMessages((message) => [
-        ...message.slice(0, -1),
-        { role: "assistant", content: assistantMessage },
-      ]);
+      await generateCompletion(engine, qaPrompt);
+    } else {
+      await generateCompletion(engine, lastMsg.toString());
     }
 
     setIsLoading(false);
