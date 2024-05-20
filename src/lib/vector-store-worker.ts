@@ -25,7 +25,7 @@ self.onmessage = async (e: MessageEvent) => {
         docs,
         new XenovaTransformersEmbeddings()
       );
-      results = await vectorStore.similaritySearch(userInput, 1);
+      results = await vectorStore.similaritySearch(userInput, 5);
       console.log("Vector search worker results:", results);
       postMessage(results);
     } catch (err) {
