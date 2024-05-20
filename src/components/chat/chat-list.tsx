@@ -10,7 +10,13 @@ import remarkGfm from "remark-gfm";
 import { Button } from "../ui/button";
 import { ChatProps } from "@/lib/types";
 import MessageLoading from "../ui/message-loading";
-import { CheckIcon, CopyIcon, RefreshCcw } from "lucide-react";
+import {
+  CheckIcon,
+  CopyIcon,
+  FileText,
+  FileTextIcon,
+  RefreshCcw,
+} from "lucide-react";
 import useChatStore from "@/hooks/useChatStore";
 
 export default function ChatList({
@@ -110,7 +116,13 @@ export default function ChatList({
             <div className="flex gap-3 items-center">
               {message.role === "user" && (
                 <div className="flex items-end gap-3">
-                  <span className="bg-accent p-3 rounded-l-md rounded-tr-md max-w-xs sm:max-w-xl overflow-x-auto">
+                  <span className="bg-accent p-3 rounded-l-md rounded-tr-md max-w-xs sm:max-w-xl overflow-x-auto text-end flex flex-col gap-2">
+                    {message.fileName && (
+                      <div className="flex items-center gap-2 border border-green-500 border-opacity-10 rounded-sm bg-green-500/10 p-2 text-sm">
+                        <FileTextIcon className="w-4 h-4" />
+                        {message.fileName}
+                      </div>
+                    )}
                     {message.content}
                   </span>
                   <Avatar className="flex justify-start items-center overflow-hidden">

@@ -20,10 +20,12 @@ import { XenovaTransformersEmbeddings } from "../lib/embed";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { Document } from "@langchain/core/documents";
 import useMemoryStore from "@/hooks/useMemoryStore";
+import { MessageWithFiles } from "@/lib/types";
 
 export default function Home() {
   const [open, setOpen] = useState(false);
-  const [chatId, setChatId] = useState<string>("");
+  const chatId = useMemoryStore((state) => state.chatId);
+  const setChatId = useMemoryStore((state) => state.setChatId);
   const [loadingSubmit, setLoadingSubmit] = useState(false);
 
   // zustand store
@@ -38,6 +40,8 @@ export default function Home() {
   const selectedModel = useChatStore((state) => state.selectedModel);
   const fileText = useChatStore((state) => state.fileText);
   const files = useChatStore((state) => state.files);
+  const setFileText = useChatStore((state) => state.setFileText);
+  const setFiles = useChatStore((state) => state.setFiles);
   const customizedInstructions = useMemoryStore(
     (state) => state.customizedInstructions
   );
@@ -47,6 +51,28 @@ export default function Home() {
 
   // Global provider
   const webLLMHelper = useWebLLM();
+
+  useEffect(() => {
+    if (storedMessages.length < 1) {
+      // Generate a random id for the chat
+      console.log("Generating chat id");
+      const id = uuidv4();
+      setChatId(id);
+    }
+  }, [storedMessages]);
+
+  useEffect(() => {
+    if (fileText && files) {
+      const fileStore = {
+        fileName: files[0].name,
+        fileType: files[0].type,
+        fileText: fileText,
+      };
+
+      localStorage.setItem(`chatFile_${chatId}`, JSON.stringify(fileStore));
+      window.dispatchEvent(new Event("storage"));
+    }
+  }, [fileText, storedMessages]);
 
   useEffect(() => {
     if (!isLoading && chatId && storedMessages.length > 0) {
@@ -99,16 +125,14 @@ export default function Home() {
     e.preventDefault();
     setIsLoading(true);
 
-    if (storedMessages.length === 0) {
-      // Generate a random id for the chat
-      const id = uuidv4();
-      setChatId(id);
-    }
-
-    const userMessage: webllm.ChatCompletionMessageParam = {
+    const userMessage: MessageWithFiles = {
+      fileName: files ? files[0].name : "",
       role: "user",
       content: input,
     };
+
+    setFileText(null);
+    setFiles(undefined);
 
     setStoredMessages((message) => [
       ...message,
@@ -143,12 +167,15 @@ export default function Home() {
       setLoadingSubmit(true);
 
       // If file is uploaded and text is extracted, process the documents
-      if (fileText && files) {
+      const existingFile = localStorage.getItem(`chatFile_${chatId}`);
+      if (existingFile) {
+        const { fileText, fileType } = JSON.parse(existingFile);
+
         console.log("Uploaded file exists");
         console.log({ fileText });
         const qaPrompt = await webLLMHelper.processDocuments(
           fileText,
-          files[0].type,
+          fileType,
           input
         );
         if (!qaPrompt) {
@@ -206,10 +233,15 @@ export default function Home() {
 
     setInput("");
 
-    if (fileText && files) {
+    const existingFile = localStorage.getItem(`chatFile_${chatId}`);
+    if (existingFile) {
+      const { fileText, fileType } = JSON.parse(existingFile);
+
+      console.log("Uploaded file exists");
+      console.log({ fileText });
       const qaPrompt = await webLLMHelper.processDocuments(
         fileText,
-        files[0].type,
+        fileType,
         lastMsg.toString()
       );
       if (!qaPrompt) {

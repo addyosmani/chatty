@@ -1,3 +1,5 @@
+import { ChatCompletionMessageParam } from "@mlc-ai/web-llm";
+
 export interface ChatLayoutProps {
   chatId: string;
 }
@@ -15,4 +17,10 @@ export interface ChatProps {
   onRegenerate?: () => void;
 }
 
+export interface MessageWithFile extends ChatCompletionMessageParam {
+  fileName?: string;
+}
+
 export type MergedProps = ChatLayoutProps & ChatProps;
+
+export type MessageWithFiles = Message & ChatCompletionMessageParam;

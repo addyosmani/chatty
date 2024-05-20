@@ -39,11 +39,9 @@ const FileEmbedder: React.FC<FileEmbedderProps> = ({ handleEmbed }) => {
     <>
       <div {...getRootProps()}>
         <input {...getInputProps()} />
-        {acceptedFileItems.length === 0 && (
-          <Button variant="ghost" size="icon" className="rounded-full shrink-0">
-            <PaperclipIcon className="w-5 h-5 text-muted-foreground" />
-          </Button>
-        )}
+        <Button variant="ghost" size="icon" className="rounded-full shrink-0">
+          <PaperclipIcon className="w-5 h-5 text-muted-foreground" />
+        </Button>
       </div>
     </>
   );

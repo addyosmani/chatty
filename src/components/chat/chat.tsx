@@ -79,6 +79,7 @@ export default function Chat({
                   onClick={() => {
                     setFiles(undefined);
                     setFileText(null);
+                    localStorage.removeItem(`chatFile_${chatId}`);
                     setOpen(false);
                   }}
                 >

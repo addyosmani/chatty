@@ -106,13 +106,16 @@ export default class WebLLMHelper {
         console.log("Worker returned results:", results);
         if (results) {
           // Process results
-          const qaPrompt = `Answer the question based on the context provided below. Also, always keep old messages in mind when answering questions.
-          If the question cannot be answered using the information provided, answer with "I don't know" and never make up your own information.
+          const qaPrompt = `\nYou are now given content from a file that is provided to you as text between the <context> tag. Answer the user question based on the context provied. Also, always keep old messages in mind when answering questions.
+          If the question cannot be answered using the context provided, answer with "I don't know" and never make up your own information.
           
-          Context:
-          "${results.map((result: any) => result.pageContent).join("")}"
+          ==========
+          <context>
+          ${results.map((result: any) => result.pageContent).join("")}\n
+          </context>
+          ==========
 
-          Question:
+          User question:
           "${userInput}"
 
           Answer:
