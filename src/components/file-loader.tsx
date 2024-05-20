@@ -5,6 +5,7 @@ import { Button } from "./ui/button";
 import { Cross2Icon } from "@radix-ui/react-icons";
 import { PaperclipIcon } from "lucide-react";
 import { toast } from "sonner";
+import { Document } from "@langchain/core/documents";
 
 export default function FileLoader({
   setFileText,
@@ -20,10 +21,18 @@ export default function FileLoader({
       const reader = new FileReader();
       reader.onload = () => {
         // Resolve with the text content
-        resolve(reader.result);
+        // Save as a document
+        const document = new Document({
+          pageContent: reader.result as string,
+          metadata: {
+            title: file.name,
+            fileType: file.type,
+          },
+        });
+        resolve([document]);
       };
       reader.onerror = reject;
-      reader.readAsText(file); // Read file as text
+      reader.readAsText(file);
     });
   };
 
