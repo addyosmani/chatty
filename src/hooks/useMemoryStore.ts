@@ -4,16 +4,16 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { Document } from "@langchain/core/documents";
 
-const LOCAL_CUSTOMIZED_INSTRUCTIONS = "customizedInstructions";
-
 interface State {
   customizedInstructions: string;
   isCustomizedInstructionsEnabled: boolean;
+  chatId: string;
 }
 
 interface Actions {
   setCustomizedInstructions: (instructions: string) => void;
   setIsCustomizedInstructionsEnabled: (enabled: boolean) => void;
+  setChatId: (id: string) => void;
 }
 
 const useMemoryStore = create<State & Actions>()(
@@ -26,25 +26,15 @@ const useMemoryStore = create<State & Actions>()(
       isCustomizedInstructionsEnabled: false,
       setIsCustomizedInstructionsEnabled: (enabled) =>
         set({ isCustomizedInstructionsEnabled: enabled }),
+
+      chatId: "",
+      setChatId: (id) => set({ chatId: id }),
     }),
     {
-      name: LOCAL_CUSTOMIZED_INSTRUCTIONS,
+      name: "memory-store",
       skipHydration: true,
     }
   )
 );
 
 export default useMemoryStore;
-
-// const customizedInstructions = useMemoryStore(
-//     (state) => state.customizedInstructions
-//   );
-//   const isCustomizedInstructionsEnabled = useMemoryStore(
-//     (state) => state.isCustomizedInstructionsEnabled
-//   );
-//   const setCustomizedInstructions = useMemoryStore(
-//     (state) => state.setCustomizedInstructions
-//   );
-//   const setIsCustomizedInstructionsEnabled = useMemoryStore(
-//     (state) => state.setIsCustomizedInstructionsEnabled
-//   );

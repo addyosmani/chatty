@@ -14,6 +14,7 @@ import ChatLayout from "@/components/chat/chat-layout";
 import { v4 as uuidv4 } from "uuid";
 import { useWebLLM } from "@/providers/web-llm-provider";
 import useMemoryStore from "@/hooks/useMemoryStore";
+import { MessageWithFiles } from "@/lib/types";
 
 export default function Page({ params }: { params: { id: string } }) {
   const [open, setOpen] = useState(false);
@@ -32,12 +33,15 @@ export default function Page({ params }: { params: { id: string } }) {
   const selectedModel = useChatStore((state) => state.selectedModel);
   const fileText = useChatStore((state) => state.fileText);
   const files = useChatStore((state) => state.files);
+  const setFileText = useChatStore((state) => state.setFileText);
+  const setFiles = useChatStore((state) => state.setFiles);
   const customizedInstructions = useMemoryStore(
     (state) => state.customizedInstructions
   );
   const isCustomizedInstructionsEnabled = useMemoryStore(
     (state) => state.isCustomizedInstructionsEnabled
   );
+  const setChatId = useMemoryStore((state) => state.setChatId);
 
   // Global provider
   const webLLMHelper = useWebLLM();
@@ -45,11 +49,25 @@ export default function Page({ params }: { params: { id: string } }) {
   useEffect(() => {
     if (params.id) {
       const item = localStorage.getItem(`chat_${params.id}`);
+      setChatId(params.id);
       if (item) {
         setStoredMessages((message) => [...JSON.parse(item)]);
       }
     }
   }, [setStoredMessages]);
+
+  useEffect(() => {
+    if (fileText && files) {
+      const fileStore = {
+        fileName: files[0].name,
+        fileType: files[0].type,
+        fileText: fileText,
+      };
+
+      localStorage.setItem(`chatFile_${params.id}`, JSON.stringify(fileStore));
+      window.dispatchEvent(new Event("storage"));
+    }
+  }, [fileText, storedMessages]);
 
   const generateCompletion = async (
     loadedEngine: webllm.EngineInterface,
@@ -62,9 +80,10 @@ export default function Page({ params }: { params: { id: string } }) {
       isCustomizedInstructionsEnabled
     );
 
-    const userMessage: webllm.ChatCompletionMessageParam = {
+    const userMessage: MessageWithFiles = {
+      fileName: files ? files[0].name : "",
       role: "user",
-      content: prompt,
+      content: input,
     };
 
     let assistantMessage = "";
@@ -101,10 +120,14 @@ export default function Page({ params }: { params: { id: string } }) {
     e.preventDefault();
     setIsLoading(true);
 
-    const userMessage: webllm.ChatCompletionMessageParam = {
+    const userMessage: MessageWithFiles = {
+      fileName: files ? files[0].name : "",
       role: "user",
       content: input,
     };
+
+    setFileText(null);
+    setFiles(undefined);
 
     setStoredMessages((message) => [
       ...message,
@@ -147,12 +170,15 @@ export default function Page({ params }: { params: { id: string } }) {
     try {
       setLoadingSubmit(true);
 
-      if (fileText && files) {
+      const existingFile = localStorage.getItem(`chatFile_${params.id}`);
+      if (existingFile) {
+        const { fileText, fileType } = JSON.parse(existingFile);
+
         console.log("Uploaded file exists");
         console.log({ fileText });
         const qaPrompt = await webLLMHelper.processDocuments(
           fileText,
-          files[0].type,
+          fileType,
           input
         );
         if (!qaPrompt) {
@@ -210,10 +236,15 @@ export default function Page({ params }: { params: { id: string } }) {
 
     setInput("");
 
-    if (fileText && files) {
+    const existingFile = localStorage.getItem(`chatFile_${params.id}`);
+    if (existingFile) {
+      const { fileText, fileType } = JSON.parse(existingFile);
+
+      console.log("Uploaded file exists");
+      console.log({ fileText });
       const qaPrompt = await webLLMHelper.processDocuments(
         fileText,
-        files[0].type,
+        fileType,
         lastMsg.toString()
       );
       if (!qaPrompt) {

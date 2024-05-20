@@ -26,6 +26,7 @@ import { TrashIcon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
 import SidebarSkeleton from "./ui/sidebar-skeleton";
 import useChatStore from "@/hooks/useChatStore";
+import useMemoryStore from "@/hooks/useMemoryStore";
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -39,6 +40,9 @@ export function Sidebar({ isCollapsed, chatId }: SidebarProps) {
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const setMessages = useChatStore((state) => state.setMessages);
+  const setChatId = useMemoryStore((state) => state.setChatId);
+  const setFiles = useChatStore((state) => state.setFiles);
+  const setFileText = useChatStore((state) => state.setFileText);
 
   const router = useRouter();
 
@@ -88,20 +92,29 @@ export function Sidebar({ isCollapsed, chatId }: SidebarProps) {
     return chatObjects;
   };
 
+  const handleNewChat = () => {
+    // Clear messages
+    setMessages(() => []);
+    setChatId("");
+    setFiles(undefined);
+    setFileText(null);
+    router.push("/");
+  };
+
   const handleDeleteChat = (chatId: string) => {
+    const id = chatId.substring(5);
     localStorage.removeItem(chatId);
+    localStorage.removeItem(`chatFile_${id}`);
+    window.dispatchEvent(new Event("storage"));
     setLocalChats(getLocalstorageChats());
+    router.push("/");
   };
 
   return (
     <div className="relative overflow-hidden justify-between group md:bg-accent md:dark:bg-card flex flex-col h-full gap-4 ">
       <div className=" flex flex-col justify-between p-2 max-h-fit overflow-y-auto ">
         <Button
-          onClick={() => {
-            router.push("/");
-            // Clear messages
-            setMessages(() => []);
-          }}
+          onClick={handleNewChat}
           variant="ghost"
           className="flex justify-between w-full h-16 text-sm font-normal items-center shrink-0 rounded-full"
         >

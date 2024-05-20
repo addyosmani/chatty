@@ -6,6 +6,7 @@ import { Cross2Icon } from "@radix-ui/react-icons";
 import { PaperclipIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Document } from "@langchain/core/documents";
+import useMemoryStore from "@/hooks/useMemoryStore";
 
 export default function FileLoader({
   setFileText,
@@ -16,6 +17,8 @@ export default function FileLoader({
   files: File[] | undefined;
   setFiles: (files: File[] | undefined) => void;
 }) {
+  const chatId = useMemoryStore((state) => state.chatId);
+
   const readFileContent = async (file: File) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -37,44 +40,50 @@ export default function FileLoader({
   };
 
   const handleEmbed = async (files: File[]) => {
-    if (files && files.length) {
-      switch (files[0].type) {
-        case "application/pdf":
-          setFiles(files);
-          let text;
-          const blob = new Blob([files[0]]);
+    const existingFile = localStorage.getItem(`chatFile_${chatId}`);
 
-          const pdfLoader = new WebPDFLoader(blob);
-          text = await pdfLoader.load();
+    if (!existingFile) {
+      if (files && files.length) {
+        switch (files[0].type) {
+          case "application/pdf":
+            setFiles(files);
+            let text;
+            const blob = new Blob([files[0]]);
 
-          setFileText(text);
-          toast.success(
-            "File embedded successfully. Start asking questions about it."
-          );
-          break;
-        case "text/plain":
-          setFiles(files);
-          const fileText = await readFileContent(files[0]);
-          setFileText(fileText as string);
-          toast.success(
-            "File embedded successfully. Start asking questions about it."
-          );
-          break;
-        case "text/csv":
-          setFiles(files);
-          const fileContent = await readFileContent(files[0]);
-          setFileText(fileContent as string);
-          toast.success(
-            "File embedded successfully. Start asking questions about it."
-          );
-          break;
-        default:
-          toast.error(
-            "Unsupported file type. Please upload a PDF or a text file."
-          );
-          return;
+            const pdfLoader = new WebPDFLoader(blob);
+            text = await pdfLoader.load();
+
+            setFileText(text);
+            toast.success(
+              "File embedded successfully. Start asking questions about it."
+            );
+            break;
+          case "text/plain":
+            setFiles(files);
+            const fileText = await readFileContent(files[0]);
+            setFileText(fileText as string);
+            toast.success(
+              "File embedded successfully. Start asking questions about it."
+            );
+            break;
+          case "text/csv":
+            setFiles(files);
+            const fileContent = await readFileContent(files[0]);
+            setFileText(fileContent as string);
+            toast.success(
+              "File embedded successfully. Start asking questions about it."
+            );
+            break;
+          default:
+            toast.error(
+              "Unsupported file type. Please upload a PDF or a text file."
+            );
+            return;
+        }
       }
     }
+
+    toast.error("You can only upload one file for each chat/session.");
   };
 
   return (
