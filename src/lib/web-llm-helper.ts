@@ -59,7 +59,7 @@ export default class WebLLMHelper {
     const storedMessages = useChatStore.getState().messages;
 
     console.log(storedMessages);
-
+    console.log(input);
     const completion = await engine.chat.completions.create({
       stream: true,
       messages: [
@@ -89,6 +89,7 @@ export default class WebLLMHelper {
   public async processDocuments(
     fileText: Document<Record<string, any>>[] | string,
     fileType: string,
+    fileName: string,
     userInput: string
   ): Promise<string | undefined> {
     console.log("Processing documents in WebLLMHelper");
@@ -106,11 +107,11 @@ export default class WebLLMHelper {
         console.log("Worker returned results:", results);
         if (results) {
           // Process results
-          const qaPrompt = `\nYou are now given content from a file that is provided to you as text between the <context> tag. Answer the user question based on the context provied. Also, always keep old messages in mind when answering questions.
-          If the question cannot be answered using the context provided, answer with "I don't know" and never make up your own information.
+          const qaPrompt = `\nText content from a file is provided between the <context> tags. The file name and type is also included in the <context> tag. Answer the user question based on the context provied. Also, always keep old messages in mind when answering questions.
+          If the question cannot be answered using the context provided, answer with "I don't know".
           
           ==========
-          <context>
+          <context  file=${fileName} fileType="type: ${fileType}">
           ${results.map((result: any) => result.pageContent).join("")}\n
           </context>
           ==========
