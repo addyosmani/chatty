@@ -169,13 +169,14 @@ export default function Home() {
       // If file is uploaded and text is extracted, process the documents
       const existingFile = localStorage.getItem(`chatFile_${chatId}`);
       if (existingFile) {
-        const { fileText, fileType } = JSON.parse(existingFile);
+        const { fileText, fileType, fileName } = JSON.parse(existingFile);
 
         console.log("Uploaded file exists");
         console.log({ fileText });
         const qaPrompt = await webLLMHelper.processDocuments(
           fileText,
           fileType,
+          fileName,
           input
         );
         if (!qaPrompt) {
@@ -235,13 +236,14 @@ export default function Home() {
 
     const existingFile = localStorage.getItem(`chatFile_${chatId}`);
     if (existingFile) {
-      const { fileText, fileType } = JSON.parse(existingFile);
+      const { fileText, fileType, fileName } = JSON.parse(existingFile);
 
       console.log("Uploaded file exists");
       console.log({ fileText });
       const qaPrompt = await webLLMHelper.processDocuments(
         fileText,
         fileType,
+        fileName,
         lastMsg.toString()
       );
       if (!qaPrompt) {
