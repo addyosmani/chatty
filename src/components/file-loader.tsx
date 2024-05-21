@@ -81,9 +81,9 @@ export default function FileLoader({
             return;
         }
       }
+    } else {
+      toast.error("You can only upload one file for each chat/session.");
     }
-
-    toast.error("You can only upload one file for each chat/session.");
   };
 
   return (
