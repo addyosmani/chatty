@@ -13,8 +13,12 @@ export const Models: Model[] = [
     displayName: "Phi-1.5",
   },
   {
-    name: "gemma-2b-it-q4f16_1",
+    name: "gemma-2b-it-q4f32_1",
     displayName: "Gemma 2B",
+  },
+  {
+    name: "RedPajama-INCITE-Chat-3B-v1-q4f32_1",
+    displayName: "RedPajama 3B",
   },
   {
     name: "Mistral-7B-Instruct-v0.2-q4f16_1",
