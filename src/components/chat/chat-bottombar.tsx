@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "../ui/button";
@@ -8,9 +8,10 @@ import TextareaAutosize from "react-textarea-autosize";
 import { motion, AnimatePresence } from "framer-motion";
 import { PaperPlaneIcon, StopIcon } from "@radix-ui/react-icons";
 import { ChatProps } from "@/lib/types";
-import { PaperclipIcon, RemoveFormatting } from "lucide-react";
 import useChatStore from "@/hooks/useChatStore";
 import FileLoader from "../file-loader";
+import { Mic, Send, SendHorizonal } from "lucide-react";
+import useSpeechToText from "@/hooks/useSpeechRecognition";
 
 interface MergedProps extends ChatProps {
   files: File[] | undefined;
@@ -30,6 +31,7 @@ export default function ChatBottombar({
   const isLoading = useChatStore((state) => state.isLoading);
   const fileText = useChatStore((state) => state.fileText);
   const setFileText = useChatStore((state) => state.setFileText);
+  const setInput = useChatStore((state) => state.setInput);
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -38,11 +40,33 @@ export default function ChatBottombar({
     }
   };
 
+  const { isListening, transcript, startListening, stopListening } =
+    useSpeechToText({ continuous: true });
+
+  const listen = () => {
+    isListening ? stopVoiceInput() : startListening();
+  };
+
+  const stopVoiceInput = () => {
+    setInput(transcript.length ? transcript : "");
+    stopListening();
+  };
+
+  const handleListenClick = () => {
+    listen();
+  };
+
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
   }, []);
+
+  useEffect(() => {
+    if (isLoading) {
+      stopVoiceInput();
+    }
+  }, [isLoading]);
 
   return (
     <div className="p-1 flex justify-between w-full items-center gap-2">
@@ -62,37 +86,80 @@ export default function ChatBottombar({
             >
               <TextareaAutosize
                 autoComplete="off"
-                value={input}
+                value={
+                  isListening ? (transcript.length ? transcript : "") : input
+                }
                 ref={inputRef}
                 onKeyDown={handleKeyPress}
                 onChange={handleInputChange}
                 name="message"
-                placeholder={"Enter a prompt here"}
+                placeholder={
+                  !isListening ? "Enter your prompt here" : "Listening"
+                }
                 className=" max-h-24 px-14 bg-accent py-[22px] text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 w-full  rounded-full flex items-center h-16 resize-none overflow-hidden dark:bg-card"
               />
               {!isLoading ? (
-                <Button
-                  className="shrink-0 absolute right-3 rounded-full"
-                  variant="ghost"
-                  size="icon"
-                  type="submit"
-                  disabled={isLoading || !input.trim()}
-                >
-                  <PaperPlaneIcon className=" w-5 h-5 " />
-                </Button>
+                <div className="flex absolute right-3 items-center">
+                  {isListening ? (
+                    <div className="flex">
+                      <Button
+                        className="shrink-0 relative rounded-full bg-blue-500/30 hover:bg-blue-400/30 "
+                        variant="ghost"
+                        size="icon"
+                        type="button"
+                        onClick={handleListenClick}
+                        disabled={isLoading}
+                      >
+                        <Mic className="w-5 h-5 " />
+                        <span className="animate-pulse absolute h-[120%] w-[120%] rounded-full bg-blue-500/30" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      className="shrink-0 rounded-full"
+                      variant="ghost"
+                      size="icon"
+                      type="button"
+                      onClick={handleListenClick}
+                      disabled={isLoading}
+                    >
+                      <Mic className="w-5 h-5 " />
+                    </Button>
+                  )}
+                  <Button
+                    className="shrink-0 rounded-full"
+                    variant="ghost"
+                    size="icon"
+                    type="submit"
+                    disabled={isLoading || !input.trim() || isListening}
+                  >
+                    <SendHorizonal className="w-5 h-5 " />
+                  </Button>
+                </div>
               ) : (
-                <Button
-                  className="shrink-0 absolute right-3 rounded-full"
-                  variant="ghost"
-                  size="icon"
-                  type="submit"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    stop();
-                  }}
-                >
-                  <StopIcon className="w-5 h-5  " />
-                </Button>
+                <div className="flex absolute right-3 items-center">
+                  <Button
+                    className="shrink-0 rounded-full"
+                    variant="ghost"
+                    size="icon"
+                    type="button"
+                    disabled={true}
+                  >
+                    <Mic className="w-5 h-5 " />
+                  </Button>
+                  <Button
+                    className="shrink-0 rounded-full"
+                    variant="ghost"
+                    size="icon"
+                    type="submit"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      stop();
+                    }}
+                  >
+                    <StopIcon className="w-5 h-5  " />
+                  </Button>
+                </div>
               )}
             </form>
           </div>
