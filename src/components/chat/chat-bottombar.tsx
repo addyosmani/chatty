@@ -1,12 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import Link from "next/link";
-import { cn } from "@/lib/utils";
-import { Button, buttonVariants } from "../ui/button";
+import React, { useEffect } from "react";
+import { Button } from "../ui/button";
 import TextareaAutosize from "react-textarea-autosize";
-import { motion, AnimatePresence } from "framer-motion";
-import { PaperPlaneIcon, StopIcon } from "@radix-ui/react-icons";
+import { AnimatePresence } from "framer-motion";
+import { StopIcon } from "@radix-ui/react-icons";
 import { ChatProps } from "@/lib/types";
 import useChatStore from "@/hooks/useChatStore";
 import FileLoader from "../file-loader";

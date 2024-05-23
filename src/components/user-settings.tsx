@@ -3,29 +3,13 @@
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { CardStackPlusIcon, GearIcon } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
 import { Skeleton } from "./ui/skeleton";
-import { set } from "zod";
-import UsernameForm from "./username-form";
-import EditUsernameForm from "./edit-username-form";
 import UserSettingsDialog from "./user-settings-dialog";
 import CustomMemoryDialog from "./custom-memory-dialog";
 

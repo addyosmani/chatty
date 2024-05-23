@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/tooltip";
 import Chat from "./chat";
 import { MergedProps } from "@/lib/types";
-import useChatStore from "@/hooks/useChatStore";
 
 export default function ChatLayout({
   messages,

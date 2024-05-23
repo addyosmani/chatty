@@ -1,4 +1,3 @@
-import { Message, useChat } from "ai/react";
 import React, { useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -10,13 +9,7 @@ import remarkGfm from "remark-gfm";
 import { Button } from "../ui/button";
 import { ChatProps } from "@/lib/types";
 import MessageLoading from "../ui/message-loading";
-import {
-  CheckIcon,
-  CopyIcon,
-  FileText,
-  FileTextIcon,
-  RefreshCcw,
-} from "lucide-react";
+import { CheckIcon, CopyIcon, FileTextIcon, RefreshCcw } from "lucide-react";
 import useChatStore from "@/hooks/useChatStore";
 
 export default function ChatList({

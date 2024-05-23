@@ -13,12 +13,7 @@ import useChatStore from "@/hooks/useChatStore";
 import ChatLayout from "@/components/chat/chat-layout";
 import { v4 as uuidv4 } from "uuid";
 import { useWebLLM } from "@/providers/web-llm-provider";
-import { set } from "zod";
 import UsernameForm from "@/components/username-form";
-import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
-import { XenovaTransformersEmbeddings } from "../lib/embed";
-import { MemoryVectorStore } from "langchain/vectorstores/memory";
-import { Document } from "@langchain/core/documents";
 import useMemoryStore from "@/hooks/useMemoryStore";
 import { MessageWithFiles } from "@/lib/types";
 

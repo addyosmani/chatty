@@ -39,7 +39,8 @@ const useSpeechToText = (options: SpeechRecognitionOptions = {}) => {
         text += event.results[i][0].transcript;
       }
 
-      setTranscript(text);
+      // Always capitalize the first letter
+      setTranscript(text.charAt(0).toUpperCase() + text.slice(1));
     };
 
     recognition.onerror = (event) => {

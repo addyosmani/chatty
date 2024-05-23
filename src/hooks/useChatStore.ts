@@ -80,7 +80,6 @@ const useChatStore = create<State & Actions>()(
       partialize: (state) => ({
         selectedModel: state.selectedModel,
       }),
-      skipHydration: true,
     }
   )
 );

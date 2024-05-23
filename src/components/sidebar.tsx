@@ -8,7 +8,6 @@ import { Message } from "ai/react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import UserSettings from "./user-settings";
-import * as webllm from "@mlc-ai/web-llm";
 import {
   Dialog,
   DialogContent,
@@ -22,7 +21,6 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { TrashIcon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
 import SidebarSkeleton from "./ui/sidebar-skeleton";
 import useChatStore from "@/hooks/useChatStore";

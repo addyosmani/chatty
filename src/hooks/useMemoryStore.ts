@@ -32,7 +32,10 @@ const useMemoryStore = create<State & Actions>()(
     }),
     {
       name: "memory-store",
-      skipHydration: true,
+      partialize: (state) => ({
+        customizedInstructions: state.customizedInstructions,
+        isCustomizedInstructionsEnabled: state.isCustomizedInstructionsEnabled,
+      }),
     }
   )
 );
