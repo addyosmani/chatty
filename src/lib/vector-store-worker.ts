@@ -1,7 +1,6 @@
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { XenovaTransformersEmbeddings } from "../lib/embed";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
-import { Document } from "@langchain/core/documents";
 
 self.onmessage = async (e: MessageEvent) => {
   const { fileText, fileType, userInput } = e.data;

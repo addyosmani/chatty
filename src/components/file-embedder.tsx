@@ -9,17 +9,14 @@ interface FileEmbedderProps {
 }
 
 const FileEmbedder: React.FC<FileEmbedderProps> = ({ handleEmbed }) => {
-  const [isDragActive, setIsDragActive] = useState(false);
-
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       handleEmbed(acceptedFiles);
-      setIsDragActive(false);
     },
     [handleEmbed]
   );
 
-  const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
+  const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept: {
       "application/pdf": [".pdf"],
@@ -30,10 +27,6 @@ const FileEmbedder: React.FC<FileEmbedderProps> = ({ handleEmbed }) => {
     // 10 mb - this might be too much.
     maxSize: 10485760,
   });
-
-  const acceptedFileItems = acceptedFiles.map((file: any) => (
-    <li key={file.name}>{file.name}</li>
-  ));
 
   return (
     <>
