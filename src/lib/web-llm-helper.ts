@@ -22,6 +22,14 @@ export default class WebLLMHelper {
       ...message.slice(0, -1),
       { role: "assistant", content: report.text },
     ]);
+
+    // Clear the assistant message when the progress is 100% to avoid confusing the model
+    if (report.progress === 1) {
+      this.setStoredMessages((message) => [
+        ...message.slice(0, -1),
+        { role: "assistant", content: "" },
+      ]);
+    }
   };
 
   // Initialize the engine

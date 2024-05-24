@@ -115,6 +115,8 @@ export default function Home() {
   };
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    if (isLoading) return;
+
     let loadedEngine = engine;
 
     e.preventDefault();
