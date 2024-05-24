@@ -33,6 +33,8 @@ export default function ChatBottombar({
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
+      if (isLoading) return;
+
       e.preventDefault();
       handleSubmit(e as unknown as React.FormEvent<HTMLFormElement>);
     }
