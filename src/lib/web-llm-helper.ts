@@ -24,7 +24,7 @@ export default class WebLLMHelper {
     ]);
 
     // Clear the assistant message when the progress is 100% to avoid confusing the model
-    if (report.progress === 1) {
+    if (report.text.includes("Finish loading")) {
       this.setStoredMessages((message) => [
         ...message.slice(0, -1),
         { role: "assistant", content: "" },
