@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -9,7 +9,14 @@ import remarkGfm from "remark-gfm";
 import { Button } from "../ui/button";
 import { ChatProps } from "@/lib/types";
 import MessageLoading from "../ui/message-loading";
-import { CheckIcon, CopyIcon, FileTextIcon, RefreshCcw } from "lucide-react";
+import {
+  CheckIcon,
+  CopyIcon,
+  FileTextIcon,
+  RefreshCcw,
+  Volume2,
+  VolumeX,
+} from "lucide-react";
 import useChatStore from "@/hooks/useChatStore";
 
 export default function ChatList({
@@ -22,6 +29,36 @@ export default function ChatList({
   const [localStorageIsLoading, setLocalStorageIsLoading] =
     React.useState(true);
   const [isCopied, setisCopied] = React.useState<Record<number, boolean>>({});
+  const [textToSpeech, setTextToSpeech] =
+    useState<SpeechSynthesisUtterance | null>(null);
+  const [isSpeaking, setIsSpeaking] = React.useState<Record<number, boolean>>(
+    {}
+  );
+  const [currentSpeakingIndex, setCurrentSpeakingIndex] = useState<
+    number | null
+  >(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const utterance = new SpeechSynthesisUtterance();
+      utterance.volume = 0.2;
+
+      const setVoice = () => {
+        const voices = speechSynthesis.getVoices();
+        utterance.voice = voices[6];
+        setTextToSpeech(utterance);
+      };
+
+      setVoice();
+
+      speechSynthesis.addEventListener("voiceschanged", setVoice);
+
+      return () => {
+        speechSynthesis.cancel();
+        speechSynthesis.removeEventListener("voiceschanged", setVoice);
+      };
+    }
+  }, []);
 
   // Zustand
   const isLoading = useChatStore((state) => state.isLoading);
@@ -35,10 +72,12 @@ export default function ChatList({
   }, [messages]);
 
   useEffect(() => {
-    const username = localStorage.getItem("ollama_user");
-    if (username) {
-      setName(username);
-      setLocalStorageIsLoading(false);
+    if (typeof window !== "undefined") {
+      const username = localStorage.getItem("ollama_user");
+      if (username) {
+        setName(username);
+        setLocalStorageIsLoading(false);
+      }
     }
   }, []);
 
@@ -48,6 +87,34 @@ export default function ChatList({
     setTimeout(() => {
       setisCopied((prevState) => ({ ...prevState, [index]: false }));
     }, 1500);
+  };
+
+  const handleTextToSpeech = (text: string, index: number) => {
+    if (!textToSpeech) return;
+    // Stop the currently speaking text if any
+    if (currentSpeakingIndex !== null) {
+      speechSynthesis.cancel();
+      setIsSpeaking((prevState) => ({
+        ...prevState,
+        [currentSpeakingIndex]: false,
+      }));
+    }
+    // Start the new text-to-speech
+    if (isSpeaking[index]) {
+      speechSynthesis.cancel();
+      setIsSpeaking((prevState) => ({ ...prevState, [index]: false }));
+      setCurrentSpeakingIndex(null);
+    } else {
+      textToSpeech.text = text;
+      speechSynthesis.speak(textToSpeech);
+      setIsSpeaking((prevState) => ({ ...prevState, [index]: true }));
+      setCurrentSpeakingIndex(index);
+
+      textToSpeech.onend = () => {
+        setIsSpeaking((prevState) => ({ ...prevState, [index]: false }));
+        setCurrentSpeakingIndex(null);
+      };
+    }
   };
 
   if (messages.length === 0) {
@@ -162,7 +229,10 @@ export default function ChatList({
                           );
                         }
                       })}
+
+                    {/* Action buttons */}
                     <div className="pt-2 flex gap-1 items-center text-muted-foreground">
+                      {/* Copy button */}
                       {(!isLoading ||
                         messages.indexOf(message) !== messages.length - 1) && (
                         <Button
@@ -191,6 +261,25 @@ export default function ChatList({
                             <RefreshCcw className="w-3.5 h-3.5 scale-100 transition-all" />
                           </Button>
                         )}
+
+                      {/* Speaker icon */}
+                      {(!isLoading ||
+                        messages.indexOf(message) !== messages.length - 1) && (
+                        <Button
+                          onClick={() => {
+                            handleTextToSpeech(message.content, index);
+                          }}
+                          variant="ghost"
+                          size="icon"
+                          className="h-4 w-4"
+                        >
+                          {isSpeaking[index] ? (
+                            <VolumeX className="w-4 h-4 transition-all " />
+                          ) : (
+                            <Volume2 className="w-4 h-4 transition-all" />
+                          )}
+                        </Button>
+                      )}
                     </div>
 
                     {/* Loading dots */}
