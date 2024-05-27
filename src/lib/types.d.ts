@@ -23,4 +23,4 @@ export interface MessageWithFile extends ChatCompletionMessageParam {
 
 export type MergedProps = ChatLayoutProps & ChatProps;
 
-export type MessageWithFiles = Message & ChatCompletionMessageParam;
+export type MessageWithFiles = MessageWithFile & ChatCompletionMessageParam;

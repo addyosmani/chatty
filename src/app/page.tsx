@@ -123,7 +123,7 @@ export default function Home() {
     setIsLoading(true);
 
     const userMessage: MessageWithFiles = {
-      fileName: files ? files[0].name : "",
+      fileName: files ? files[0].name : undefined,
       role: "user",
       content: input,
     };

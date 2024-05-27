@@ -25,7 +25,7 @@ export default function CodeDisplayBlock({ code, lang }: ButtonCodeblockProps) {
   };
 
   return (
-    <div className="relative my-4 overflow-scroll overflow-x-scroll  flex flex-col   text-start  ">
+    <div className="relative overflow-scroll overflow-x-scroll  flex flex-col   text-start  ">
       <Button
         onClick={copyToClipboard}
         variant="ghost"

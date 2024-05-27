@@ -18,6 +18,7 @@ import {
   VolumeX,
 } from "lucide-react";
 import useChatStore from "@/hooks/useChatStore";
+import ButtonWithTooltip from "../button-with-tooltip";
 
 export default function ChatList({
   messages,
@@ -223,7 +224,10 @@ export default function ChatList({
                           );
                         } else {
                           return (
-                            <pre className="whitespace-pre-wrap" key={index}>
+                            <pre
+                              className="whitespace-pre-wrap pt-2"
+                              key={index}
+                            >
                               <CodeDisplayBlock code={part} lang="" />
                             </pre>
                           );
@@ -235,50 +239,62 @@ export default function ChatList({
                       {/* Copy button */}
                       {(!isLoading ||
                         messages.indexOf(message) !== messages.length - 1) && (
-                        <Button
-                          onClick={copyToClipboard(message.content, index)}
-                          variant="ghost"
-                          size="icon"
-                          className="h-4 w-4"
-                        >
-                          {isCopied[index] ? (
-                            <CheckIcon className="w-3.5 h-3.5 transition-all" />
-                          ) : (
-                            <CopyIcon className="w-3.5 h-3.5 transition-all" />
-                          )}
-                        </Button>
+                        <ButtonWithTooltip side="bottom" toolTipText="Copy">
+                          <Button
+                            onClick={copyToClipboard(message.content, index)}
+                            variant="ghost"
+                            size="icon"
+                            className="h-4 w-4"
+                          >
+                            {isCopied[index] ? (
+                              <CheckIcon className="w-3.5 h-3.5 transition-all" />
+                            ) : (
+                              <CopyIcon className="w-3.5 h-3.5 transition-all" />
+                            )}
+                          </Button>
+                        </ButtonWithTooltip>
                       )}
 
                       {/* Only show regenerate button on the last ai message */}
                       {!isLoading &&
                         messages.indexOf(message) === messages.length - 1 && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-4 w-4"
-                            onClick={onRegenerate}
+                          <ButtonWithTooltip
+                            side="bottom"
+                            toolTipText="Regenerate"
                           >
-                            <RefreshCcw className="w-3.5 h-3.5 scale-100 transition-all" />
-                          </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-4 w-4"
+                              onClick={onRegenerate}
+                            >
+                              <RefreshCcw className="w-3.5 h-3.5 scale-100 transition-all" />
+                            </Button>
+                          </ButtonWithTooltip>
                         )}
 
                       {/* Speaker icon */}
                       {(!isLoading ||
                         messages.indexOf(message) !== messages.length - 1) && (
-                        <Button
-                          onClick={() => {
-                            handleTextToSpeech(message.content, index);
-                          }}
-                          variant="ghost"
-                          size="icon"
-                          className="h-4 w-4"
+                        <ButtonWithTooltip
+                          side="bottom"
+                          toolTipText={isSpeaking[index] ? "Stop" : "Listen"}
                         >
-                          {isSpeaking[index] ? (
-                            <VolumeX className="w-4 h-4 transition-all " />
-                          ) : (
-                            <Volume2 className="w-4 h-4 transition-all" />
-                          )}
-                        </Button>
+                          <Button
+                            onClick={() => {
+                              handleTextToSpeech(message.content, index);
+                            }}
+                            variant="ghost"
+                            size="icon"
+                            className="h-4 w-4"
+                          >
+                            {isSpeaking[index] ? (
+                              <VolumeX className="w-4 h-4 transition-all " />
+                            ) : (
+                              <Volume2 className="w-4 h-4 transition-all" />
+                            )}
+                          </Button>
+                        </ButtonWithTooltip>
                       )}
                     </div>
 

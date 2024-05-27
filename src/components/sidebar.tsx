@@ -126,7 +126,7 @@ export function Sidebar({ isCollapsed, chatId }: SidebarProps) {
             />
             New chat
           </div>
-          <SquarePen size={18} className="shrink-0 w-4 h-4" />
+          <SquarePen size={18} className="shrink-0 w-5 h-5" />
         </Button>
 
         <div className="flex flex-col pt-10 gap-2">
