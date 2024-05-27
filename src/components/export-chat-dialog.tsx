@@ -101,7 +101,7 @@ export default function ExportChatDialog({
 
         <div className="overflow-hidden max-h-80 w-full">
           <DialogDescription>Preview</DialogDescription>
-          <pre className="whitespace-pre-wrap overflow-scroll max-h-80 pt-2">
+          <pre className="whitespace-pre-wrap overflow-scroll max-h-80 pt-2 text-xs">
             {fileType === "json" ? (
               <CodeDisplayBlock
                 code={JSON.stringify(messages, null, 2)}
