@@ -45,9 +45,9 @@ export default function ChatTopbar({ chatId }: ChatTopbarProps) {
             variant="ghost"
             role="combobox"
             aria-expanded={open}
-            className="w-[200px] lg:w-[300px] justify-between bg-accent dark:bg-card"
+            className="w-[180px] md:w-[300px] justify-between bg-accent dark:bg-card"
           >
-            {selectedModel.displayName}
+            <p className="truncate">{selectedModel.displayName}</p>
             <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
@@ -67,6 +67,7 @@ export default function ChatTopbar({ chatId }: ChatTopbarProps) {
           ))}
         </PopoverContent>
       </Popover>
+      <div></div>
     </div>
   );
 }

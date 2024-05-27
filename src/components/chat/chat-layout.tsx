@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Sidebar } from "../sidebar";
 import { AnimatePresence, motion } from "framer-motion";
 import { DividerVerticalIcon } from "@radix-ui/react-icons";
-import { ChevronRightIcon, SquarePen } from "lucide-react";
+import { ChevronRightIcon, Download, SquarePen } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -17,6 +17,8 @@ import { Button } from "../ui/button";
 import useChatStore from "@/hooks/useChatStore";
 import { useRouter } from "next/navigation";
 import useMemoryStore from "@/hooks/useMemoryStore";
+import ButtonWithTooltip from "../button-with-tooltip";
+import ExportChatDialog from "../export-chat-dialog";
 
 export default function ChatLayout({
   messages,
@@ -32,6 +34,8 @@ export default function ChatLayout({
   const setFileText = useChatStore((state) => state.setFileText);
   const setChatId = useMemoryStore((state) => state.setChatId);
   const router = useRouter();
+
+  const [open, setOpen] = React.useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -91,6 +95,7 @@ export default function ChatLayout({
         </div>
         <div>
           <motion.div
+            key="new-chat"
             initial={{ opacity: 0 }}
             animate={{ opacity: isCollapsed ? 1 : 0 }}
             transition={{
@@ -98,31 +103,37 @@ export default function ChatLayout({
               ease: "easeInOut",
               delay: isCollapsed ? 0.2 : 0,
             }}
+            className="hidden md:flex"
           >
-            <Button
-              variant="ghost"
-              className="absolute gap-3 left-4 top-2 rounded-full"
-              size="icon"
-              disabled={!isCollapsed}
-              onClick={() => {
-                handleNewChat();
-              }}
-            >
-              <SquarePen size={18} className="shrink-0 w-5 h-5" />
-            </Button>
+            <ButtonWithTooltip side="right" toolTipText="New chat">
+              <Button
+                variant="ghost"
+                className="absolute gap-3 left-4 top-5 rounded-full"
+                size="icon"
+                disabled={!isCollapsed}
+                onClick={() => {
+                  handleNewChat();
+                }}
+              >
+                <SquarePen size={18} className="shrink-0 w-5 h-5" />
+              </Button>
+            </ButtonWithTooltip>
           </motion.div>
         </div>
-        <div className="h-full w-full flex flex-col items-center justify-center">
-          <Chat
-            messages={messages}
-            handleSubmit={handleSubmit}
-            stop={stop}
-            chatId={chatId}
-            loadingSubmit={loadingSubmit}
-            onRegenerate={onRegenerate}
-          />
-        </div>
       </AnimatePresence>
+      <div className="h-full w-full flex flex-col items-center justify-center">
+        <Chat
+          messages={messages}
+          handleSubmit={handleSubmit}
+          stop={stop}
+          chatId={chatId}
+          loadingSubmit={loadingSubmit}
+          onRegenerate={onRegenerate}
+        />
+
+        {/* Export chat button */}
+        <ExportChatDialog open={open} setOpen={setOpen} />
+      </div>
     </div>
   );
 }

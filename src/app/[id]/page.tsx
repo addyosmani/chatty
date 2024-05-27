@@ -81,7 +81,7 @@ export default function Page({ params }: { params: { id: string } }) {
     );
 
     const userMessage: MessageWithFiles = {
-      fileName: files ? files[0].name : "",
+      fileName: files ? files[0].name : undefined,
       role: "user",
       content: input,
     };
