@@ -80,7 +80,7 @@ export default function Home() {
 
   useEffect(() => {
     if (window !== undefined) {
-      if (!localStorage.getItem("ollama_user")) {
+      if (!localStorage.getItem("chatty_user")) {
         setOpen(true);
       }
     }

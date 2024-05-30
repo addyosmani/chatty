@@ -74,7 +74,7 @@ export default function ChatList({
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const username = localStorage.getItem("ollama_user");
+      const username = localStorage.getItem("chatty_user");
       if (username) {
         setName(username);
         setLocalStorageIsLoading(false);
@@ -123,23 +123,21 @@ export default function ChatList({
       <div className="w-full h-full flex justify-center items-center p-5 md:p-0">
         <div className="relative flex flex-col gap-4 items-center justify-center w-full h-full">
           <div></div>
-          <div className="flex flex-col gap-4 items-center">
+          <div className="flex flex-col gap-1 items-center">
             <Image
-              src="/ollama.png"
+              src="/logo.svg"
               alt="AI"
-              width={60}
-              height={60}
-              className="h-20 w-14 object-contain dark:invert"
+              width={70}
+              height={70}
+              className="dark:invert"
             />
-            <div className="flex flex-col gap-2">
-              <p className="text-center text-2xl font-semibold text-muted-foreground/75">
-                How can I help you today?
-              </p>
-              <p className="text-center text-sm text-muted-foreground/60 max-w-lg">
-                Models with <strong>(1k)</strong> suffix lowers VRAM
-                requirements by ~2-3GB.
-              </p>
-            </div>
+            <p className="text-center text-5xl font-semibold text-muted-foreground/75">
+              How can I help you today?
+            </p>
+            <p className="text-center text-sm text-muted-foreground/60 max-w-lg">
+              Models with <strong>(1k)</strong> suffix lowers VRAM requirements
+              by ~2-3GB.
+            </p>
           </div>
 
           <div className="absolute bottom-0 w-full px-4 sm:max-w-3xl grid gap-2 sm:grid-cols-2 sm:gap-4 text-sm"></div>
@@ -202,13 +200,11 @@ export default function ChatList({
               )}
               {message.role === "assistant" && (
                 <div className="flex items-end gap-2">
-                  <Avatar className="flex justify-start items-center">
+                  <Avatar className="flex justify-center rounded-full bg-card items-center">
                     <AvatarImage
-                      src="/ollama.png"
+                      src="/logo.svg"
                       alt="AI"
-                      width={6}
-                      height={6}
-                      className="object-contain dark:invert"
+                      className="w-7 h-7 dark:invert"
                     />
                   </Avatar>
                   <span className="bg-accent p-3 rounded-r-md rounded-tl-md max-w-xs sm:max-w-xl overflow-x-auto">
