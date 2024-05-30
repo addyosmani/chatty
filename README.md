@@ -38,6 +38,10 @@ https://github.com/addyosmani/chatty/assets/114422072/04f0651d-530f-491b-8e24-5a
 By default, WebGPU is enabled and supported in both Chrome and Edge. However, it is possible to enable it in Firefox and Firefox Nightly aswell as Safari.
 Check the [browser compatibility](https://developer.mozilla.org/en-US/docs/Web/API/WebGPU_API#browser_compatibility) for more information.
 
+# Why?
+
+This project is meant to be the closest attempt at bringing the familarity & functionality from popular AIs such as ChatGPT and Gemini into a in-browser environment.
+
 # Acknowledgements & credits
 
 Chatty is built with help from the [WebLLM](https://github.com/mlc-ai/web-llm) project, utilizing [HuggingFace](https://huggingface.co/) and open source LLMs. We want to acknowledge their great work and thank the open source community.
