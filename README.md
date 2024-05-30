@@ -1,9 +1,9 @@
 <div align="center">
-  <img src="chatty-prev-gif.gif">](https://chattyui.com/)
+  <img src="demo-img.jpg">
 </div>
 
 <h1 align="center">
-  **Chatty** - Run large language models (LLMs) natively & privately in your own browser. No need for any server-side processing.
+  Run large language models (LLMs) natively & privately in your own browser. No need for any server-side processing.
 </h1>
 
 <div align="center">
@@ -30,6 +30,8 @@
 - **Light & Dark mode:** Switch between light & dark mode.
 
 # Preview
+
+https://github.com/addyosmani/chatty/assets/114422072/04f0651d-530f-491b-8e24-5a58d6df9a25
 
 # Browser support
 
