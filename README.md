@@ -1,7 +1,5 @@
-@@ -0,0 +1,32 @@
-
 <div align="center">
-  [<img src="demo.gif">](https://chattyui.com/)
+  <img src="chatty-prev-gif.gif">](https://chattyui.com/)
 </div>
 
 <h1 align="center">
