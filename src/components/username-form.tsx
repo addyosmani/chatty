@@ -35,7 +35,7 @@ export default function UsernameForm({ setOpen }: UsernameFormProps) {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    localStorage.setItem("ollama_user", values.username);
+    localStorage.setItem("chatty_user", values.username);
     window.dispatchEvent(new Event("storage"));
     setOpen(false);
   }

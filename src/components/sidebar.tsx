@@ -118,10 +118,10 @@ export function Sidebar({ isCollapsed, chatId }: SidebarProps) {
         >
           <div className="flex gap-3 items-center ">
             <Image
-              src="/ollama.png"
+              src="/logo.svg"
               alt="AI"
-              width={28}
-              height={28}
+              width={34}
+              height={34}
               className="dark:invert"
             />
             New chat

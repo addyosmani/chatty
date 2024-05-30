@@ -21,7 +21,7 @@ export default function UserSettings() {
 
   useEffect(() => {
     const handleStorageChange = () => {
-      const username = localStorage.getItem("ollama_user");
+      const username = localStorage.getItem("chatty_user");
       if (username) {
         setName(username);
         setIsLoading(false);
@@ -29,7 +29,7 @@ export default function UserSettings() {
     };
 
     const fetchData = () => {
-      const username = localStorage.getItem("ollama_user");
+      const username = localStorage.getItem("chatty_user");
       if (username) {
         setName(username);
         setIsLoading(false);
