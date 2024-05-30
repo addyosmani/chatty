@@ -4,7 +4,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { WebLLMProvider } from "@/providers/web-llm-provider";
-import { title } from "process";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 const metainfo = {
   name: "Chatty",
@@ -73,6 +73,7 @@ export default function RootLayout({
           </ThemeProvider>
         </WebLLMProvider>
       </body>
+      <GoogleAnalytics gaId="G-6X7CQT49KF" />
     </html>
   );
 }
