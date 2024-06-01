@@ -66,8 +66,6 @@ export default class WebLLMHelper {
   ): AsyncGenerator<string> {
     const storedMessages = useChatStore.getState().messages;
 
-    console.log(storedMessages);
-    console.log(input);
     const completion = await engine.chat.completions.create({
       stream: true,
       messages: [
@@ -100,8 +98,6 @@ export default class WebLLMHelper {
     fileName: string,
     userInput: string
   ): Promise<string | undefined> {
-    console.log("Processing documents in WebLLMHelper");
-
     return new Promise((resolve, reject) => {
       const worker = new Worker(
         new URL("./vector-store-worker.ts", import.meta.url),
@@ -112,7 +108,6 @@ export default class WebLLMHelper {
 
       worker.onmessage = (e: MessageEvent) => {
         const results = e.data;
-        console.log("Worker returned results:", results);
         if (results) {
           // Process results
           const qaPrompt = `\nText content from a file is provided between the <context> tags. The file name and type is also included in the <context> tag. Answer the user question based on the context provied. Also, always keep old messages in mind when answering questions.
@@ -130,7 +125,6 @@ export default class WebLLMHelper {
           Answer:
           ""
           `;
-          console.log("Processed QA prompt:", qaPrompt);
           resolve(qaPrompt);
         } else {
           reject("Error processing documents");

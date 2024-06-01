@@ -109,13 +109,10 @@ export default function Page({ params }: { params: { id: string } }) {
 
     setIsLoading(false);
     setLoadingSubmit(false);
-
-    console.log(await loadedEngine.runtimeStatsText());
   };
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     let loadedEngine = engine;
-    console.log(storedMessages);
 
     e.preventDefault();
     setIsLoading(true);
@@ -147,8 +144,6 @@ export default function Page({ params }: { params: { id: string } }) {
     setInput("");
 
     if (!loadedEngine) {
-      console.log("Engine not loaded");
-
       // Load engine
       try {
         loadedEngine = await webLLMHelper.initialize(selectedModel);
@@ -174,8 +169,6 @@ export default function Page({ params }: { params: { id: string } }) {
       if (existingFile) {
         const { fileText, fileType, fileName } = JSON.parse(existingFile);
 
-        console.log("Uploaded file exists");
-        console.log({ fileText });
         const qaPrompt = await webLLMHelper.processDocuments(
           fileText,
           fileType,
@@ -241,8 +234,6 @@ export default function Page({ params }: { params: { id: string } }) {
     if (existingFile) {
       const { fileText, fileType, fileName } = JSON.parse(existingFile);
 
-      console.log("Uploaded file exists");
-      console.log({ fileText });
       const qaPrompt = await webLLMHelper.processDocuments(
         fileText,
         fileType,
