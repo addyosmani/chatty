@@ -49,10 +49,10 @@ Check the [browser compatibility](https://developer.mozilla.org/en-US/docs/Web/A
 # Hardware requirements
 
 > [!NOTE]  
-> Smaller models might not be able to process file embeddings as efficient as larger ones.
-> 
 > To run the models efficiently, you'll need a GPU with enough memory. 7B models require a GPU with about 6GB memory whilst 3B models require around 3GB.
+> 
+> Smaller models might not be able to process file embeddings as efficient as larger ones.
 
 # Acknowledgements & credits
 
-Chatty is built with help from the [WebLLM](https://github.com/mlc-ai/web-llm) project, utilizing [HuggingFace](https://huggingface.co/) and open source LLMs. We want to acknowledge their great work and thank the open source community.
+Chatty is built using the [WebLLM](https://github.com/mlc-ai/web-llm) project, utilizing [HuggingFace](https://huggingface.co/), open source LLMs and [LangChain](https://www.langchain.com/). We want to acknowledge their great work and thank the open source community.
