@@ -131,7 +131,7 @@ export default function ChatList({
               height={70}
               className="dark:invert"
             />
-            <p className="text-center text-5xl font-semibold text-muted-foreground/75">
+            <p className="text-center text-2xl md:text-5xl font-semibold text-muted-foreground/75">
               How can I help you today?
             </p>
             <p className="text-center text-sm text-muted-foreground/60 max-w-lg">
