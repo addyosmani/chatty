@@ -41,6 +41,7 @@ export function Sidebar({ isCollapsed, chatId }: SidebarProps) {
   const setChatId = useMemoryStore((state) => state.setChatId);
   const setFiles = useChatStore((state) => state.setFiles);
   const setFileText = useChatStore((state) => state.setFileText);
+  const [open, setOpen] = useState(false);
 
   const router = useRouter();
 
@@ -100,12 +101,13 @@ export function Sidebar({ isCollapsed, chatId }: SidebarProps) {
   };
 
   const handleDeleteChat = (chatId: string) => {
+    router.push("/");
     const id = chatId.substring(5);
     localStorage.removeItem(chatId);
     localStorage.removeItem(`chatFile_${id}`);
     window.dispatchEvent(new Event("storage"));
     setLocalChats(getLocalstorageChats());
-    router.push("/");
+    setMessages(() => []);
   };
 
   return (
@@ -134,70 +136,81 @@ export function Sidebar({ isCollapsed, chatId }: SidebarProps) {
           {localChats.length > 0 && (
             <div>
               {localChats.map(({ chatId, messages }, index) => (
-                <Link
-                  key={index}
-                  href={`/${chatId.substr(5)}`}
-                  className={cn(
-                    {
-                      [buttonVariants({ variant: "secondaryLink" })]:
-                        chatId.substring(5) === selectedChatId,
-                      [buttonVariants({ variant: "ghost" })]:
-                        chatId.substring(5) !== selectedChatId,
-                    },
-                    "flex justify-between w-full h-14 text-base font-normal items-center rounded-full "
-                  )}
-                >
-                  <div className="flex gap-3 items-center truncate">
-                    <div className="flex flex-col">
-                      <span className="text-xs font-normal ">
-                        {messages.length > 0 ? messages[0].content : ""}
-                      </span>
+                <div className="relative flex items-center" key={index}>
+                  <Link
+                    key={index}
+                    href={`/${chatId.substr(5)}`}
+                    className={cn(
+                      {
+                        [buttonVariants({ variant: "secondaryLink" })]:
+                          chatId.substring(5) === selectedChatId,
+                        [buttonVariants({ variant: "ghost" })]:
+                          chatId.substring(5) !== selectedChatId,
+                      },
+                      "flex justify-between w-full h-14 text-base font-normal items-center rounded-full relative"
+                    )}
+                  >
+                    <div className="flex gap-3 items-center truncate">
+                      <div className="flex flex-col">
+                        <span className="text-xs font-normal ">
+                          {messages.length > 0 ? messages[0].content : ""}
+                        </span>
+                      </div>
                     </div>
+                  </Link>
+
+                  <div className="absolute right-2" key="dropdown">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className="flex justify-end items-center rounded-full"
+                        >
+                          <MoreHorizontal size={15} className="shrink-0" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className=" ">
+                        <Dialog open={open} onOpenChange={setOpen}>
+                          <DialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              className="w-full flex gap-2 hover:text-red-500 text-red-500 justify-start items-center"
+                            >
+                              <Trash2 className="shrink-0 w-4 h-4" />
+                              Delete chat
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader className="space-y-4">
+                              <DialogTitle>Delete chat?</DialogTitle>
+                              <DialogDescription>
+                                Are you sure you want to delete this chat? This
+                                action cannot be undone.
+                              </DialogDescription>
+                              <div className="flex justify-end gap-2">
+                                <Button
+                                  variant="outline"
+                                  onClick={() => setOpen(false)}
+                                >
+                                  Cancel
+                                </Button>
+                                <Button
+                                  variant="destructive"
+                                  onClick={() => {
+                                    handleDeleteChat(chatId);
+                                    setOpen(false);
+                                  }}
+                                >
+                                  Delete
+                                </Button>
+                              </div>
+                            </DialogHeader>
+                          </DialogContent>
+                        </Dialog>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        className="flex justify-end items-center rounded-full"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <MoreHorizontal size={15} className="shrink-0" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className=" ">
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            className="w-full flex gap-2 hover:text-red-500 text-red-500 justify-start items-center"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <Trash2 className="shrink-0 w-4 h-4" />
-                            Delete chat
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader className="space-y-4">
-                            <DialogTitle>Delete chat?</DialogTitle>
-                            <DialogDescription>
-                              Are you sure you want to delete this chat? This
-                              action cannot be undone.
-                            </DialogDescription>
-                            <div className="flex justify-end gap-2">
-                              <Button variant="outline">Cancel</Button>
-                              <Button
-                                variant="destructive"
-                                onClick={() => handleDeleteChat(chatId)}
-                              >
-                                Delete
-                              </Button>
-                            </div>
-                          </DialogHeader>
-                        </DialogContent>
-                      </Dialog>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </Link>
+                </div>
               ))}
             </div>
           )}
