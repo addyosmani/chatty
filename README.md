@@ -80,6 +80,10 @@ npm run dev
 - **Multiple file embeddings:** The ability to embed multiple files instead of one at a time for each session.
 - **Prompt management system:** Select from and add different system prompts to quickly use in a session.
 
+# Contributing
+
+Contributions are more than welcome! However, please make sure to read the [contributing guidelines](https://github.com/addyosmani/chatty/CONTRIBUTING.md) first :)
+
 # Hardware requirements
 
 > [!NOTE]  
