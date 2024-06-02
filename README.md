@@ -1,6 +1,7 @@
-
 <div align="center">
-  <img src="demo-img.jpg">
+  
+  [<img src="demo-img.jpg">](https://chattyui.com/)
+  
 </div>
 
 <h1 align="center">
@@ -11,8 +12,6 @@
   
 ![Website](https://img.shields.io/website?url=https%3A%2F%2Fchattyui.com%2F) ![GitHub Repo stars](https://img.shields.io/github/stars/addyosmani/chatty) ![GitHub forks](https://img.shields.io/github/forks/addyosmani/chatty) ![GitHub watchers](https://img.shields.io/github/watchers/addyosmani/chatty)
 
-
-  
 </div>
 
 **Chatty** is your private AI that leverages WebGPU to run large language models (LLMs) natively & privately in your browser, bringing you the most feature rich in-browser AI experience.
@@ -46,11 +45,46 @@ This project is meant to be the closest attempt at bringing the familarity & fun
 By default, WebGPU is enabled and supported in both Chrome and Edge. However, it is possible to enable it in Firefox and Firefox Nightly.
 Check the [browser compatibility](https://developer.mozilla.org/en-US/docs/Web/API/WebGPU_API#browser_compatibility) for more information.
 
+# How to Install
+
+If you want to setup and run the project locally, follow the steps below:
+
+**1. Clone the repository to a directory on your pc via command prompt:**
+
+```
+git clone https://github.com/addyosmani/chatty
+```
+
+**2. Open the folder:**
+
+```
+cd chatty
+```
+
+**3. Install dependencies:**
+
+```
+npm install
+```
+
+**4. Start the development server:**
+
+```
+npm run dev
+```
+
+**5. Go to [localhost:3000](http://localhost:3000) and start chatting!**
+
+# Roadmap
+
+- **Multiple file embeddings:** The ability to embed multiple files instead of one at a time for each session.
+- **Prompt management system:** Select from and add different system prompts to quickly use in a session.
+
 # Hardware requirements
 
 > [!NOTE]  
 > To run the models efficiently, you'll need a GPU with enough memory. 7B models require a GPU with about 6GB memory whilst 3B models require around 3GB.
-> 
+>
 > Smaller models might not be able to process file embeddings as efficient as larger ones.
 
 # Acknowledgements & credits
