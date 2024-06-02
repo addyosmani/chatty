@@ -150,7 +150,7 @@ export function Sidebar({ isCollapsed, chatId }: SidebarProps) {
                       "flex justify-between w-full h-14 text-base font-normal items-center rounded-full relative"
                     )}
                   >
-                    <div className="flex gap-3 items-center truncate">
+                    <div className="flex gap-3 items-center truncate max-w-48">
                       <div className="flex flex-col">
                         <span className="text-xs font-normal ">
                           {messages.length > 0 ? messages[0].content : ""}
