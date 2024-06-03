@@ -247,9 +247,18 @@ export default function Home() {
     setLoadingSubmit(false);
   };
 
+  const onOpenChange = (isOpen: boolean) => {
+    const username = localStorage.getItem("chatty_user");
+    if (username) return setOpen(isOpen);
+
+    localStorage.setItem("chatty_user", "Anonymous");
+    window.dispatchEvent(new Event("storage"));
+    setOpen(isOpen);
+  };
+
   return (
     <main className="flex h-[calc(100dvh)] flex-col items-center ">
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={onOpenChange}>
         <ChatLayout
           messages={storedMessages}
           handleSubmit={onSubmit}
