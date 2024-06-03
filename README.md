@@ -47,6 +47,10 @@ Check the [browser compatibility](https://developer.mozilla.org/en-US/docs/Web/A
 
 # How to Install
 
+> If you just want to try out the app, it's live on [this](https://chattyui.com) website. 
+>
+> This is a Next.js application and requires Node.js (18+) and npm installed to run the project locally.
+
 If you want to setup and run the project locally, follow the steps below:
 
 **1. Clone the repository to a directory on your pc via command prompt:**
@@ -77,12 +81,12 @@ npm run dev
 
 # Roadmap
 
-- **Multiple file embeddings:** The ability to embed multiple files instead of one at a time for each session.
-- **Prompt management system:** Select from and add different system prompts to quickly use in a session.
+- [ ] **Multiple file embeddings:** The ability to embed multiple files instead of one at a time for each session.
+- [ ] **Prompt management system:** Select from and add different system prompts to quickly use in a session.
 
 # Contributing
 
-Contributions are more than welcome! However, please make sure to read the [contributing guidelines](https://github.com/addyosmani/chatty/CONTRIBUTING.md) first :)
+Contributions are more than welcome! However, please make sure to read the [contributing guidelines](https://github.com/addyosmani/chatty/blob/main/CONTRIBUTING.md) first :)
 
 # Hardware requirements
 
@@ -94,3 +98,6 @@ Contributions are more than welcome! However, please make sure to read the [cont
 # Acknowledgements & credits
 
 Chatty is built using the [WebLLM](https://github.com/mlc-ai/web-llm) project, utilizing [HuggingFace](https://huggingface.co/), open source LLMs and [LangChain](https://www.langchain.com/). We want to acknowledge their great work and thank the open source community.
+
+# Authors
+Chatty is created and maintained by [Addy Osmani](https://github.com/addyosmani/) & [Jakob Hoeg Mørk](https://github.com/jakobhoeg).
