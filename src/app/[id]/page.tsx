@@ -199,9 +199,9 @@ export default function Page({ params }: { params: { id: string } }) {
     if (!engine) {
       return;
     }
+    engine.interruptGenerate();
     setIsLoading(false);
     setLoadingSubmit(false);
-    engine.interruptGenerate();
   };
 
   const onRegenerate = async () => {

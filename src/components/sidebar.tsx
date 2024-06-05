@@ -29,9 +29,10 @@ import useMemoryStore from "@/hooks/useMemoryStore";
 interface SidebarProps {
   isCollapsed: boolean;
   chatId: string;
+  stop: () => void;
 }
 
-export function Sidebar({ isCollapsed, chatId }: SidebarProps) {
+export function Sidebar({ isCollapsed, chatId, stop }: SidebarProps) {
   const [localChats, setLocalChats] = useState<
     { chatId: string; messages: Message[] }[]
   >([]);
@@ -92,12 +93,14 @@ export function Sidebar({ isCollapsed, chatId }: SidebarProps) {
   };
 
   const handleNewChat = () => {
-    // Clear messages
-    setMessages(() => []);
-    setChatId("");
-    setFiles(undefined);
-    setFileText(null);
-    router.push("/");
+    stop();
+    setTimeout(() => {
+      setChatId("");
+      setFiles(undefined);
+      setFileText(null);
+      router.push("/");
+      setMessages(() => []);
+    }, 50);
   };
 
   const handleDeleteChat = (chatId: string) => {

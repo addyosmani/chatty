@@ -54,11 +54,14 @@ export default function ChatLayout({
 
   const handleNewChat = () => {
     // Clear messages
-    setStoredMessages(() => []);
-    setChatId("");
-    setFiles(undefined);
-    setFileText(null);
-    router.push("/");
+    stop();
+    setTimeout(() => {
+      setStoredMessages(() => []);
+      setChatId("");
+      setFiles(undefined);
+      setFileText(null);
+      router.push("/");
+    }, 50);
   };
 
   return (
@@ -71,7 +74,7 @@ export default function ChatLayout({
           transition={{ duration: 0.2, ease: "easeInOut" }}
           className="w-72 hidden md:block shrink-0"
         >
-          <Sidebar isCollapsed={isCollapsed} chatId={chatId} />
+          <Sidebar isCollapsed={isCollapsed} chatId={chatId} stop={stop} />
         </motion.div>
         <div
           key="divider"
