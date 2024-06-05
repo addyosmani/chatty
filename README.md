@@ -34,7 +34,7 @@
 
 # Preview
 
-https://github.com/addyosmani/chatty/assets/114422072/04f0651d-530f-491b-8e24-5a58d6df9a25
+https://github.com/addyosmani/chatty/assets/114422072/a994cc5c-a99d-4fd2-9eab-c2d4267fcfd3
 
 # Why?
 
