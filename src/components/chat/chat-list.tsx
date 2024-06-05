@@ -139,8 +139,6 @@ export default function ChatList({
               by ~2-3GB.
             </p>
           </div>
-
-          <div className="absolute bottom-0 w-full px-4 sm:max-w-3xl grid gap-2 sm:grid-cols-2 sm:gap-4 text-sm"></div>
         </div>
       </div>
     );

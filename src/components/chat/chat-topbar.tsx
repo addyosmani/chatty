@@ -17,9 +17,10 @@ import { Models, Model } from "@/lib/models";
 
 interface ChatTopbarProps {
   chatId?: string;
+  stop: () => void;
 }
 
-export default function ChatTopbar({ chatId }: ChatTopbarProps) {
+export default function ChatTopbar({ chatId, stop }: ChatTopbarProps) {
   const [open, setOpen] = React.useState(false);
 
   // Zustand store
@@ -34,7 +35,7 @@ export default function ChatTopbar({ chatId }: ChatTopbarProps) {
           <HamburgerMenuIcon className="md:hidden w-5 h-5" />
         </SheetTrigger>
         <SheetContent side="left">
-          <Sidebar chatId={chatId || ""} isCollapsed={false} />
+          <Sidebar chatId={chatId || ""} isCollapsed={false} stop={stop} />
         </SheetContent>
       </Sheet>
 

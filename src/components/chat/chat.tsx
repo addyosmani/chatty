@@ -35,7 +35,7 @@ export default function Chat({
 
   return (
     <div className="flex flex-col justify-between w-full max-w-3xl h-full  ">
-      <ChatTopbar chatId={chatId} />
+      <ChatTopbar chatId={chatId} stop={stop} />
 
       <ChatList
         messages={messages}
