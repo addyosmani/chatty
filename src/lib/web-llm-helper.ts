@@ -4,6 +4,7 @@ import useChatStore from "@/hooks/useChatStore";
 import * as webllm from "@mlc-ai/web-llm";
 import { Model } from "./models";
 import { Document } from "@langchain/core/documents";
+import { XenovaTransformersEmbeddings, getEmbeddingsInstance } from "./embed";
 
 export default class WebLLMHelper {
   engine: webllm.EngineInterface | null;
@@ -43,6 +44,9 @@ export default class WebLLMHelper {
         content: "Loading model... This might take a while",
       },
     ]);
+
+    await getEmbeddingsInstance();
+
     const engine: webllm.EngineInterface = await webllm.CreateWebWorkerEngine(
       new Worker(new URL("./worker.ts", import.meta.url), {
         type: "module",
@@ -136,7 +140,11 @@ export default class WebLLMHelper {
         reject(err);
       };
 
-      worker.postMessage({ fileText, fileType, userInput });
+      worker.postMessage({
+        fileText,
+        fileType,
+        userInput,
+      });
     });
   }
 }

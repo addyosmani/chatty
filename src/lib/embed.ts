@@ -10,7 +10,6 @@ export class XenovaTransformersEmbeddings
   implements XenovaTransformersEmbeddingsParams
 {
   model: string;
-
   client: any;
 
   constructor(fields?: XenovaTransformersEmbeddingsParams) {
@@ -45,4 +44,14 @@ export class XenovaTransformersEmbeddings
   embedDocuments(documents: string[]): Promise<number[][]> {
     return this._embed(documents);
   }
+}
+
+let embeddingsInstance: XenovaTransformersEmbeddings | null = null;
+
+export async function getEmbeddingsInstance(): Promise<XenovaTransformersEmbeddings> {
+  if (!embeddingsInstance) {
+    embeddingsInstance = new XenovaTransformersEmbeddings();
+    await embeddingsInstance._embed(["initialization"]); // Initialize the client
+  }
+  return embeddingsInstance;
 }
