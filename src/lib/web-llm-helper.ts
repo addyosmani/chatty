@@ -37,6 +37,10 @@ export default class WebLLMHelper {
   public async initialize(
     selectedModel: Model
   ): Promise<webllm.EngineInterface> {
+    if (!("gpu" in navigator)) {
+      return Promise.reject("This device does not support GPU acceleration.");
+    }
+
     this.setStoredMessages((message) => [
       ...message.slice(0, -1),
       {
