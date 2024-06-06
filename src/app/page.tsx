@@ -147,7 +147,7 @@ export default function Home() {
           ...message.slice(0, -1),
           {
             role: "assistant",
-            content: "Failed to load model. Please try again.",
+            content: "Failed to load model. " + e,
           },
         ]);
         return;
@@ -183,7 +183,7 @@ export default function Home() {
         ...message.slice(0, -1),
         {
           role: "assistant",
-          content: "Failed to get completion. Please try again.",
+          content: "Failed to load model. " + e,
         },
       ]);
     }
