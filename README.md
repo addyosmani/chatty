@@ -79,6 +79,10 @@ npm run dev
 
 **5. Go to [localhost:3000](http://localhost:3000) and start chatting!**
 
+# How to run (using Docker)
+
+We can simply use `docker compose up` to build and run the application in a containerized way. If we want to relaunch after rebuilding because we have made some changes, then we can use `docker-compose up --build`.
+
 # Roadmap
 
 - [ ] **Multiple file embeddings:** The ability to embed multiple files instead of one at a time for each session.
