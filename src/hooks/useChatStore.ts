@@ -12,7 +12,7 @@ interface State {
   modelHasChanged: boolean;
   isLoading: boolean;
   messages: webllm.ChatCompletionMessageParam[];
-  engine: webllm.EngineInterface | null;
+  engine: webllm.MLCEngineInterface | null;
   fileText: Document<Record<string, any>>[] | null;
   files: File[] | undefined;
 }
@@ -32,7 +32,7 @@ interface Actions {
       messages: webllm.ChatCompletionMessageParam[]
     ) => webllm.ChatCompletionMessageParam[]
   ) => void;
-  setEngine: (engine: webllm.EngineInterface | null) => void;
+  setEngine: (engine: webllm.MLCEngineInterface | null) => void;
   setFileText: (text: Document<Record<string, any>>[] | null) => void;
   setFiles: (files: File[] | undefined) => void;
 }
