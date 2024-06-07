@@ -71,7 +71,8 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const generateCompletion = async (
     loadedEngine: webllm.EngineInterface,
-    prompt: string
+    prompt: string,
+    regenerate: boolean = false
   ) => {
     const completion = webLLMHelper.generateCompletion(
       loadedEngine,
@@ -96,6 +97,25 @@ export default function Page({ params }: { params: { id: string } }) {
         { role: "assistant", content: assistantMessage },
       ]);
     }
+
+    // If regenerate is true, we only update the last assistant message
+    if (regenerate) {
+      localStorage.setItem(
+        `chat_${params.id}`,
+        JSON.stringify([
+          ...storedMessages.slice(0, -1),
+          { role: "assistant", content: assistantMessage },
+        ])
+      );
+
+      window.dispatchEvent(new Event("storage"));
+
+      setIsLoading(false);
+      setLoadingSubmit(false);
+
+      return;
+    }
+
     localStorage.setItem(
       `chat_${params.id}`,
       JSON.stringify([
@@ -154,7 +174,7 @@ export default function Page({ params }: { params: { id: string } }) {
           ...message.slice(0, -1),
           {
             role: "assistant",
-            content: "Failed to load model. Please try again.",
+            content: "Failed to load model. " + e,
           },
         ]);
         return;
@@ -244,9 +264,9 @@ export default function Page({ params }: { params: { id: string } }) {
         return;
       }
 
-      await generateCompletion(engine, qaPrompt);
+      await generateCompletion(engine, qaPrompt, true);
     } else {
-      await generateCompletion(engine, lastMsg.toString());
+      await generateCompletion(engine, lastMsg.toString(), true);
     }
 
     setIsLoading(false);
