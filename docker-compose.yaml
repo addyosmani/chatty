@@ -1,0 +1,9 @@
+version: '3.6'
+services:
+  chatty:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: chatty
+    ports:
+      - 3000:3000

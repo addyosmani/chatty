@@ -47,9 +47,11 @@ Check the [browser compatibility](https://developer.mozilla.org/en-US/docs/Web/A
 
 # How to Install
 
-> If you just want to try out the app, it's live on [this](https://chattyui.com) website. 
+> If you just want to try out the app, it's live on [this](https://chattyui.com) website.
 >
 > This is a Next.js application and requires Node.js (18+) and npm installed to run the project locally.
+
+## Install from source
 
 If you want to setup and run the project locally, follow the steps below:
 
@@ -79,6 +81,24 @@ npm run dev
 
 **5. Go to [localhost:3000](http://localhost:3000) and start chatting!**
 
+## Docker
+
+> [!NOTE]  
+> The Dockerfile has not yet been optimized for a production environment. If you wish to do so yourself, checkout the [Nextjs example](https://github.com/vercel/next.js/blob/canary/examples/with-docker/Dockerfile)
+
+```
+docker build -t chattyui .
+docker run -d -p 3000:3000 chattyui
+```
+
+Or use `docker-compose`:
+
+```
+docker compose up
+```
+
+> If you've made changes and want to rebuild, you can simply run `docker-compose up --build`
+
 # Roadmap
 
 - [ ] **Multiple file embeddings:** The ability to embed multiple files instead of one at a time for each session.
@@ -100,4 +120,5 @@ Contributions are more than welcome! However, please make sure to read the [cont
 Chatty is built using the [WebLLM](https://github.com/mlc-ai/web-llm) project, utilizing [HuggingFace](https://huggingface.co/), open source LLMs and [LangChain](https://www.langchain.com/). We want to acknowledge their great work and thank the open source community.
 
 # Authors
+
 Chatty is created and maintained by [Addy Osmani](https://github.com/addyosmani/) & [Jakob Hoeg Mørk](https://github.com/jakobhoeg).
