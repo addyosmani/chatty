@@ -7,7 +7,7 @@ export interface Model {
 // https://github.com/mlc-ai/web-llm/blob/main/src/config.ts
 export const Models: Model[] = [
   {
-    name: "TinyLlama-1.1B-Chat-v1.0-q4f32_1-MLC-1k",
+    name: "TinyLlama-1.1B-Chat-v0.4-q4f32_1-MLC-1k",
     displayName: "Tiny Llama 1.1B - (1k)",
   },
   {
