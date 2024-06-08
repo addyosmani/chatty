@@ -86,7 +86,7 @@ export default function Home() {
   }, []);
 
   const generateCompletion = async (
-    loadedEngine: webllm.EngineInterface,
+    loadedEngine: webllm.MLCEngineInterface,
     prompt: string
   ) => {
     const completion = webLLMHelper.generateCompletion(

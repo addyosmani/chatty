@@ -70,7 +70,7 @@ export default function Page({ params }: { params: { id: string } }) {
   }, [fileText, storedMessages]);
 
   const generateCompletion = async (
-    loadedEngine: webllm.EngineInterface,
+    loadedEngine: webllm.MLCEngineInterface,
     prompt: string,
     regenerate: boolean = false
   ) => {

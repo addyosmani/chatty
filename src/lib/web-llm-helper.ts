@@ -7,12 +7,12 @@ import { Document } from "@langchain/core/documents";
 import { XenovaTransformersEmbeddings, getEmbeddingsInstance } from "./embed";
 
 export default class WebLLMHelper {
-  engine: webllm.EngineInterface | null;
+  engine: webllm.MLCEngineInterface | null;
   setStoredMessages = useChatStore((state) => state.setMessages);
   setEngine = useChatStore((state) => state.setEngine);
   appConfig = webllm.prebuiltAppConfig;
 
-  public constructor(engine: webllm.EngineInterface | null) {
+  public constructor(engine: webllm.MLCEngineInterface | null) {
     this.appConfig.useIndexedDBCache = true;
     this.engine = engine;
   }
@@ -36,7 +36,7 @@ export default class WebLLMHelper {
   // Initialize the engine
   public async initialize(
     selectedModel: Model
-  ): Promise<webllm.EngineInterface> {
+  ): Promise<webllm.MLCEngineInterface> {
     if (!("gpu" in navigator)) {
       return Promise.reject("This device does not support GPU acceleration.");
     }
@@ -51,7 +51,7 @@ export default class WebLLMHelper {
 
     await getEmbeddingsInstance();
 
-    const engine: webllm.EngineInterface = await webllm.CreateWebWorkerEngine(
+    const engine: webllm.MLCEngineInterface = await webllm.CreateWebWorkerMLCEngine(
       new Worker(new URL("./worker.ts", import.meta.url), {
         type: "module",
       }),
@@ -67,7 +67,7 @@ export default class WebLLMHelper {
 
   // Generate streaming completion
   public async *generateCompletion(
-    engine: webllm.EngineInterface,
+    engine: webllm.MLCEngineInterface,
     input: string,
     customizedInstructions: string,
     isCustomizedInstructionsEnabled: boolean
