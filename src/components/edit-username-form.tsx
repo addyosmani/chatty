@@ -68,14 +68,14 @@ export default function EditUsernameForm({ setOpen }: EditUsernameFormProps) {
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <div className="md:flex gap-4">
+                <div className="md:flex md:gap-4 space-y-4 md:space-y-0">
                   <Input
                     {...field}
                     type="text"
                     value={name}
                     onChange={(e) => handleChange(e)}
                   />
-                  <Button type="submit">Change name</Button>
+                  <Button type="submit" className="w-full md:w-fit">Change name</Button>
                 </div>
               </FormControl>
               <FormMessage />
