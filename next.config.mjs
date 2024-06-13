@@ -1,3 +1,10 @@
+import bundleAnalyzer from '@next/bundle-analyzer';
+
+// configuring the @next/bundle-analyzer plugin
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: true,
+});
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   webpack: (config, { isServer }) => {
@@ -30,4 +37,6 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+// wrapping the nextConfig with the @next/bundle-analyzer plugin to enable the bundle analyzer
+// it should generate three files: client.html, edge.html, and nodejs.html under the .next/analyze folder
+export default withBundleAnalyzer(nextConfig);
