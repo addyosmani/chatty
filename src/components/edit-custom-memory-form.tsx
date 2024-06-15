@@ -133,8 +133,8 @@ export default function EditCustomMemoryForm({
           name="isCustomizedInstructionsEnabled"
           render={({ field }) => (
             <FormItem>
-              <FormControl className="flex w-full justify-between">
-                <div className="flex items-center">
+              <FormControl className="w-full justify-between">
+                <div className="sm:flex items-center space-y-4 sm:space-y-0">
                   <div className="flex gap-2">
                     <p className="text-sm">Enable for new chats</p>
                     <Switch
@@ -143,11 +143,12 @@ export default function EditCustomMemoryForm({
                       onCheckedChange={field.onChange}
                     />
                   </div>
-                  <div className="flex gap-2 justify-end">
+                  <div className="flex w-full sm:w-fit gap-2 sm:justify-end">
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => setOpen(false)}
+                      className="w-1/2 sm:w-fit"
                     >
                       Close
                     </Button>
@@ -155,6 +156,7 @@ export default function EditCustomMemoryForm({
                       // Disabled if form has not been changed
                       disabled={!form.formState.isDirty}
                       type="submit"
+                      className="w-1/2 sm:w-fit"
                     >
                       Save
                     </Button>
