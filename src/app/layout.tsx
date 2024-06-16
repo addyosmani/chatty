@@ -65,7 +65,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={GeistSans.className}>
         <WebLLMProvider>
-          <ThemeProvider attribute="class" defaultTheme="dark">
+          <ThemeProvider attribute="class" defaultTheme="system">
             {children}
             <Toaster position="top-right" />
           </ThemeProvider>
