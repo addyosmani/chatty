@@ -33,7 +33,7 @@ export function ModeToggle() {
           )}
           {theme === "system" && (
             <div className="flex justify-between w-full">
-              <p>System Sync</p>
+              <p>System</p>
               <ChevronDownIcon className="w-5 h-5" />
             </div>
           )}
