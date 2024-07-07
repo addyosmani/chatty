@@ -142,8 +142,7 @@ export function Sidebar({ isCollapsed, chatId, stop }: SidebarProps) {
       data[0]["chatTitle"] = chatTitle;
       const updatedDataString = JSON.stringify(data);
       localStorage.setItem(chatId, updatedDataString);
-      window.dispatchEvent(new Event("storage"));
-      setLocalChats(getLocalstorageChats());
+      window.dispatchEvent(new Event("storage")); // Update the UI
     } catch (error) {
       console.warn("Error parsing chat data:", error);
     }
