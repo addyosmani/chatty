@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { MoreHorizontal, SquarePen, Trash2 } from "lucide-react";
+import { MoreHorizontal, SquarePen, Trash2, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Message } from "ai/react";
@@ -25,6 +25,11 @@ import { useRouter } from "next/navigation";
 import SidebarSkeleton from "./ui/sidebar-skeleton";
 import useChatStore from "@/hooks/useChatStore";
 import useMemoryStore from "@/hooks/useMemoryStore";
+import { Input } from "./ui/input";
+
+interface MessageWithTitle extends Message {
+  chatTitle: string; //used only for the first message
+}
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -34,7 +39,7 @@ interface SidebarProps {
 
 export function Sidebar({ isCollapsed, chatId, stop }: SidebarProps) {
   const [localChats, setLocalChats] = useState<
-    { chatId: string; messages: Message[] }[]
+    { chatId: string; messages: MessageWithTitle[] }[]
   >([]);
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -42,7 +47,9 @@ export function Sidebar({ isCollapsed, chatId, stop }: SidebarProps) {
   const setChatId = useMemoryStore((state) => state.setChatId);
   const setFiles = useChatStore((state) => state.setFiles);
   const setFileText = useChatStore((state) => state.setFileText);
+  const [chatTitle, setChatTitle] = useState<string>("");
   const [open, setOpen] = useState(false);
+  const [renameOpen, setRenameOpen] = useState(false);
 
   const router = useRouter();
 
@@ -63,7 +70,7 @@ export function Sidebar({ isCollapsed, chatId, stop }: SidebarProps) {
 
   const getLocalstorageChats = (): {
     chatId: string;
-    messages: Message[];
+    messages: MessageWithTitle[];
   }[] => {
     const chats = Object.keys(localStorage).filter((key) =>
       key.startsWith("chat_")
@@ -92,6 +99,15 @@ export function Sidebar({ isCollapsed, chatId, stop }: SidebarProps) {
     return chatObjects;
   };
 
+  const getChatTitle = (chatId: string): string => {
+    const data = JSON.parse(localStorage.getItem(chatId) as string);
+
+    if (!data[0].chatTitle) {
+      return data[0].content;
+    }
+    return data[0].chatTitle;
+  }
+
   const handleNewChat = () => {
     stop();
     setTimeout(() => {
@@ -112,6 +128,26 @@ export function Sidebar({ isCollapsed, chatId, stop }: SidebarProps) {
     setLocalChats(getLocalstorageChats());
     setMessages(() => []);
   };
+
+  const handleRenameFill = (chatId: string) => {
+    if (chatId) {
+      setChatTitle(getChatTitle(chatId));
+    }
+  }
+  const handleRenameChat = (chatId: string) => {
+    try {
+      // Attempt to parse localStorage data as JSON, potentially throwing an error
+      const data = JSON.parse(localStorage.getItem(chatId) as string || "");
+
+      data[0]["chatTitle"] = chatTitle;
+      const updatedDataString = JSON.stringify(data);
+      localStorage.setItem(chatId, updatedDataString);
+      window.dispatchEvent(new Event("storage"));
+      setLocalChats(getLocalstorageChats());
+    } catch (error) {
+      console.warn("Error parsing chat data:", error);
+    }
+  }
 
   return (
     <div className="relative overflow-hidden justify-between group md:bg-accent md:dark:bg-card flex flex-col h-full gap-4 ">
@@ -156,7 +192,7 @@ export function Sidebar({ isCollapsed, chatId, stop }: SidebarProps) {
                     <div className="flex gap-3 items-center truncate max-w-48">
                       <div className="flex flex-col">
                         <span className="text-xs font-normal ">
-                          {messages.length > 0 ? messages[0].content : ""}
+                          {messages[0].chatTitle ? messages[0].chatTitle : messages[0].content}
                         </span>
                       </div>
                     </div>
@@ -173,6 +209,35 @@ export function Sidebar({ isCollapsed, chatId, stop }: SidebarProps) {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className=" ">
+                        <Dialog open={renameOpen} onOpenChange={setRenameOpen}>
+                          <DialogTrigger>
+                            <Button onClick={() => handleRenameFill(chatId)} variant="ghost" className="w-full flex gap-2 hover:text-black text-black dark:text-white justify-start items-center">
+                              <div className="flex justify-end gap-2">
+                                <Pencil className="shrink-0 w-4 h-4" />
+                                Rename chat
+                              </div>
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader className="space-y-4">
+                              <DialogTitle>Rename this chat</DialogTitle>
+                              <div className="flex justify-end gap-2">
+                                <Input
+                                  defaultValue={chatTitle}
+                                  placeholder="Enter your chat name"
+                                  onChange={(e) => setChatTitle(e.target.value)}
+                                />
+                                <Button variant="outline" onClick={() => setRenameOpen(false)}>
+                                  Cancel
+                                </Button>
+                                <Button onClick={() => { setRenameOpen(false); handleRenameChat(chatId) }}>
+                                  Rename
+                                </Button>
+                              </div>
+                            </DialogHeader>
+                          </DialogContent>
+                        </Dialog>
+
                         <Dialog open={open} onOpenChange={setOpen}>
                           <DialogTrigger asChild>
                             <Button
@@ -224,6 +289,6 @@ export function Sidebar({ isCollapsed, chatId, stop }: SidebarProps) {
       <div className="justify-end p-2 border-t">
         <UserSettings />
       </div>
-    </div>
+    </div >
   );
 }
