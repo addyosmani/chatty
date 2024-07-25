@@ -14,6 +14,7 @@ import { Sidebar } from "../sidebar";
 import { Message } from "ai/react";
 import useChatStore from "@/hooks/useChatStore";
 import { Models, Model } from "@/lib/models";
+import { Badge } from "../ui/badge";
 
 interface ChatTopbarProps {
   chatId?: string;
@@ -48,22 +49,32 @@ export default function ChatTopbar({ chatId, stop }: ChatTopbarProps) {
             aria-expanded={open}
             className="w-[180px] md:w-[300px] justify-between bg-accent dark:bg-card"
           >
-            <p className="truncate">{selectedModel.displayName}</p>
+            <div className="flex gap-2 items-center">
+              <p className="truncate">{selectedModel.displayName}</p>
+              {selectedModel.badge && (
+                <Badge>{selectedModel.badge}</Badge>
+              )}
+            </div>
             <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[200px] lg:w-[300px] p-1">
+        <PopoverContent className="w-[200px] lg:w-[300px] max-h-96 overflow-y-scroll p-1">
           {Models.map((model) => (
             <Button
               key={model.name}
               variant="ghost"
-              className="w-full justify-start"
+              className="w-full justify-start flex gap-2 items-center"
               onClick={() => {
                 setSelectedModel(model);
                 setOpen(false);
               }}
             >
               {model.displayName}
+              {model.badge && (
+                <Badge>
+                  {model.badge}
+                </Badge>
+              )}
             </Button>
           ))}
         </PopoverContent>
