@@ -82,14 +82,13 @@ export default class WebLLMHelper {
           content:
             customizedInstructions && isCustomizedInstructionsEnabled
               ? "You are a helpful assistant. Assist the user with their questions. You are also provided with the following information from the user, keep them in mind for your responses: " +
-                customizedInstructions
+              customizedInstructions
               : "You are a helpful assistant. Assist the user with their questions.",
         },
         ...storedMessages,
         { role: "user", content: input },
       ],
       temperature: 0.6,
-      max_gen_len: 1024,
     });
     for await (const chunk of completion) {
       const delta = chunk.choices[0].delta.content;

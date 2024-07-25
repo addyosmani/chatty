@@ -1,6 +1,7 @@
 export interface Model {
   name: string;
   displayName: string;
+  badge?: string;
 }
 
 // source is AppConfig
@@ -21,6 +22,16 @@ export const Models: Model[] = [
   {
     name: "RedPajama-INCITE-Chat-3B-v1-q4f32_1-MLC",
     displayName: "RedPajama 3B",
+  },
+  {
+    name: "Qwen2-1.5B-Instruct-q4f32_1-MLC",
+    displayName: "Qwen2 1.5B Instruct",
+    badge: "New",
+  },
+  {
+    name: "Qwen2-7B-Instruct-q4f32_1-MLC",
+    displayName: "Qwen2 7B Instruct",
+    badge: "New",
   },
   {
     name: "Mistral-7B-Instruct-v0.3-q4f16_1-MLC",
@@ -50,4 +61,19 @@ export const Models: Model[] = [
     name: "Llama-3-70B-Instruct-q3f16_1-MLC",
     displayName: "Llama3 70B Instruct",
   },
+  {
+    name: "Llama-3.1-8B-Instruct-q4f32_1-MLC",
+    displayName: "Llama3.1 8B Instruct",
+    badge: "New",
+  },
+  {
+    name: "Llama-3.1-8B-Instruct-q4f32_1-MLC-1k",
+    displayName: "Llama3.1 8B Instruct - (1k)",
+    badge: "New",
+  },
+  {
+    name: "Llama-3.1-70B-Instruct-q3f16_1-MLC",
+    displayName: "Llama3.1 70B Instruct",
+    badge: "New",
+  }
 ];
