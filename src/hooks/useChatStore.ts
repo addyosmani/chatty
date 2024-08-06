@@ -40,7 +40,7 @@ interface Actions {
 const useChatStore = create<State & Actions>()(
   persist(
     (set) => ({
-      selectedModel: Models[13],
+      selectedModel: Models[5],
       setSelectedModel: (model: Model) =>
         set((state: State) => ({
           selectedModel:

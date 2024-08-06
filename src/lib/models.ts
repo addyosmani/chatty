@@ -20,6 +20,21 @@ export const Models: Model[] = [
     displayName: "Gemma 2B",
   },
   {
+    name: "gemma-2-2b-it-q4f32_1-MLC",
+    displayName: "Gemma2 2B",
+    badge: "New",
+  },
+  {
+    name: "gemma-2-2b-it-q4f32_1-MLC-1k",
+    displayName: "Gemma2 2B - (1k)",
+    badge: "New",
+  },
+  {
+    name: "gemma-2-9b-it-q4f32_1-MLC",
+    displayName: "Gemma2 9B",
+    badge: "New",
+  },
+  {
     name: "RedPajama-INCITE-Chat-3B-v1-q4f32_1-MLC",
     displayName: "RedPajama 3B",
   },
