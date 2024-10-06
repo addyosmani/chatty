@@ -88,7 +88,7 @@ export default function ChatBottombar({
     <div className="p-1 flex justify-between w-full items-center gap-2">
       <AnimatePresence initial={false}>
         <div className="w-full relative mb-2 items-center">
-          <div className="flex flex-col relative w-full bg-accent rounded-lg">
+          <div className="flex flex-col relative w-full bg-accent dark:bg-card rounded-lg">
             <div className="flex w-full">
               <form
                 onSubmit={handleSubmit}
