@@ -292,7 +292,7 @@ export default function Home() {
 
   return (
     <main className="flex h-[calc(100dvh)] flex-col items-center ">
-      <React.Suspense fallback={<div>Loading...</div>}>
+      <React.Suspense>
         <Dialog open={open} onOpenChange={onOpenChange}>
           <ChatLayout
             key={chatId}
