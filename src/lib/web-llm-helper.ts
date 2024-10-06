@@ -51,18 +51,26 @@ export default class WebLLMHelper {
 
     await getEmbeddingsInstance();
 
+    const chatOpts = {
+      context_window_size: 6144, // Needs to be specified for long base64 image strings
+      initProgressCallback: this.initProgressCallback,
+      appConfig: this.appConfig,
+    };
+
     const engine: webllm.MLCEngineInterface = await webllm.CreateWebWorkerMLCEngine(
       new Worker(new URL("./worker.ts", import.meta.url), {
         type: "module",
       }),
       selectedModel.name,
-      {
-        initProgressCallback: this.initProgressCallback,
-        appConfig: this.appConfig,
-      }
+      chatOpts
     );
     this.setEngine(engine);
     return engine;
+  }
+
+  public async reloadEngine(selectedModel: Model) {
+    console.log('reloading')
+    this.engine?.reload(selectedModel.name);
   }
 
   // Generate streaming completion
@@ -89,6 +97,7 @@ export default class WebLLMHelper {
         { role: "user", content: input },
       ],
       temperature: 0.6,
+      max_tokens: 6000 // Needed for vision models
     });
     for await (const chunk of completion) {
       const delta = chunk.choices[0].delta.content;

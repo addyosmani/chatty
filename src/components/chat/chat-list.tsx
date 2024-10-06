@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
+import { cn, getImagesFromMessage, getTextContentFromMessage } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Image from "next/image";
 import CodeDisplayBlock from "../code-display-block";
@@ -173,15 +173,29 @@ export default function ChatList({
             <div className="flex gap-3 items-center">
               {message.role === "user" && (
                 <div className="flex items-end gap-3">
-                  <span className="bg-accent p-3 rounded-l-md rounded-tr-md max-w-xs sm:max-w-xl overflow-x-auto flex flex-col gap-2">
+                  <div className="bg-accent p-3 rounded-l-md rounded-tr-md max-w-xs sm:max-w-xl overflow-x-auto flex flex-col gap-2">
                     {message.fileName && (
                       <div className="flex items-center gap-2 border border-green-500 border-opacity-10 rounded-sm bg-green-500/10 p-2 text-sm">
                         <FileTextIcon className="w-4 h-4" />
                         {message.fileName}
                       </div>
                     )}
-                    {message.content}
-                  </span>
+                    <div className="flex gap-2">
+                      {getImagesFromMessage(message).length > 0 && (
+                        getImagesFromMessage(message).map((image, index) => (
+                          <Image
+                            key={index}
+                            src={image.url}
+                            width={200}
+                            height={200}
+                            className="rounded-md object-contain"
+                            alt=""
+                          />
+                        ))
+                      )}
+                    </div>
+                    <p>{getTextContentFromMessage(message)}</p>
+                  </div>
                   <Avatar className="flex justify-start items-center overflow-hidden">
                     <AvatarImage
                       src="/"
@@ -207,7 +221,7 @@ export default function ChatList({
                   </Avatar>
                   <span className="bg-accent p-3 rounded-r-md rounded-tl-md max-w-xs sm:max-w-xl overflow-x-auto">
                     {/* Check if the message content contains a code block */}
-                    {message.content
+                    {message.content && message.content.toString()
                       .split("```")
                       .map((part: string, index: number) => {
                         if (index % 2 === 0) {
@@ -233,21 +247,21 @@ export default function ChatList({
                       {/* Copy button */}
                       {(!isLoading ||
                         messages.indexOf(message) !== messages.length - 1) && (
-                        <ButtonWithTooltip side="bottom" toolTipText="Copy">
-                          <Button
-                            onClick={copyToClipboard(message.content, index)}
-                            variant="ghost"
-                            size="icon"
-                            className="h-4 w-4"
-                          >
-                            {isCopied[index] ? (
-                              <CheckIcon className="w-3.5 h-3.5 transition-all" />
-                            ) : (
-                              <CopyIcon className="w-3.5 h-3.5 transition-all" />
-                            )}
-                          </Button>
-                        </ButtonWithTooltip>
-                      )}
+                          <ButtonWithTooltip side="bottom" toolTipText="Copy">
+                            <Button
+                              onClick={copyToClipboard(getTextContentFromMessage(message), index)}
+                              variant="ghost"
+                              size="icon"
+                              className="h-4 w-4"
+                            >
+                              {isCopied[index] ? (
+                                <CheckIcon className="w-3.5 h-3.5 transition-all" />
+                              ) : (
+                                <CopyIcon className="w-3.5 h-3.5 transition-all" />
+                              )}
+                            </Button>
+                          </ButtonWithTooltip>
+                        )}
 
                       {/* Only show regenerate button on the last ai message */}
                       {!isLoading &&
@@ -270,26 +284,26 @@ export default function ChatList({
                       {/* Speaker icon */}
                       {(!isLoading ||
                         messages.indexOf(message) !== messages.length - 1) && (
-                        <ButtonWithTooltip
-                          side="bottom"
-                          toolTipText={isSpeaking[index] ? "Stop" : "Listen"}
-                        >
-                          <Button
-                            onClick={() => {
-                              handleTextToSpeech(message.content, index);
-                            }}
-                            variant="ghost"
-                            size="icon"
-                            className="h-4 w-4"
+                          <ButtonWithTooltip
+                            side="bottom"
+                            toolTipText={isSpeaking[index] ? "Stop" : "Listen"}
                           >
-                            {isSpeaking[index] ? (
-                              <VolumeX className="w-4 h-4 transition-all " />
-                            ) : (
-                              <Volume2 className="w-4 h-4 transition-all" />
-                            )}
-                          </Button>
-                        </ButtonWithTooltip>
-                      )}
+                            <Button
+                              onClick={() => {
+                                handleTextToSpeech(getTextContentFromMessage(message), index);
+                              }}
+                              variant="ghost"
+                              size="icon"
+                              className="h-4 w-4"
+                            >
+                              {isSpeaking[index] ? (
+                                <VolumeX className="w-4 h-4 transition-all " />
+                              ) : (
+                                <Volume2 className="w-4 h-4 transition-all" />
+                              )}
+                            </Button>
+                          </ButtonWithTooltip>
+                        )}
                     </div>
 
                     {/* Loading dots */}

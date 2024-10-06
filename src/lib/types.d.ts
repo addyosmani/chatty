@@ -18,6 +18,7 @@ export interface ChatProps {
 }
 
 export interface MessageWithFile extends ChatCompletionMessageParam {
+  chatTitle?: string;
   fileName?: string;
 }
 

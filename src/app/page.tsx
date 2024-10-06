@@ -16,6 +16,7 @@ import { useWebLLM } from "@/providers/web-llm-provider";
 import UsernameForm from "@/components/username-form";
 import useMemoryStore from "@/hooks/useMemoryStore";
 import { MessageWithFiles } from "@/lib/types";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function Home() {
   const [open, setOpen] = useState(false);
@@ -43,17 +44,28 @@ export default function Home() {
   const isCustomizedInstructionsEnabled = useMemoryStore(
     (state) => state.isCustomizedInstructionsEnabled
   );
+  const base64Images = useChatStore((state) => state.base64Images);
+  const setBase64Images = useChatStore((state) => state.setBase64Images);
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   // Global provider
   const webLLMHelper = useWebLLM();
 
   useEffect(() => {
-    if (storedMessages.length < 1) {
-      // Generate a random id for the chat
-      const id = uuidv4();
+    const id = searchParams.get('id');
+    if (id) {
       setChatId(id);
+      const item = localStorage.getItem(`chat_${id}`);
+      if (item) {
+        setStoredMessages((message) => [...JSON.parse(item)]);
+      }
+    } else {
+      const newId = uuidv4();
+      setChatId(newId);
+      router.replace(`/?id=${newId}`);
     }
-  }, [storedMessages]);
+  }, [searchParams, router]);
 
   useEffect(() => {
     if (fileText && files) {
@@ -70,10 +82,13 @@ export default function Home() {
 
   useEffect(() => {
     if (!isLoading && chatId && storedMessages.length > 0) {
-      // Save messages to local storage
-      localStorage.setItem(`chat_${chatId}`, JSON.stringify(storedMessages));
-      // Trigger the storage event to update the sidebar component
-      window.dispatchEvent(new Event("storage"));
+      const item = localStorage.getItem(`chat_${chatId}`);
+      if (!item) {
+        // Save messages to local storage
+        localStorage.setItem(`chat_${chatId}`, JSON.stringify(storedMessages));
+        // Trigger the storage event to update the sidebar component
+        window.dispatchEvent(new Event("storage"));
+      }
     }
   }, [storedMessages, chatId, isLoading]);
 
@@ -119,14 +134,32 @@ export default function Home() {
     e.preventDefault();
     setIsLoading(true);
 
-    const userMessage: MessageWithFiles = {
-      fileName: files ? files[0].name : undefined,
-      role: "user",
-      content: input,
-    };
+    let userMessage: MessageWithFiles;
+
+    if (base64Images) {
+      // Append the image base64 urls to the message
+      userMessage = {
+        fileName: files ? files[0].name : undefined,
+        role: "user",
+        content: [
+          { type: 'text', text: input },
+          ...base64Images.map((image) => ({
+            type: 'image_url' as const,
+            image_url: { url: image }
+          }))
+        ],
+      };
+    } else {
+      userMessage = {
+        fileName: files ? files[0].name : undefined,
+        role: "user",
+        content: input
+      };
+    }
 
     setFileText(null);
     setFiles(undefined);
+    setBase64Images(null)
 
     setStoredMessages((message) => [
       ...message,
@@ -260,6 +293,7 @@ export default function Home() {
     <main className="flex h-[calc(100dvh)] flex-col items-center ">
       <Dialog open={open} onOpenChange={onOpenChange}>
         <ChatLayout
+        key={chatId}
           messages={storedMessages}
           handleSubmit={onSubmit}
           stop={onStop}

@@ -3,6 +3,7 @@ import * as webllm from "@mlc-ai/web-llm";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { Document } from "@langchain/core/documents";
+import { MessageWithFiles } from "@/lib/types";
 
 const LOCAL_SELECTED_MODEL = "selectedModel";
 
@@ -11,10 +12,11 @@ interface State {
   input: string;
   modelHasChanged: boolean;
   isLoading: boolean;
-  messages: webllm.ChatCompletionMessageParam[];
+  messages: MessageWithFiles[];
   engine: webllm.MLCEngineInterface | null;
   fileText: Document<Record<string, any>>[] | null;
   files: File[] | undefined;
+  base64Images: string[] | null;
 }
 
 interface Actions {
@@ -29,12 +31,13 @@ interface Actions {
   setIsLoading: (loading: boolean) => void;
   setMessages: (
     fn: (
-      messages: webllm.ChatCompletionMessageParam[]
-    ) => webllm.ChatCompletionMessageParam[]
+      messages: MessageWithFiles[]
+    ) => MessageWithFiles[]
   ) => void;
   setEngine: (engine: webllm.MLCEngineInterface | null) => void;
   setFileText: (text: Document<Record<string, any>>[] | null) => void;
   setFiles: (files: File[] | undefined) => void;
+  setBase64Images: (base64Images: string[] | null) => void;
 }
 
 const useChatStore = create<State & Actions>()(
@@ -73,6 +76,9 @@ const useChatStore = create<State & Actions>()(
 
       files: undefined,
       setFiles: (files) => set({ files }),
+
+      base64Images: null,
+      setBase64Images: (base64Images) => set({ base64Images })
     }),
     {
       name: LOCAL_SELECTED_MODEL,
