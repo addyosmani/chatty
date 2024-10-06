@@ -90,6 +90,7 @@ export default function FileLoader({
       ) : (
         <Button
           disabled={files.length > 0}
+          type="button"
           variant="ghost"
           size="icon"
           className="rounded-full shrink-0"

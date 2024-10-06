@@ -26,10 +26,8 @@ import SidebarSkeleton from "./ui/sidebar-skeleton";
 import useChatStore from "@/hooks/useChatStore";
 import useMemoryStore from "@/hooks/useMemoryStore";
 import { Input } from "./ui/input";
-
-interface MessageWithTitle extends Message {
-  chatTitle: string; //used only for the first message
-}
+import { MessageWithFiles } from "@/lib/types";
+import { ChatCompletionContentPart, ChatCompletionContentPartText } from "@mlc-ai/web-llm";
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -39,7 +37,7 @@ interface SidebarProps {
 
 export function Sidebar({ isCollapsed, chatId, stop }: SidebarProps) {
   const [localChats, setLocalChats] = useState<
-    { chatId: string; messages: MessageWithTitle[] }[]
+    { chatId: string; messages: MessageWithFiles[] }[]
   >([]);
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -70,7 +68,7 @@ export function Sidebar({ isCollapsed, chatId, stop }: SidebarProps) {
 
   const getLocalstorageChats = (): {
     chatId: string;
-    messages: MessageWithTitle[];
+    messages: MessageWithFiles[];
   }[] => {
     const chats = Object.keys(localStorage).filter((key) =>
       key.startsWith("chat_")
@@ -101,22 +99,27 @@ export function Sidebar({ isCollapsed, chatId, stop }: SidebarProps) {
 
   const getChatTitle = (chatId: string): string => {
     const data = JSON.parse(localStorage.getItem(chatId) as string);
-
     if (!data[0].chatTitle) {
-      return data[0].content;
+      // Check if content is an array or a string
+      if (Array.isArray(data[0].content)) {
+        // If it's an array, find the first text content
+        const textContent = data[0].content.find((item: { type: string; text: string; }) => item.type === 'text');
+        return textContent ? textContent.text : 'Untitled Chat';
+      } else if (typeof data[0].content === 'string') {
+        // If it's a string, return it directly
+        return data[0].content;
+      }
     }
-    return data[0].chatTitle;
+    return data[0].chatTitle || 'Untitled Chat';
   }
 
   const handleNewChat = () => {
     stop();
-    setTimeout(() => {
-      setChatId("");
-      setFiles(undefined);
-      setFileText(null);
-      router.push("/");
-      setMessages(() => []);
-    }, 50);
+    setChatId("");
+    setFiles(undefined);
+    setFileText(null);
+    router.push("/");
+    setMessages(() => []);
   };
 
   const handleDeleteChat = (chatId: string) => {
@@ -136,10 +139,8 @@ export function Sidebar({ isCollapsed, chatId, stop }: SidebarProps) {
   }
   const handleRenameChat = (chatId: string) => {
     try {
-      // Attempt to parse localStorage data as JSON, potentially throwing an error
       const data = JSON.parse(localStorage.getItem(chatId) as string || "");
-
-      data[0]["chatTitle"] = chatTitle;
+      data[0]["chatTitle"] = chatTitle; // Set the new chat title
       const updatedDataString = JSON.stringify(data);
       localStorage.setItem(chatId, updatedDataString);
       window.dispatchEvent(new Event("storage")); // Update the UI
@@ -177,7 +178,7 @@ export function Sidebar({ isCollapsed, chatId, stop }: SidebarProps) {
                 <div className="relative flex items-center" key={index}>
                   <Link
                     key={index}
-                    href={`/${chatId.substr(5)}`}
+                    href={`/?id=${chatId.substr(5)}`}
                     className={cn(
                       {
                         [buttonVariants({ variant: "secondaryLink" })]:
@@ -191,7 +192,13 @@ export function Sidebar({ isCollapsed, chatId, stop }: SidebarProps) {
                     <div className="flex gap-3 items-center truncate max-w-48">
                       <div className="flex flex-col">
                         <span className="text-xs font-normal ">
-                          {messages[0].chatTitle ? messages[0].chatTitle : messages[0].content}
+                          {Array.isArray(messages[0].content)
+                            ? messages[0].content
+                              .filter((item: ChatCompletionContentPart) => item.type === 'text')
+                              .map((item: ChatCompletionContentPartText) => item.text)
+                              .join(', ')
+                            : messages[0].content?.toString()
+                          }
                         </span>
                       </div>
                     </div>
