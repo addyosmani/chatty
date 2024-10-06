@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { WebLLMProvider } from "@/providers/web-llm-provider";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { Suspense } from "react";
 
 const metainfo = {
   name: "Chatty",
@@ -66,7 +67,9 @@ export default function RootLayout({
       <body className={GeistSans.className}>
         <WebLLMProvider>
           <ThemeProvider attribute="class" defaultTheme="system">
-            {children}
+            <Suspense>
+              {children}
+            </Suspense>
             <Toaster position="top-right" />
           </ThemeProvider>
         </WebLLMProvider>

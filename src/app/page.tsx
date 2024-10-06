@@ -17,7 +17,6 @@ import UsernameForm from "@/components/username-form";
 import useMemoryStore from "@/hooks/useMemoryStore";
 import { MessageWithFiles } from "@/lib/types";
 import { useRouter, useSearchParams } from "next/navigation";
-import React from "react";
 
 export default function Home() {
   const [open, setOpen] = useState(false);
@@ -292,31 +291,29 @@ export default function Home() {
 
   return (
     <main className="flex h-[calc(100dvh)] flex-col items-center ">
-      <React.Suspense>
-        <Dialog open={open} onOpenChange={onOpenChange}>
-          <ChatLayout
-            key={chatId}
-            messages={storedMessages}
-            handleSubmit={onSubmit}
-            stop={onStop}
-            chatId={chatId}
-            loadingSubmit={loadingSubmit}
-            onRegenerate={onRegenerate}
-          />
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <ChatLayout
+          key={chatId}
+          messages={storedMessages}
+          handleSubmit={onSubmit}
+          stop={onStop}
+          chatId={chatId}
+          loadingSubmit={loadingSubmit}
+          onRegenerate={onRegenerate}
+        />
 
-          {/* This only shows first time using the app */}
-          <DialogContent className="flex flex-col space-y-4">
-            <DialogHeader className="space-y-2">
-              <DialogTitle>Welcome to WebChat!</DialogTitle>
-              <DialogDescription>
-                Enter your name to get started. This is just to personalize your
-                experience.
-              </DialogDescription>
-              <UsernameForm setOpen={setOpen} />
-            </DialogHeader>
-          </DialogContent>
-        </Dialog>
-      </React.Suspense>
+        {/* This only shows first time using the app */}
+        <DialogContent className="flex flex-col space-y-4">
+          <DialogHeader className="space-y-2">
+            <DialogTitle>Welcome to WebChat!</DialogTitle>
+            <DialogDescription>
+              Enter your name to get started. This is just to personalize your
+              experience.
+            </DialogDescription>
+            <UsernameForm setOpen={setOpen} />
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }
