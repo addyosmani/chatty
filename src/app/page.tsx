@@ -82,13 +82,10 @@ export default function Home() {
 
   useEffect(() => {
     if (!isLoading && chatId && storedMessages.length > 0) {
-      const item = localStorage.getItem(`chat_${chatId}`);
-      if (!item) {
-        // Save messages to local storage
-        localStorage.setItem(`chat_${chatId}`, JSON.stringify(storedMessages));
-        // Trigger the storage event to update the sidebar component
-        window.dispatchEvent(new Event("storage"));
-      }
+      // Save messages to local storage
+      localStorage.setItem(`chat_${chatId}`, JSON.stringify(storedMessages));
+      // Trigger the storage event to update the sidebar component
+      window.dispatchEvent(new Event("storage"));
     }
   }, [storedMessages, chatId, isLoading]);
 
