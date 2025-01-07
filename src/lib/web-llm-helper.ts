@@ -52,7 +52,6 @@ export default class WebLLMHelper {
         chatOpts
       );
       this.engine = engine;
-      callbacks?.onFinish?.('Loaded engine');
       return engine;
     } catch (error) {
       console.log('here')

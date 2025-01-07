@@ -57,8 +57,10 @@ export default function ChatLayout({ initialMessages, id }: ChatLayoutProps) {
   const handleNewChat = () => {
     // Clear messages
     stop();
-    setStoredMessages(() => [])
-    router.push("/");
+    setTimeout(() => {
+      setStoredMessages(() => [])
+      router.push("/");
+    }, 150)
   };
 
   function handleDeleteChat(chatId: string) {
