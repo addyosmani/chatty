@@ -7,6 +7,7 @@ import { generateMessageId } from '@/lib/utils';
 import { toast } from 'sonner';
 import { ChatCallbacks } from '@/lib/web-llm-helper';
 import * as webllm from "@mlc-ai/web-llm";
+import { useRouter } from 'next/navigation';
 
 interface UseChatOptions {
   id: string;
@@ -41,6 +42,7 @@ export const useChat = ({ id, initialMessages }: UseChatOptions) => {
   const webLLMHelper = useWebLLM();
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [open, setOpen] = useState(false);
+  const router = useRouter();
 
   // Set initial messages
   useEffect(() => {
@@ -123,6 +125,7 @@ export const useChat = ({ id, initialMessages }: UseChatOptions) => {
     const existingFile = getFileInfoById(id);
 
     if (existingFile) {
+      console.log('here')
       const qaPrompt = await webLLMHelper.processDocuments(
         existingFile.fileText,
         existingFile.fileType,
@@ -193,6 +196,8 @@ export const useChat = ({ id, initialMessages }: UseChatOptions) => {
         saveMessages(id, updatedMessages);
         return updatedMessages;
       });
+
+      router.replace(`/c/${id}`)
     },
     onError: (error) => {
       setIsLoading(false);
@@ -287,5 +292,6 @@ export const useChat = ({ id, initialMessages }: UseChatOptions) => {
     setFileText,
     open,
     setOpen,
+    setStoredMessages
   };
 };

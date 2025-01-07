@@ -18,7 +18,9 @@ export default function Page({ params }: { params: { id: string } }) {
 
   return (
     <main className="flex h-[calc(100dvh)] flex-col items-center ">
-      <ChatLayout key={id} id={id} initialMessages={chat.messages} />
+      <Suspense fallback={<div>Loading</div>}>
+        <ChatLayout key={id} id={id} initialMessages={chat.messages} />
+      </Suspense>
     </main>
   );
 }

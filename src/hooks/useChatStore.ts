@@ -8,6 +8,7 @@ import { MessageWithFiles } from "@/lib/types";
 interface ChatSession {
   messages: MessageWithFiles[];
   createdAt: string;
+  title?: string;
   fileInfo?: {
     fileName: string;
     fileType: string;
@@ -55,6 +56,7 @@ interface Actions {
   setUserName: (userName: string) => void;
   saveFileToChat: (chatId: string, fileInfo: ChatSession['fileInfo']) => void;
   getFileInfoById: (chatId: string) => ChatSession['fileInfo'] | null;
+  setChatTitle: (chatId: string, title: ChatSession['title']) => void;
 }
 
 const useChatStore = create<State & Actions>()(
@@ -120,12 +122,14 @@ const useChatStore = create<State & Actions>()(
               [chatId]: {
                 messages: [...messages],
                 createdAt: existingChat?.createdAt || new Date().toISOString(),
-                fileInfo: existingChat?.fileInfo
+                fileInfo: existingChat?.fileInfo,
+                title: existingChat?.title
               },
             },
           };
         });
       },
+
       handleDelete: (chatId, messageId) => {
         set((state) => {
           const chat = state.chats[chatId];
@@ -169,8 +173,20 @@ const useChatStore = create<State & Actions>()(
 
       getFileInfoById: (chatId) => {
         const state = get();
-        console.log(state.chats[chatId]?.fileInfo)
-        return state.chats[chatId].fileInfo || null;
+        return state.chats[chatId]?.fileInfo;
+      },
+
+      setChatTitle: (chatId, title) => {
+        console.log("Setting title:", title);
+        set((state) => ({
+          chats: {
+            ...state.chats,
+            [chatId]: {
+              ...state.chats[chatId],
+              title
+            }
+          }
+        }));
       },
     }),
     {

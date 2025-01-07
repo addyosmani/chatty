@@ -55,6 +55,7 @@ export default class WebLLMHelper {
       callbacks?.onFinish?.('Loaded engine');
       return engine;
     } catch (error) {
+      console.log('here')
       callbacks?.onError?.(error instanceof Error ? error.message : String(error));
       throw error;
     }
@@ -98,6 +99,7 @@ export default class WebLLMHelper {
 
       callbacks?.onFinish?.(fullResponse);
     } catch (error) {
+      console.log('here')
       callbacks?.onError?.(error instanceof Error ? error.message : String(error));
       throw error;
     }

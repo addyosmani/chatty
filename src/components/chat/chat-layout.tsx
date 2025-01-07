@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import useMemoryStore from "@/hooks/useMemoryStore";
 import ButtonWithTooltip from "../button-with-tooltip";
 import ExportChatDialog from "../export-chat-dialog";
+import { useChat } from "@/hooks/useChat";
 
 interface ChatLayoutProps {
   id: string;
@@ -27,11 +28,14 @@ interface ChatLayoutProps {
 
 export default function ChatLayout({ initialMessages, id }: ChatLayoutProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const setStoredMessages = useChatStore((state) => state.setMessages);
-  const setFiles = useChatStore((state) => state.setFiles);
-  const setFileText = useChatStore((state) => state.setFileText);
-  const setChatId = useMemoryStore((state) => state.setChatId);
+  const handleDelete = useChatStore((state) => state.handleDelete);
+
   const router = useRouter();
+
+  const {
+    stop,
+    setStoredMessages
+  } = useChat({ id, initialMessages });
 
   const [open, setOpen] = React.useState(false);
 
@@ -53,14 +57,16 @@ export default function ChatLayout({ initialMessages, id }: ChatLayoutProps) {
   const handleNewChat = () => {
     // Clear messages
     stop();
-    setTimeout(() => {
-      setStoredMessages(() => []);
-      setChatId("");
-      setFiles(undefined);
-      setFileText(null);
-      router.push("/");
-    }, 50);
+    setStoredMessages(() => [])
+    router.push("/");
   };
+
+  function handleDeleteChat(chatId: string) {
+    stop();
+    handleDelete(chatId);
+    setStoredMessages(() => [])
+    router.push("/");
+  }
 
   return (
     <div className="flex relative h-[calc(100dvh)] w-full ">
@@ -72,7 +78,7 @@ export default function ChatLayout({ initialMessages, id }: ChatLayoutProps) {
           transition={{ duration: 0.2, ease: "easeInOut" }}
           className="w-72 hidden md:block shrink-0"
         >
-          <Sidebar isCollapsed={isCollapsed} chatId={id} stop={stop} />
+          <Sidebar isCollapsed={isCollapsed} chatId={id} handleNewChat={handleNewChat} handleDeleteChat={handleDeleteChat} />
         </motion.div>
         <div
           key="divider"
