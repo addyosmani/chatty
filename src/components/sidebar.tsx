@@ -51,6 +51,7 @@ export function Sidebar({ isCollapsed, chatId, handleNewChat, handleDeleteChat }
           {chats && (
             <div>
               {Object.entries(chats)
+                .filter(([, chat]) => chat.messages && chat.messages.length > 0)
                 .sort(
                   ([, a], [, b]) =>
                     new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()

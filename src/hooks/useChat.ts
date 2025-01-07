@@ -52,18 +52,6 @@ export const useChat = ({ id, initialMessages }: UseChatOptions) => {
     }
   }, [id, initialMessages]);
 
-  // Only allow one file atm.
-  useEffect(() => {
-    if (fileText && files) {
-      const fileInfo = {
-        fileName: files[0].name,
-        fileType: files[0].type,
-        fileText: fileText,
-      };
-      saveFileToChat(id, fileInfo);
-    }
-  }, [fileText, files, id]);
-
   const clearFileState = () => {
     setInput("");
     setBase64Images(null);
@@ -99,6 +87,16 @@ export const useChat = ({ id, initialMessages }: UseChatOptions) => {
       ];
       return updatedMessages;
     });
+
+    // Save file information when sending a message
+    if (fileText && files) {
+      const fileInfo = {
+        fileName: files[0].name,
+        fileType: files[0].type,
+        fileText: fileText,
+      };
+      saveFileToChat(id, fileInfo);
+    }
 
     return userMessage;
   };

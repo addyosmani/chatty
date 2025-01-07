@@ -56,7 +56,7 @@ export const ChatItem: React.FC<ChatItemProps> = ({ id, chat, isActive, onRename
         <div className="flex gap-3 items-center truncate max-w-48">
           <div className="flex flex-col">
             <span className="text-xs font-normal ">
-              {chat.title ? chat.title : (chat.messages.length > 0 && typeof chat.messages[0].content === 'string' ? chat.messages[0].content : '')}
+              {chat.title ? chat.title : (chat.messages && chat.messages.length > 0 && typeof chat.messages[0].content === 'string' ? chat.messages[0].content : '')}
             </span>
           </div>
         </div>
