@@ -16,6 +16,8 @@ import {
 import { Button } from "../ui/button";
 import { useChat } from "@/hooks/useChat";
 import { MessageWithFiles } from "@/lib/types";
+import Image from "next/image";
+import AttachedFiles from "../attached-files";
 
 interface ChatProps {
   id: string;
@@ -40,66 +42,64 @@ export default function Chat({ initialMessages, id }: ChatProps) {
   return (
     <div className="flex flex-col justify-between w-full max-w-3xl h-full">
       <ChatTopbar chatId={id} stop={stop} />
-      <ChatList
-        messages={messages}
-        handleSubmit={handleSubmit}
-        loadingSubmit={loadingSubmit}
-        stop={stop}
-        onRegenerate={regenerate}
-      />
 
-      {files && fileText && (
-        <div className="ml-6 -mt-2 relative w-fit max-w-full top-4">
-          <Dialog open={open} onOpenChange={setOpen}>
-            <div className="px-2 py-1.5 h-11 bg-muted-foreground/20 flex w-fit flex-col truncate gap-2 p-1 border-t border-x rounded-tl-md rounded-tr-md">
-              <div className="flex text-sm">
-                {files.map((file) => (
-                  <div key={file.name} className="flex items-center gap-1.5">
-                    <FileTextIcon className="w-4 h-4" />
-                    <span>{file.name}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <DialogTrigger className="absolute -top-1.5 -right-1.5 text-white cursor-pointer bg-red-500 hover:bg-red-600 w-4 h-4 rounded-full flex items-center justify-center">
-              <Cross2Icon className="w-3 h-3" />
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Are you sure?</DialogTitle>
-              </DialogHeader>
-              <DialogDescription>
-                This will remove the file from the context and you will no
-                longer be able to ask questions about it.
-              </DialogDescription>
-              <div className="flex w-full gap-2">
-                <Button
-                  variant="destructive"
-                  onClick={() => {
-                    setFiles(undefined);
-                    setFileText(null);
-                    localStorage.removeItem(`chatFile_${id}`);
-                    setOpen(false);
-                  }}
-                >
-                  Remove
-                </Button>
-                <Button variant="secondary" onClick={() => setOpen(false)}>
-                  Cancel
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+      {messages.length === 0 ? (
+        <div className="flex flex-col h-full w-full items-center gap-4 justify-center">
+          <div className="flex flex-col gap-1 items-center">
+            <Image
+              src="/logo.svg"
+              alt="AI"
+              width={70}
+              height={70}
+              className="dark:invert"
+            />
+            <p className="text-center text-2xl md:text-3xl font-semibold text-muted-foreground/75">
+              How can I help you today?
+            </p>
+            <p className="text-center text-sm text-muted-foreground/60 max-w-lg">
+              Models with <strong>(1k)</strong> suffix lowers VRAM requirements
+              by ~2-3GB.
+            </p>
+          </div>
+
+          <div className="flex flex-col w-full ">
+            {files && fileText && (
+              <AttachedFiles files={files} open={open} setFileText={setFileText} setFiles={setFiles} setOpen={setOpen} />
+            )}
+            <ChatBottombar
+              files={files}
+              setFiles={setFiles}
+              handleSubmit={handleSubmit}
+              stop={stop}
+              messages={messages}
+            />
+          </div>
         </div>
+      ) : (
+        <>
+          <ChatList
+            handleSubmit={handleSubmit}
+            messages={messages}
+            stop={stop}
+            chatId={id}
+            loadingSubmit={loadingSubmit}
+            onRegenerate={regenerate}
+          />
+          {files && fileText && (
+            <AttachedFiles files={files} open={open} setFileText={setFileText} setFiles={setFiles} setOpen={setOpen} />
+          )}
+          <ChatBottombar
+            files={files}
+            setFiles={setFiles}
+            handleSubmit={handleSubmit}
+            stop={stop}
+            messages={messages}
+          />
+        </>
       )}
-
-      <ChatBottombar
-        files={files}
-        setFiles={setFiles}
-        handleSubmit={handleSubmit}
-        stop={stop}
-        messages={initialMessages}
-      />
     </div>
+
+
+
   );
 }
