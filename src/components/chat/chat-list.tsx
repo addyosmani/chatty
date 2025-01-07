@@ -193,7 +193,7 @@ export default function ChatList({
                       )}
                     </div>
 
-                    {message.content && message.content.toString()
+                    {message.content && typeof message.content === 'string' && message.content.toString()
                       .split("```")
                       .map((part: string, index: number) => {
                         if (index % 2 === 0) {
@@ -213,6 +213,10 @@ export default function ChatList({
                           );
                         }
                       })}
+
+                    {message.content && typeof message.content !== 'string' && (
+                      <p>{getTextContentFromMessage(message)}</p>
+                    )}
                   </div>
 
                   {message.role === "assistant" && (
