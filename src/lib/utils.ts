@@ -2,6 +2,7 @@ import { ChatCompletionMessageParam } from "@mlc-ai/web-llm";
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { MessageWithFiles } from "./types";
+import { customAlphabet } from 'nanoid';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -38,4 +39,25 @@ export function getImagesFromMessage(message: MessageWithFiles): ChatImage[] {
     }
   }
   return urls;
+}
+
+// Function to create an ID generator
+const createIdGenerator = ({
+  prefix = "",
+  size: defaultSize = 7,
+  alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+} = {}) => {
+  const generator = customAlphabet(alphabet, defaultSize);
+  return (size = defaultSize) => `${prefix}${generator(size)}`; // Provide a default size
+};
+
+// Create a default generateId function
+export const generateMessageId = createIdGenerator();
+
+export function generateUUID(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
 }

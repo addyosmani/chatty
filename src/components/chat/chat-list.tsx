@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import useChatStore from "@/hooks/useChatStore";
 import ButtonWithTooltip from "../button-with-tooltip";
+import { ChatMessageList } from "../ui/chat/chat-message-list";
+import { ChatBubble, ChatBubbleAvatar, ChatBubbleMessage } from "../ui/chat/chat-bubble";
 
 export default function ChatList({
   messages,
@@ -63,14 +65,6 @@ export default function ChatList({
 
   // Zustand
   const isLoading = useChatStore((state) => state.isLoading);
-
-  const scrollToBottom = () => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -118,68 +112,72 @@ export default function ChatList({
     }
   };
 
-  if (messages.length === 0) {
-    return (
-      <div className="w-full h-full flex justify-center items-center p-5 md:p-0">
-        <div className="relative flex flex-col gap-4 items-center justify-center w-full h-full">
-          <div></div>
-          <div className="flex flex-col gap-1 items-center">
-            <Image
-              src="/logo.svg"
-              alt="AI"
-              width={70}
-              height={70}
-              className="dark:invert"
-            />
-            <p className="text-center text-2xl md:text-5xl font-semibold text-muted-foreground/75">
-              How can I help you today?
-            </p>
-            <p className="text-center text-sm text-muted-foreground/60 max-w-lg">
-              Models with <strong>(1k)</strong> suffix lowers VRAM requirements
-              by ~2-3GB.
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
+  // if (messages.length === 0) {
+  //   return (
+  //     <div className="w-full h-full flex justify-center items-center p-5 md:p-0">
+  //       <div className="relative flex flex-col gap-4 items-center justify-center w-full h-full">
+  //         <div></div>
+  //         <div className="flex flex-col gap-1 items-center">
+  //           <Image
+  //             src="/logo.svg"
+  //             alt="AI"
+  //             width={70}
+  //             height={70}
+  //             className="dark:invert"
+  //           />
+  //           <p className="text-center text-2xl md:text-5xl font-semibold text-muted-foreground/75">
+  //             How can I help you today?
+  //           </p>
+  //           <p className="text-center text-sm text-muted-foreground/60 max-w-lg">
+  //             Models with <strong>(1k)</strong> suffix lowers VRAM requirements
+  //             by ~2-3GB.
+  //           </p>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   );
+  // }
   return (
-    <div
-      id="scroller"
-      className="w-full overflow-y-scroll overflow-x-hidden h-full justify-end"
-    >
-      <div className="w-full flex flex-col overflow-x-hidden overflow-y-hidden min-h-full justify-end">
-        {messages.map((message, index) => (
-          <motion.div
-            key={index}
-            layout
-            initial={{ opacity: 0, scale: 1, y: 20, x: 0 }}
-            animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
-            exit={{ opacity: 0, scale: 1, y: 20, x: 0 }}
-            transition={{
-              opacity: { duration: 0.1 },
-              layout: {
-                type: "spring",
-                bounce: 0.3,
-                duration: messages.indexOf(message) * 0.025,
-              },
-            }}
-            className={cn(
-              "flex flex-col gap-2 p-4 whitespace-pre-wrap",
-              message.role === "user" ? "items-end" : "items-start"
-            )}
-          >
-            <div className="flex gap-3 items-center">
-              {message.role === "user" && (
-                <div className="flex items-end gap-3">
-                  <div className="bg-accent p-3 rounded-l-md rounded-tr-md max-w-xs sm:max-w-xl overflow-x-auto flex flex-col gap-2">
+    <div className="flex-1 w-full overflow-y-auto">
+      <ChatMessageList>
+        {messages.map((message, index) => {
+
+          const variant = message.role === "user" ? "sent" : "received";
+
+          return (
+            <motion.div
+              key={index}
+              layout
+              initial={{ opacity: 0, scale: 1, y: 20, x: 0 }}
+              animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
+              exit={{ opacity: 0, scale: 1, y: 20, x: 0 }}
+              transition={{
+                opacity: { duration: 0.1 },
+                layout: {
+                  type: "spring",
+                  bounce: 0.3,
+                  duration: messages.indexOf(message) * 0.025,
+                },
+              }}
+              className="flex flex-col gap-2 px-4 py-2"
+            >
+              <ChatBubble variant={variant}>
+                <ChatBubbleAvatar
+                  src={message.role === "assistant" ? "/logo.svg" : ""}
+                  width={70}
+                  height={70}
+                  className="w-7 h-7 dark:invert aspect-square"
+                  fallback={message.role == "user" ? "US" : ""}
+                />
+                <ChatBubbleMessage isLoading={loadingSubmit && messages.indexOf(message) === messages.length - 1}>
+                  <div className="flex flex-col gap-1">
                     {message.fileName && (
-                      <div className="flex items-center gap-2 border border-green-500 border-opacity-10 rounded-sm bg-green-500/10 p-2 text-sm">
+                      <div className="flex items-center gap-2 border border-green-500 border-opacity-10 rounded-sm bg-green-500/20 p-2 text-sm">
                         <FileTextIcon className="w-4 h-4" />
                         {message.fileName}
                       </div>
                     )}
+
                     <div className="flex gap-2">
                       {getImagesFromMessage(message).length > 0 && (
                         getImagesFromMessage(message).map((image, index) => (
@@ -194,33 +192,7 @@ export default function ChatList({
                         ))
                       )}
                     </div>
-                    <p>{getTextContentFromMessage(message)}</p>
-                  </div>
-                  <Avatar className="flex justify-start items-center overflow-hidden">
-                    <AvatarImage
-                      src="/"
-                      alt="user"
-                      width={6}
-                      height={6}
-                      className="object-contain"
-                    />
-                    <AvatarFallback>
-                      {name && name.substring(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                </div>
-              )}
-              {message.role === "assistant" && (
-                <div className="flex items-end gap-2">
-                  <Avatar className="flex justify-center rounded-full bg-card items-center">
-                    <AvatarImage
-                      src="/logo.svg"
-                      alt="AI"
-                      className="w-7 h-7 dark:invert"
-                    />
-                  </Avatar>
-                  <span className="bg-accent p-3 rounded-r-md rounded-tl-md max-w-xs sm:max-w-xl overflow-x-auto">
-                    {/* Check if the message content contains a code block */}
+
                     {message.content && message.content.toString()
                       .split("```")
                       .map((part: string, index: number) => {
@@ -241,84 +213,81 @@ export default function ChatList({
                           );
                         }
                       })}
+                  </div>
 
-                    {/* Action buttons */}
-                    <div className="pt-2 flex gap-1 items-center text-muted-foreground">
-                      {/* Copy button */}
-                      {(!isLoading ||
-                        messages.indexOf(message) !== messages.length - 1) && (
-                          <ButtonWithTooltip side="bottom" toolTipText="Copy">
-                            <Button
-                              onClick={copyToClipboard(getTextContentFromMessage(message), index)}
-                              variant="ghost"
-                              size="icon"
-                              className="h-4 w-4"
-                            >
-                              {isCopied[index] ? (
-                                <CheckIcon className="w-3.5 h-3.5 transition-all" />
-                              ) : (
-                                <CopyIcon className="w-3.5 h-3.5 transition-all" />
-                              )}
-                            </Button>
-                          </ButtonWithTooltip>
-                        )}
+                  {message.role === "assistant" && (
+                    <div>
+                      {/* Action buttons */}
+                      <div className="pt-2 flex gap-1 items-center text-muted-foreground">
+                        {/* Copy button */}
+                        {(!isLoading ||
+                          messages.indexOf(message) !== messages.length - 1) && (
+                            <ButtonWithTooltip side="bottom" toolTipText="Copy">
+                              <Button
+                                onClick={copyToClipboard(getTextContentFromMessage(message), index)}
+                                variant="ghost"
+                                size="icon"
+                                className="h-4 w-4"
+                              >
+                                {isCopied[index] ? (
+                                  <CheckIcon className="w-3.5 h-3.5 transition-all" />
+                                ) : (
+                                  <CopyIcon className="w-3.5 h-3.5 transition-all" />
+                                )}
+                              </Button>
+                            </ButtonWithTooltip>
+                          )}
 
-                      {/* Only show regenerate button on the last ai message */}
-                      {!isLoading &&
-                        messages.indexOf(message) === messages.length - 1 && (
-                          <ButtonWithTooltip
-                            side="bottom"
-                            toolTipText="Regenerate"
-                          >
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-4 w-4"
-                              onClick={onRegenerate}
+                        {/* Only show regenerate button on the last ai message */}
+                        {!isLoading &&
+                          messages.indexOf(message) === messages.length - 1 && (
+                            <ButtonWithTooltip
+                              side="bottom"
+                              toolTipText="Regenerate"
                             >
-                              <RefreshCcw className="w-3.5 h-3.5 scale-100 transition-all" />
-                            </Button>
-                          </ButtonWithTooltip>
-                        )}
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-4 w-4"
+                                onClick={onRegenerate}
+                              >
+                                <RefreshCcw className="w-3.5 h-3.5 scale-100 transition-all" />
+                              </Button>
+                            </ButtonWithTooltip>
+                          )}
 
-                      {/* Speaker icon */}
-                      {(!isLoading ||
-                        messages.indexOf(message) !== messages.length - 1) && (
-                          <ButtonWithTooltip
-                            side="bottom"
-                            toolTipText={isSpeaking[index] ? "Stop" : "Listen"}
-                          >
-                            <Button
-                              onClick={() => {
-                                handleTextToSpeech(getTextContentFromMessage(message), index);
-                              }}
-                              variant="ghost"
-                              size="icon"
-                              className="h-4 w-4"
+                        {/* Speaker icon */}
+                        {(!isLoading ||
+                          messages.indexOf(message) !== messages.length - 1) && (
+                            <ButtonWithTooltip
+                              side="bottom"
+                              toolTipText={isSpeaking[index] ? "Stop" : "Listen"}
                             >
-                              {isSpeaking[index] ? (
-                                <VolumeX className="w-4 h-4 transition-all " />
-                              ) : (
-                                <Volume2 className="w-4 h-4 transition-all" />
-                              )}
-                            </Button>
-                          </ButtonWithTooltip>
-                        )}
+                              <Button
+                                onClick={() => {
+                                  handleTextToSpeech(getTextContentFromMessage(message), index);
+                                }}
+                                variant="ghost"
+                                size="icon"
+                                className="h-4 w-4"
+                              >
+                                {isSpeaking[index] ? (
+                                  <VolumeX className="w-4 h-4 transition-all " />
+                                ) : (
+                                  <Volume2 className="w-4 h-4 transition-all" />
+                                )}
+                              </Button>
+                            </ButtonWithTooltip>
+                          )}
+                      </div>
                     </div>
-
-                    {/* Loading dots */}
-                    {loadingSubmit &&
-                      messages.indexOf(message) === messages.length - 1 && (
-                        <MessageLoading />
-                      )}
-                  </span>
-                </div>
-              )}
-            </div>
-          </motion.div>
-        ))}
-      </div>
-      <div id="anchor" ref={bottomRef}></div>
+                  )}
+                </ChatBubbleMessage>
+              </ChatBubble>
+            </motion.div>
+          )
+        })}
+      </ChatMessageList>
     </div>
   );
 }

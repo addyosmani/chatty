@@ -33,6 +33,7 @@
     "idb-keyval": "^3.0.0",
     "langchain": "^0.1.37",
     "lucide-react": "^0.378.0",
+    "nanoid": "^5.0.9",
     "next": "14.2.3",
     "next-themes": "^0.3.0",
     "pdf-parse": "^1.1.1",

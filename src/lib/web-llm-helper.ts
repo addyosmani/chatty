@@ -4,12 +4,18 @@ import useChatStore from "@/hooks/useChatStore";
 import * as webllm from "@mlc-ai/web-llm";
 import { Model } from "./models";
 import { Document } from "@langchain/core/documents";
-import { XenovaTransformersEmbeddings, getEmbeddingsInstance } from "./embed";
+import { getEmbeddingsInstance } from "./embed";
+
+export interface ChatCallbacks {
+  onStart?: () => void;
+  onResponse?: (message: string) => void;
+  onFinish?: (message: string) => void;
+  onError?: (error: string) => void;
+  onProgress?: (progress: webllm.InitProgressReport) => void;
+}
 
 export default class WebLLMHelper {
   engine: webllm.MLCEngineInterface | null;
-  setStoredMessages = useChatStore((state) => state.setMessages);
-  setEngine = useChatStore((state) => state.setEngine);
   appConfig = webllm.prebuiltAppConfig;
 
   public constructor(engine: webllm.MLCEngineInterface | null) {
@@ -17,94 +23,91 @@ export default class WebLLMHelper {
     this.engine = engine;
   }
 
-  // Initialize progress callback
-  private initProgressCallback = (report: webllm.InitProgressReport) => {
-    this.setStoredMessages((message) => [
-      ...message.slice(0, -1),
-      { role: "assistant", content: report.text },
-    ]);
-
-    // Clear the assistant message when the progress is 100% to avoid confusing the model
-    if (report.text.includes("Finish loading")) {
-      this.setStoredMessages((message) => [
-        ...message.slice(0, -1),
-        { role: "assistant", content: "" },
-      ]);
-    }
-  };
-
-  // Initialize the engine
+  // Initialize the engine with callbacks
   public async initialize(
-    selectedModel: Model
+    selectedModel: Model,
+    callbacks?: ChatCallbacks
   ): Promise<webllm.MLCEngineInterface> {
     if (!("gpu" in navigator)) {
+      callbacks?.onError?.("This device does not support GPU acceleration.");
       return Promise.reject("This device does not support GPU acceleration.");
     }
 
-    this.setStoredMessages((message) => [
-      ...message.slice(0, -1),
-      {
-        role: "assistant",
-        content: "Loading model... This might take a while",
-      },
-    ]);
+    callbacks?.onStart?.();
 
     await getEmbeddingsInstance();
 
     const chatOpts = {
-      context_window_size: 6144, // Needs to be specified for long base64 image strings
-      initProgressCallback: this.initProgressCallback,
+      context_window_size: 6144,
+      initProgressCallback: (report: webllm.InitProgressReport) => {
+        callbacks?.onProgress?.(report);
+      },
       appConfig: this.appConfig,
     };
 
-    const engine: webllm.MLCEngineInterface = await webllm.CreateWebWorkerMLCEngine(
-      new Worker(new URL("./worker.ts", import.meta.url), {
-        type: "module",
-      }),
-      selectedModel.name,
-      chatOpts
-    );
-    this.setEngine(engine);
-    return engine;
+    try {
+      const engine = await webllm.CreateWebWorkerMLCEngine(
+        new Worker(new URL("./worker.ts", import.meta.url), { type: "module" }),
+        selectedModel.name,
+        chatOpts
+      );
+      this.engine = engine;
+      return engine;
+    } catch (error) {
+      console.log('here')
+      callbacks?.onError?.(error instanceof Error ? error.message : String(error));
+      throw error;
+    }
   }
 
-  public async reloadEngine(selectedModel: Model) {
-    console.log('reloading')
-    this.engine?.reload(selectedModel.name);
-  }
-
-  // Generate streaming completion
+  // Generate streaming completion with callbacks
   public async *generateCompletion(
     engine: webllm.MLCEngineInterface,
     input: string,
     customizedInstructions: string,
-    isCustomizedInstructionsEnabled: boolean
+    isCustomizedInstructionsEnabled: boolean,
+    callbacks?: ChatCallbacks
   ): AsyncGenerator<string> {
-    const storedMessages = useChatStore.getState().messages;
+    try {
+      callbacks?.onStart?.();
+      const storedMessages = useChatStore.getState().messages;
 
-    const completion = await engine.chat.completions.create({
-      stream: true,
-      messages: [
-        {
-          role: "system",
-          content:
-            customizedInstructions && isCustomizedInstructionsEnabled
-              ? "You are a helpful assistant. Assist the user with their questions. You are also provided with the following information from the user, keep them in mind for your responses: " +
-              customizedInstructions
-              : "You are a helpful assistant. Assist the user with their questions.",
-        },
-        ...storedMessages,
-        { role: "user", content: input },
-      ],
-      temperature: 0.6,
-      max_tokens: 6000 // Needed for vision models
-    });
-    for await (const chunk of completion) {
-      const delta = chunk.choices[0].delta.content;
-      if (delta) {
-        yield delta;
+      const completion = await engine.chat.completions.create({
+        stream: true,
+        messages: [
+          {
+            role: "system",
+            content: this.getSystemPrompt(customizedInstructions, isCustomizedInstructionsEnabled),
+          },
+          ...storedMessages,
+          { role: "user", content: input },
+        ],
+        temperature: 0.6,
+        max_tokens: 6000
+      });
+
+      let fullResponse = "";
+      for await (const chunk of completion) {
+        const delta = chunk.choices[0].delta.content;
+        if (delta) {
+          fullResponse += delta;
+          callbacks?.onResponse?.(fullResponse);
+          yield delta;
+        }
       }
+
+      callbacks?.onFinish?.(fullResponse);
+    } catch (error) {
+      console.log('here')
+      callbacks?.onError?.(error instanceof Error ? error.message : String(error));
+      throw error;
     }
+  }
+
+  private getSystemPrompt(instructions: string, enabled: boolean): string {
+    return enabled
+      ? `You are a helpful assistant. Assist the user with their questions. You are also provided with the following information from the user, keep them in mind for your responses: ${instructions}`
+      : "You are a helpful assistant. Assist the user with their questions.";
   }
 
   // Handle document processing using WebWorker to avoid freezing the UI
