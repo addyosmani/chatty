@@ -1,13 +1,23 @@
 import { Model, Models } from "@/lib/models";
 import * as webllm from "@mlc-ai/web-llm";
 import { create } from "zustand";
-import { createJSONStorage, persist } from "zustand/middleware";
+import { persist } from "zustand/middleware";
 import { Document } from "@langchain/core/documents";
 import { MessageWithFiles } from "@/lib/types";
 
-const LOCAL_SELECTED_MODEL = "selectedModel";
+interface ChatSession {
+  messages: MessageWithFiles[];
+  createdAt: string;
+  fileInfo?: {
+    fileName: string;
+    fileType: string;
+    fileText: Document<Record<string, any>>[] | string,
+  };
+}
 
 interface State {
+  chats: Record<string, ChatSession>;
+  userName: string | "Anonymous";
   selectedModel: Model;
   input: string;
   modelHasChanged: boolean;
@@ -38,11 +48,21 @@ interface Actions {
   setFileText: (text: Document<Record<string, any>>[] | null) => void;
   setFiles: (files: File[] | undefined) => void;
   setBase64Images: (base64Images: string[] | null) => void;
+  getChatById: (chatId: string) => ChatSession | undefined;
+  getMessagesById: (chatId: string) => MessageWithFiles[];
+  saveMessages: (chatId: string, messages: MessageWithFiles[]) => void;
+  handleDelete: (chatId: string, messageId?: string) => void;
+  setUserName: (userName: string) => void;
+  saveFileToChat: (chatId: string, fileInfo: ChatSession['fileInfo']) => void;
+  getFileInfoById: (chatId: string) => ChatSession['fileInfo'] | null;
 }
 
 const useChatStore = create<State & Actions>()(
   persist(
-    (set) => ({
+    (set, get) => ({
+      userName: "Anonymous",
+      setUserName: (userName) => set({ userName }),
+
       selectedModel: Models[5],
       setSelectedModel: (model: Model) =>
         set((state: State) => ({
@@ -78,13 +98,88 @@ const useChatStore = create<State & Actions>()(
       setFiles: (files) => set({ files }),
 
       base64Images: null,
-      setBase64Images: (base64Images) => set({ base64Images })
+      setBase64Images: (base64Images) => set({ base64Images }),
+
+      chats: {},
+      getChatById: (chatId) => {
+        const state = get();
+        return state.chats[chatId];
+      },
+      getMessagesById: (chatId) => {
+        const state = get();
+        return state.chats[chatId]?.messages || [];
+      },
+
+      saveMessages: (chatId, messages) => {
+        set((state) => {
+          const existingChat = state.chats[chatId];
+
+          return {
+            chats: {
+              ...state.chats,
+              [chatId]: {
+                messages: [...messages],
+                createdAt: existingChat?.createdAt || new Date().toISOString(),
+                fileInfo: existingChat?.fileInfo
+              },
+            },
+          };
+        });
+      },
+      handleDelete: (chatId, messageId) => {
+        set((state) => {
+          const chat = state.chats[chatId];
+          if (!chat) return state;
+
+          // If messageId is provided, delete specific message
+          if (messageId) {
+            const updatedMessages = chat.messages.filter(
+              (message) => message.id !== messageId
+            );
+            return {
+              chats: {
+                ...state.chats,
+                [chatId]: {
+                  ...chat,
+                  messages: updatedMessages,
+                },
+              },
+            };
+          }
+
+          // If no messageId, delete the entire chat
+          const { [chatId]: _, ...remainingChats } = state.chats;
+          return {
+            chats: remainingChats,
+          };
+        });
+      },
+
+      saveFileToChat: (chatId, fileInfo) => {
+        set((state) => ({
+          chats: {
+            ...state.chats,
+            [chatId]: {
+              ...state.chats[chatId],
+              fileInfo
+            }
+          }
+        }));
+      },
+
+      getFileInfoById: (chatId) => {
+        const state = get();
+        console.log(state.chats[chatId]?.fileInfo)
+        return state.chats[chatId].fileInfo || null;
+      },
     }),
     {
-      name: LOCAL_SELECTED_MODEL,
-      // Only save selectedModel to local storage with partialize
+      name: "chatty-ui-state",
+      version: 1,
       partialize: (state) => ({
+        chats: state.chats,
         selectedModel: state.selectedModel,
+        userName: state.userName,
       }),
     }
   )

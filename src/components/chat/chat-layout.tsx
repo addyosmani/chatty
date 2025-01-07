@@ -12,7 +12,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import Chat from "./chat";
-import { MergedProps } from "@/lib/types";
+import { MessageWithFiles } from "@/lib/types";
 import { Button } from "../ui/button";
 import useChatStore from "@/hooks/useChatStore";
 import { useRouter } from "next/navigation";
@@ -20,14 +20,12 @@ import useMemoryStore from "@/hooks/useMemoryStore";
 import ButtonWithTooltip from "../button-with-tooltip";
 import ExportChatDialog from "../export-chat-dialog";
 
-export default function ChatLayout({
-  messages,
-  stop,
-  chatId,
-  loadingSubmit,
-  handleSubmit,
-  onRegenerate,
-}: MergedProps) {
+interface ChatLayoutProps {
+  id: string;
+  initialMessages: MessageWithFiles[];
+}
+
+export default function ChatLayout({ initialMessages, id }: ChatLayoutProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const setStoredMessages = useChatStore((state) => state.setMessages);
   const setFiles = useChatStore((state) => state.setFiles);
@@ -74,7 +72,7 @@ export default function ChatLayout({
           transition={{ duration: 0.2, ease: "easeInOut" }}
           className="w-72 hidden md:block shrink-0"
         >
-          <Sidebar isCollapsed={isCollapsed} chatId={chatId} stop={stop} />
+          <Sidebar isCollapsed={isCollapsed} chatId={id} stop={stop} />
         </motion.div>
         <div
           key="divider"
@@ -125,14 +123,7 @@ export default function ChatLayout({
         </div>
       </AnimatePresence>
       <div className="h-full w-full flex flex-col items-center justify-center">
-        <Chat
-          messages={messages}
-          handleSubmit={handleSubmit}
-          stop={stop}
-          chatId={chatId}
-          loadingSubmit={loadingSubmit}
-          onRegenerate={onRegenerate}
-        />
+        <Chat id={id} initialMessages={initialMessages} />
 
         {/* Export chat button */}
         <ExportChatDialog open={open} setOpen={setOpen} />

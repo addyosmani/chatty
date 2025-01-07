@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
-import "./globals.css";
+import "../globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { WebLLMProvider } from "@/providers/web-llm-provider";
@@ -67,9 +67,7 @@ export default function RootLayout({
       <body className={GeistSans.className}>
         <WebLLMProvider>
           <ThemeProvider attribute="class" defaultTheme="system">
-            <Suspense>
-              {children}
-            </Suspense>
+            <Suspense>{children}</Suspense>
             <Toaster position="top-right" />
           </ThemeProvider>
         </WebLLMProvider>
