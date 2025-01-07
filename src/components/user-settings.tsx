@@ -12,40 +12,13 @@ import { useEffect, useState } from "react";
 import { Skeleton } from "./ui/skeleton";
 import UserSettingsDialog from "./user-settings-dialog";
 import CustomMemoryDialog from "./custom-memory-dialog";
+import useChatStore from "@/hooks/useChatStore";
 
 export default function UserSettings() {
-  const [name, setName] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
   const [openCustomMemoryDialog, setOpenCustomMemoryDialog] = useState(false);
   const [openUserSettingsDialog, setOpenUserSettingsDialog] = useState(false);
 
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const username = localStorage.getItem("chatty_user");
-      if (username) {
-        setName(username);
-        setIsLoading(false);
-      }
-    };
-
-    const fetchData = () => {
-      const username = localStorage.getItem("chatty_user");
-      if (username) {
-        setName(username);
-        setIsLoading(false);
-      }
-    };
-
-    // Initial fetch
-    fetchData();
-
-    // Listen for storage changes
-    window.addEventListener("storage", handleStorageChange);
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-    };
-  }, []);
+  const name = useChatStore((state) => state.userName);
 
   return (
     <DropdownMenu>
@@ -67,11 +40,7 @@ export default function UserSettings() {
             </AvatarFallback>
           </Avatar>
           <div className="text-xs truncate">
-            {isLoading ? (
-              <Skeleton className="w-20 h-4" />
-            ) : (
-              name || "Anonymous"
-            )}
+            {name}
           </div>
         </Button>
       </DropdownMenuTrigger>

@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import React, { useEffect, useState } from "react";
 import { ModeToggle } from "./mode-toggle";
 import { toast } from "sonner";
+import useChatStore from "@/hooks/useChatStore";
 
 const formSchema = z.object({
   username: z.string().min(2, {
@@ -29,22 +30,19 @@ interface EditUsernameFormProps {
 }
 
 export default function EditUsernameForm({ setOpen }: EditUsernameFormProps) {
-  const [name, setName] = useState("");
-
-  useEffect(() => {
-    setName(localStorage.getItem("chatty_user") || "Anonymous");
-  }, []);
+  const [name, setName] = useState('')
+  const userName = useChatStore((state) => state.userName);
+  const setUserName = useChatStore((state) => state.setUserName);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
+      username: userName,
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    localStorage.setItem("chatty_user", values.username);
-    window.dispatchEvent(new Event("storage"));
+    setUserName(values.username)
     toast.success("Name updated successfully");
   }
 
@@ -72,7 +70,6 @@ export default function EditUsernameForm({ setOpen }: EditUsernameFormProps) {
                   <Input
                     {...field}
                     type="text"
-                    value={name}
                     onChange={(e) => handleChange(e)}
                   />
                   <Button type="submit" className="w-full md:w-fit">Change name</Button>

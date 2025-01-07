@@ -18,7 +18,7 @@ interface ChatSession {
 
 interface State {
   chats: Record<string, ChatSession>;
-  userName: string | "Anonymous";
+  userName: string;
   selectedModel: Model;
   input: string;
   modelHasChanged: boolean;
@@ -62,7 +62,7 @@ interface Actions {
 const useChatStore = create<State & Actions>()(
   persist(
     (set, get) => ({
-      userName: "Anonymous",
+      userName: 'User',
       setUserName: (userName) => set({ userName }),
 
       selectedModel: Models[5],
