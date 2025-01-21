@@ -54,7 +54,6 @@ export default class WebLLMHelper {
       this.engine = engine;
       return engine;
     } catch (error) {
-      console.log('here')
       callbacks?.onError?.(error instanceof Error ? error.message : String(error));
       throw error;
     }
