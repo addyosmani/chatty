@@ -15,6 +15,7 @@ import { Message } from "ai/react";
 import useChatStore from "@/hooks/useChatStore";
 import { Models, Model } from "@/lib/models";
 import { Badge } from "../ui/badge";
+import { Image } from "lucide-react";
 
 interface ChatTopbarProps {
   chatId?: string;
@@ -51,9 +52,8 @@ export default function ChatTopbar({ chatId, stop }: ChatTopbarProps) {
           >
             <div className="flex gap-2 items-center truncate">
               <p className="truncate">{selectedModel.displayName}</p>
-              {selectedModel.badge && (
-                <Badge>{selectedModel.badge}</Badge>
-              )}
+              {selectedModel.badge && <Badge>{selectedModel.badge}</Badge>}
+              {selectedModel.vision && <Badge>Vision</Badge>}
             </div>
             <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
@@ -70,11 +70,8 @@ export default function ChatTopbar({ chatId, stop }: ChatTopbarProps) {
               }}
             >
               {model.displayName}
-              {model.badge && (
-                <Badge>
-                  {model.badge}
-                </Badge>
-              )}
+              {model.badge && <Badge>{model.badge}</Badge>}
+              {model.vision && <Badge>Vision</Badge>}
             </Button>
           ))}
         </PopoverContent>

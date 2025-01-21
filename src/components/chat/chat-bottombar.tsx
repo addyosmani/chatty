@@ -47,7 +47,6 @@ export default function ChatBottombar({
   const setBase64Images = useChatStore((state) => state.setBase64Images);
   const selectedModel = useChatStore((state) => state.selectedModel);
 
-
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       if (isLoading) return;
@@ -94,9 +93,7 @@ export default function ChatBottombar({
         >
           <ChatInput
             autoComplete="off"
-            value={
-              isListening ? (transcript.length ? transcript : "") : input
-            }
+            value={isListening ? (transcript.length ? transcript : "") : input}
             ref={inputRef}
             onKeyDown={handleKeyPress}
             onChange={handleInputChange}
@@ -105,13 +102,15 @@ export default function ChatBottombar({
             className="max-h-40 px-6 pt-6 border-0 shadow-none bg-accent rounded-lg text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed dark:bg-card"
           />
 
-
           <div className="flex w-full items-center p-2">
             {isLoading ? (
               // Loading state
               <div className="flex w-full justify-between">
                 <div className="flex">
-                  <MultiImagePicker disabled={selectedModel.name !== Models[6].name} onImagesPick={setBase64Images} />
+                  <MultiImagePicker
+                    disabled={!selectedModel.vision}
+                    onImagesPick={setBase64Images}
+                  />
                   <FileLoader
                     setFileText={setFileText}
                     files={files}
@@ -146,7 +145,10 @@ export default function ChatBottombar({
               // Default state
               <div className="flex w-full justify-between">
                 <div className="flex">
-                  <MultiImagePicker disabled={selectedModel.name !== Models[6].name} onImagesPick={setBase64Images} />
+                  <MultiImagePicker
+                    disabled={!selectedModel.vision}
+                    onImagesPick={setBase64Images}
+                  />
                   <FileLoader
                     setFileText={setFileText}
                     files={files}
@@ -156,10 +158,11 @@ export default function ChatBottombar({
                 <div>
                   {/* Microphone button with animation when listening */}
                   <Button
-                    className={`shrink-0 rounded-full ${isListening
-                      ? "relative bg-blue-500/30 hover:bg-blue-400/30"
-                      : ""
-                      }`}
+                    className={`shrink-0 rounded-full ${
+                      isListening
+                        ? "relative bg-blue-500/30 hover:bg-blue-400/30"
+                        : ""
+                    }`}
                     variant="ghost"
                     size="icon"
                     type="button"
