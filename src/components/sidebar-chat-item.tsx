@@ -32,9 +32,25 @@ interface ChatItemProps {
   onDelete: (id: string) => void;
 }
 
-export const ChatItem: React.FC<ChatItemProps> = ({ id, chat, isActive, onRename, onDelete }) => {
+interface ContentItem {
+  type: "text" | "image_url";
+  text?: string;
+  image_url?: {
+    url: string;
+  };
+}
+
+export const ChatItem: React.FC<ChatItemProps> = ({
+  id,
+  chat,
+  isActive,
+  onRename,
+  onDelete,
+}) => {
   const [renameOpen, setRenameOpen] = useState(false);
-  const [chatTitleInternal, setChatTitleInternal] = useState<string>(chat.title);
+  const [chatTitleInternal, setChatTitleInternal] = useState<string>(
+    chat.title
+  );
 
   const handleRename = () => {
     onRename(id, chatTitleInternal);
@@ -56,7 +72,18 @@ export const ChatItem: React.FC<ChatItemProps> = ({ id, chat, isActive, onRename
         <div className="flex gap-3 items-center truncate max-w-48">
           <div className="flex flex-col">
             <span className="text-xs font-normal ">
-              {chat.title ? chat.title : (chat.messages && chat.messages.length > 0 && typeof chat.messages[0].content === 'string' ? chat.messages[0].content : '')}
+              {chat.title
+                ? chat.title
+                : (chat.messages &&
+                    chat.messages[0]?.content &&
+                    (typeof chat.messages[0].content === "string"
+                      ? chat.messages[0].content
+                      : Array.isArray(chat.messages[0].content)
+                      ? chat.messages[0].content.find(
+                          (item: ContentItem) => item.type === "text"
+                        )?.text
+                      : "")) ||
+                  ""}
             </span>
           </div>
         </div>
@@ -65,14 +92,20 @@ export const ChatItem: React.FC<ChatItemProps> = ({ id, chat, isActive, onRename
       <div className="absolute right-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="flex justify-end items-center rounded-full">
+            <Button
+              variant="ghost"
+              className="flex justify-end items-center rounded-full"
+            >
               <MoreHorizontal size={15} className="shrink-0" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <Dialog open={renameOpen} onOpenChange={setRenameOpen}>
               <DialogTrigger>
-                <Button variant="ghost" className="w-full flex gap-2 hover:text-black text-black dark:text-white justify-start items-center">
+                <Button
+                  variant="ghost"
+                  className="w-full flex gap-2 hover:text-black text-black dark:text-white justify-start items-center"
+                >
                   <Pencil className="shrink-0 w-4 h-4" />
                   Rename chat
                 </Button>
@@ -86,12 +119,13 @@ export const ChatItem: React.FC<ChatItemProps> = ({ id, chat, isActive, onRename
                       placeholder="Enter your chat name"
                       onChange={(e) => setChatTitleInternal(e.target.value)}
                     />
-                    <Button variant="outline" onClick={() => setRenameOpen(false)}>
+                    <Button
+                      variant="outline"
+                      onClick={() => setRenameOpen(false)}
+                    >
                       Cancel
                     </Button>
-                    <Button onClick={handleRename}>
-                      Rename
-                    </Button>
+                    <Button onClick={handleRename}>Rename</Button>
                   </div>
                 </DialogHeader>
               </DialogContent>
@@ -99,7 +133,10 @@ export const ChatItem: React.FC<ChatItemProps> = ({ id, chat, isActive, onRename
 
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="ghost" className="w-full flex gap-2 hover:text-red-500 text-red-500 justify-start items-center">
+                <Button
+                  variant="ghost"
+                  className="w-full flex gap-2 hover:text-red-500 text-red-500 justify-start items-center"
+                >
                   <Trash2 className="shrink-0 w-4 h-4" />
                   Delete chat
                 </Button>
@@ -108,10 +145,14 @@ export const ChatItem: React.FC<ChatItemProps> = ({ id, chat, isActive, onRename
                 <DialogHeader className="space-y-4">
                   <DialogTitle>Delete chat?</DialogTitle>
                   <DialogDescription>
-                    Are you sure you want to delete this chat? This action cannot be undone.
+                    Are you sure you want to delete this chat? This action
+                    cannot be undone.
                   </DialogDescription>
                   <div className="flex justify-end gap-2">
-                    <Button variant="outline" onClick={() => setRenameOpen(false)}>
+                    <Button
+                      variant="outline"
+                      onClick={() => setRenameOpen(false)}
+                    >
                       Cancel
                     </Button>
                     <Button variant="destructive" onClick={() => onDelete(id)}>

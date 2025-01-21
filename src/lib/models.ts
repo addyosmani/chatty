@@ -2,6 +2,7 @@ export interface Model {
   name: string;
   displayName: string;
   badge?: string;
+  vision?: boolean;
 }
 
 // source is AppConfig
@@ -34,7 +35,7 @@ export const Models: Model[] = [
   {
     name: "Phi-3.5-vision-instruct-q4f16_1-MLC",
     displayName: "Phi-3.5 Vision Instruct",
-    badge: "New",
+    vision: true,
   },
   {
     name: "RedPajama-INCITE-Chat-3B-v1-q4f32_1-MLC",
