@@ -112,37 +112,23 @@ export default function ChatList({
     }
   };
 
-  // if (messages.length === 0) {
-  //   return (
-  //     <div className="w-full h-full flex justify-center items-center p-5 md:p-0">
-  //       <div className="relative flex flex-col gap-4 items-center justify-center w-full h-full">
-  //         <div></div>
-  //         <div className="flex flex-col gap-1 items-center">
-  //           <Image
-  //             src="/logo.svg"
-  //             alt="AI"
-  //             width={70}
-  //             height={70}
-  //             className="dark:invert"
-  //           />
-  //           <p className="text-center text-2xl md:text-5xl font-semibold text-muted-foreground/75">
-  //             How can I help you today?
-  //           </p>
-  //           <p className="text-center text-sm text-muted-foreground/60 max-w-lg">
-  //             Models with <strong>(1k)</strong> suffix lowers VRAM requirements
-  //             by ~2-3GB.
-  //           </p>
-  //         </div>
-  //       </div>
-  //     </div>
-  //   );
-  // }
+  const getThinkContent = (content: string) => {
+    const match = content.match(/<think>([\s\S]*?)(?:<\/think>|$)/);
+    return match ? match[1].trim() : null;
+  };
+
   return (
     <div className="flex-1 w-full overflow-y-auto">
       <ChatMessageList>
         {messages.map((message, index) => {
 
           const variant = message.role === "user" ? "sent" : "received";
+
+          const thinkContent = message.role === "assistant" && message.content ?
+            getThinkContent(message.content.toString()) : null;
+
+          const cleanContent = message.content ?
+            message.content.toString().replace(/<think>[\s\S]*?(?:<\/think>|$)/g, '').trim() : '';
 
           return (
             <motion.div
@@ -171,6 +157,17 @@ export default function ChatList({
                 />
                 <ChatBubbleMessage isLoading={loadingSubmit && messages.indexOf(message) === messages.length - 1}>
                   <div className="flex flex-col gap-1">
+                    {thinkContent && message.role === "assistant" && (
+                      <details className="mb-1 text-sm" open>
+                        <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
+                          Thought process
+                        </summary>
+                        <div className="mt-1 text-muted-foreground pl-3 border-l-2 border-foreground/10">
+                          <Markdown remarkPlugins={[remarkGfm]}>{thinkContent}</Markdown>
+                        </div>
+                      </details>
+                    )}
+
                     {message.fileName && (
                       <div className="flex items-center gap-2 border border-green-500 border-opacity-10 rounded-sm bg-green-500/20 p-2 text-sm">
                         <FileTextIcon className="w-4 h-4" />
@@ -193,7 +190,7 @@ export default function ChatList({
                       )}
                     </div>
 
-                    {message.content && typeof message.content === 'string' && message.content.toString()
+                    {cleanContent && typeof cleanContent === 'string' && cleanContent
                       .split("```")
                       .map((part: string, index: number) => {
                         if (index % 2 === 0) {

@@ -10,7 +10,6 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const getChatById = useChatStore((state) => state.getChatById);
   const chat = getChatById(id);
-  console.log(chat);
 
   if (!chat) {
     return notFound();

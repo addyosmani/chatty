@@ -225,6 +225,18 @@ export const useChat = ({ id, initialMessages }: UseChatOptions) => {
           content: report.text,
         } as AssistantMessage
       ]);
+
+      // Clear assistant msg when the model loading is done
+      if (report.text.includes('Finish loading')) {
+        setStoredMessages((messages) => [
+          ...messages.slice(0, -1),
+          {
+            id: generateMessageId(),
+            role: 'assistant',
+            content: '',
+          } as AssistantMessage
+        ]);
+      }
     },
   };
 
