@@ -30,6 +30,16 @@ export default function ChatTopbar({ chatId, stop }: ChatTopbarProps) {
   const setSelectedModel = useChatStore((state) => state.setSelectedModel);
   const isLoading = useChatStore((state) => state.isLoading);
 
+  const groupedModels = React.useMemo(() => {
+    return Models.reduce((acc, model) => {
+      if (!acc[model.group]) {
+        acc[model.group] = [];
+      }
+      acc[model.group].push(model);
+      return acc;
+    }, {} as Record<string, Model[]>);
+  }, []);
+
   return (
     <div className="w-full flex px-4 py-6  items-center justify-between lg:justify-center ">
       <Sheet>
@@ -59,20 +69,27 @@ export default function ChatTopbar({ chatId, stop }: ChatTopbarProps) {
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[200px] md:w-[300px] max-h-96 overflow-y-scroll p-1">
-          {Models.map((model) => (
-            <Button
-              key={model.name}
-              variant="ghost"
-              className="w-full justify-start flex gap-2 items-center truncate"
-              onClick={() => {
-                setSelectedModel(model);
-                setOpen(false);
-              }}
-            >
-              {model.displayName}
-              {model.badge && <Badge>{model.badge}</Badge>}
-              {model.vision && <Badge>Vision</Badge>}
-            </Button>
+          {Object.entries(groupedModels).map(([group, models]) => (
+            <div key={group}>
+              <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">
+                {group}
+              </div>
+              {models.map((model) => (
+                <Button
+                  key={model.name}
+                  variant="ghost"
+                  className="w-full justify-start flex gap-2 items-center truncate"
+                  onClick={() => {
+                    setSelectedModel(model);
+                    setOpen(false);
+                  }}
+                >
+                  {model.displayName}
+                  {model.badge && <Badge>{model.badge}</Badge>}
+                  {model.vision && <Badge>Vision</Badge>}
+                </Button>
+              ))}
+            </div>
           ))}
         </PopoverContent>
       </Popover>
