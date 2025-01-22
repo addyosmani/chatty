@@ -13,9 +13,9 @@ import { CaretSortIcon, HamburgerMenuIcon } from "@radix-ui/react-icons";
 import { Sidebar } from "../sidebar";
 import { Message } from "ai/react";
 import useChatStore from "@/hooks/useChatStore";
-import { Models, Model } from "@/lib/models";
+import { Models, Model, ModelGroup, modelDetailsList } from "@/lib/models";
 import { Badge } from "../ui/badge";
-import { Image } from "lucide-react";
+import Image from "next/image";
 
 interface ChatTopbarProps {
   chatId?: string;
@@ -39,6 +39,11 @@ export default function ChatTopbar({ chatId, stop }: ChatTopbarProps) {
       return acc;
     }, {} as Record<string, Model[]>);
   }, []);
+
+  const getGroupIcon = (group: string) => {
+    const details = modelDetailsList.find(m => m.group === group);
+    return details?.icon;
+  };
 
   return (
     <div className="w-full flex px-4 py-6  items-center justify-between lg:justify-center ">
@@ -71,7 +76,16 @@ export default function ChatTopbar({ chatId, stop }: ChatTopbarProps) {
         <PopoverContent className="w-[200px] md:w-[300px] max-h-96 overflow-y-scroll p-1">
           {Object.entries(groupedModels).map(([group, models]) => (
             <div key={group}>
-              <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">
+              <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground flex items-center gap-2">
+                {getGroupIcon(group) && (
+                  <Image
+                    src={getGroupIcon(group)!}
+                    alt={`${group} Logo`}
+                    width={16}
+                    height={16}
+                    className="object-contain shrink-0"
+                  />
+                )}
                 {group}
               </div>
               {models.map((model) => (

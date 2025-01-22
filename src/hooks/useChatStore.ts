@@ -65,7 +65,7 @@ const useChatStore = create<State & Actions>()(
       userName: 'User',
       setUserName: (userName) => set({ userName }),
 
-      selectedModel: Models[5],
+      selectedModel: Models[7],
       setSelectedModel: (model: Model) =>
         set((state: State) => ({
           selectedModel:
