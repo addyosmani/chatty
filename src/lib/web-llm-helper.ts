@@ -1,11 +1,10 @@
 // https://github.com/mlc-ai/web-llm/blob/main/examples/get-started-web-worker
 
 import useChatStore from "@/hooks/useChatStore";
-import { prebuiltAppConfig, CreateWebWorkerMLCEngine } from "@mlc-ai/web-llm";
 import { Model } from "./models";
 import { Document } from "@langchain/core/documents";
 import { getEmbeddingsInstance } from "./embed";
-import type {MLCEngineInterface, InitProgressReport} from "@mlc-ai/web-llm";
+import type { AppConfig, MLCEngineInterface, InitProgressReport} from "@mlc-ai/web-llm";
 
 export interface ChatCallbacks {
   onStart?: () => void;
@@ -17,10 +16,9 @@ export interface ChatCallbacks {
 
 export default class WebLLMHelper {
   engine: MLCEngineInterface | null;
-  appConfig = prebuiltAppConfig;
+  appConfig: AppConfig | null = null;
 
   public constructor(engine: MLCEngineInterface | null) {
-    this.appConfig.useIndexedDBCache = true;
     this.engine = engine;
   }
 
@@ -35,6 +33,10 @@ export default class WebLLMHelper {
     }
 
     callbacks?.onStart?.();
+
+    const { prebuiltAppConfig, CreateWebWorkerMLCEngine } = await import("@mlc-ai/web-llm");
+    this.appConfig = prebuiltAppConfig;
+    this.appConfig.useIndexedDBCache = true;
 
     await getEmbeddingsInstance();
 
