@@ -5,20 +5,21 @@ import * as webllm from "@mlc-ai/web-llm";
 import { Model } from "./models";
 import { Document } from "@langchain/core/documents";
 import { getEmbeddingsInstance } from "./embed";
+import type {MLCEngineInterface, InitProgressReport} from "@mlc-ai/web-llm";
 
 export interface ChatCallbacks {
   onStart?: () => void;
   onResponse?: (message: string) => void;
   onFinish?: (message: string) => void;
   onError?: (error: string) => void;
-  onProgress?: (progress: webllm.InitProgressReport) => void;
+  onProgress?: (progress: InitProgressReport) => void;
 }
 
 export default class WebLLMHelper {
-  engine: webllm.MLCEngineInterface | null;
+  engine: MLCEngineInterface | null;
   appConfig = webllm.prebuiltAppConfig;
 
-  public constructor(engine: webllm.MLCEngineInterface | null) {
+  public constructor(engine: MLCEngineInterface | null) {
     this.appConfig.useIndexedDBCache = true;
     this.engine = engine;
   }
@@ -27,7 +28,7 @@ export default class WebLLMHelper {
   public async initialize(
     selectedModel: Model,
     callbacks?: ChatCallbacks
-  ): Promise<webllm.MLCEngineInterface> {
+  ): Promise<MLCEngineInterface> {
     if (!("gpu" in navigator)) {
       callbacks?.onError?.("This device does not support GPU acceleration.");
       return Promise.reject("This device does not support GPU acceleration.");
@@ -39,7 +40,7 @@ export default class WebLLMHelper {
 
     const chatOpts = {
       context_window_size: 6144,
-      initProgressCallback: (report: webllm.InitProgressReport) => {
+      initProgressCallback: (report: InitProgressReport) => {
         callbacks?.onProgress?.(report);
       },
       appConfig: this.appConfig,
@@ -61,7 +62,7 @@ export default class WebLLMHelper {
 
   // Generate streaming completion with callbacks
   public async *generateCompletion(
-    engine: webllm.MLCEngineInterface,
+    engine: MLCEngineInterface,
     input: string,
     customizedInstructions: string,
     isCustomizedInstructionsEnabled: boolean,
