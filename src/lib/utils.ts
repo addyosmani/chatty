@@ -1,4 +1,3 @@
-import { ChatCompletionMessageParam } from "@mlc-ai/web-llm";
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { MessageWithFiles } from "./types";

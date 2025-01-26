@@ -1,25 +1,24 @@
 // https://github.com/mlc-ai/web-llm/blob/main/examples/get-started-web-worker
 
 import useChatStore from "@/hooks/useChatStore";
-import * as webllm from "@mlc-ai/web-llm";
 import { Model } from "./models";
 import { Document } from "@langchain/core/documents";
 import { getEmbeddingsInstance } from "./embed";
+import type { AppConfig, MLCEngineInterface, InitProgressReport, CreateWebWorkerMLCEngine} from "@mlc-ai/web-llm";
 
 export interface ChatCallbacks {
   onStart?: () => void;
   onResponse?: (message: string) => void;
   onFinish?: (message: string) => void;
   onError?: (error: string) => void;
-  onProgress?: (progress: webllm.InitProgressReport) => void;
+  onProgress?: (progress: InitProgressReport) => void;
 }
 
 export default class WebLLMHelper {
-  engine: webllm.MLCEngineInterface | null;
-  appConfig = webllm.prebuiltAppConfig;
+  engine: MLCEngineInterface | null;
+  appConfig: AppConfig | null = null;
 
-  public constructor(engine: webllm.MLCEngineInterface | null) {
-    this.appConfig.useIndexedDBCache = true;
+  public constructor(engine: MLCEngineInterface | null) {
     this.engine = engine;
   }
 
@@ -27,7 +26,7 @@ export default class WebLLMHelper {
   public async initialize(
     selectedModel: Model,
     callbacks?: ChatCallbacks
-  ): Promise<webllm.MLCEngineInterface> {
+  ): Promise<MLCEngineInterface> {
     if (!("gpu" in navigator)) {
       callbacks?.onError?.("This device does not support GPU acceleration.");
       return Promise.reject("This device does not support GPU acceleration.");
@@ -35,18 +34,31 @@ export default class WebLLMHelper {
 
     callbacks?.onStart?.();
 
+    let engineCreator: typeof CreateWebWorkerMLCEngine | null = null;
+
+    try {
+      const { prebuiltAppConfig, CreateWebWorkerMLCEngine } = await import("@mlc-ai/web-llm");
+      engineCreator = CreateWebWorkerMLCEngine;
+
+      this.appConfig = prebuiltAppConfig;
+      this.appConfig.useIndexedDBCache = true;
+    } catch (error) {
+      callbacks?.onError?.(`Failed to load MLC AI dependencies: ${error instanceof Error ? error.message : error}`);
+      return Promise.reject("Failed to load MLC AI dependencies");
+    }
+
     await getEmbeddingsInstance();
 
     const chatOpts = {
       context_window_size: 6144,
-      initProgressCallback: (report: webllm.InitProgressReport) => {
+      initProgressCallback: (report: InitProgressReport) => {
         callbacks?.onProgress?.(report);
       },
       appConfig: this.appConfig,
     };
 
     try {
-      const engine = await webllm.CreateWebWorkerMLCEngine(
+      const engine = await engineCreator(
         new Worker(new URL("./worker.ts", import.meta.url), { type: "module" }),
         selectedModel.name,
         chatOpts
@@ -61,7 +73,7 @@ export default class WebLLMHelper {
 
   // Generate streaming completion with callbacks
   public async *generateCompletion(
-    engine: webllm.MLCEngineInterface,
+    engine: MLCEngineInterface,
     input: string,
     customizedInstructions: string,
     isCustomizedInstructionsEnabled: boolean,

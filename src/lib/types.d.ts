@@ -1,4 +1,4 @@
-import { ChatCompletionMessageParam, ChatCompletionAssistantMessageParam, ChatCompletionUserMessageParam } from "@mlc-ai/web-llm";
+import type { ChatCompletionMessageParam, ChatCompletionAssistantMessageParam, ChatCompletionUserMessageParam } from "@mlc-ai/web-llm";
 
 // Base interface for all messages
 interface BaseMessage {
