@@ -4,7 +4,7 @@ import useChatStore from "@/hooks/useChatStore";
 import { Model } from "./models";
 import { Document } from "@langchain/core/documents";
 import { getEmbeddingsInstance } from "./embed";
-import type { AppConfig, MLCEngineInterface, InitProgressReport} from "@mlc-ai/web-llm";
+import type { AppConfig, MLCEngineInterface, InitProgressReport, CreateWebWorkerMLCEngine} from "@mlc-ai/web-llm";
 
 export interface ChatCallbacks {
   onStart?: () => void;
@@ -34,9 +34,18 @@ export default class WebLLMHelper {
 
     callbacks?.onStart?.();
 
-    const { prebuiltAppConfig, CreateWebWorkerMLCEngine } = await import("@mlc-ai/web-llm");
-    this.appConfig = prebuiltAppConfig;
-    this.appConfig.useIndexedDBCache = true;
+    let engineCreator: typeof CreateWebWorkerMLCEngine | null = null;
+
+    try {
+      const { prebuiltAppConfig, CreateWebWorkerMLCEngine } = await import("@mlc-ai/web-llm");
+      engineCreator = CreateWebWorkerMLCEngine;
+
+      this.appConfig = prebuiltAppConfig;
+      this.appConfig.useIndexedDBCache = true;
+    } catch (error) {
+      callbacks?.onError?.(`Failed to load MLC AI dependencies: ${error instanceof Error ? error.message : error}`);
+      return Promise.reject("Failed to load MLC AI dependencies");
+    }
 
     await getEmbeddingsInstance();
 
@@ -49,7 +58,7 @@ export default class WebLLMHelper {
     };
 
     try {
-      const engine = await CreateWebWorkerMLCEngine(
+      const engine = await engineCreator(
         new Worker(new URL("./worker.ts", import.meta.url), { type: "module" }),
         selectedModel.name,
         chatOpts
