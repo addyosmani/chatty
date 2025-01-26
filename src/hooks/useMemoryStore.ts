@@ -1,5 +1,4 @@
 import { Model, Models } from "@/lib/models";
-import * as webllm from "@mlc-ai/web-llm";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { Document } from "@langchain/core/documents";
