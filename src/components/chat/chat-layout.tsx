@@ -32,10 +32,7 @@ export default function ChatLayout({ initialMessages, id }: ChatLayoutProps) {
 
   const router = useRouter();
 
-  const {
-    stop,
-    setStoredMessages
-  } = useChat({ id, initialMessages });
+  const { stop, setStoredMessages } = useChat({ id, initialMessages });
 
   const [open, setOpen] = React.useState(false);
 
@@ -58,15 +55,15 @@ export default function ChatLayout({ initialMessages, id }: ChatLayoutProps) {
     // Clear messages
     stop();
     setTimeout(() => {
-      setStoredMessages(() => [])
+      setStoredMessages(() => []);
       router.push("/");
-    }, 150)
+    }, 150);
   };
 
   function handleDeleteChat(chatId: string) {
     stop();
     handleDelete(chatId);
-    setStoredMessages(() => [])
+    setStoredMessages(() => []);
     router.push("/");
   }
 
@@ -80,7 +77,12 @@ export default function ChatLayout({ initialMessages, id }: ChatLayoutProps) {
           transition={{ duration: 0.2, ease: "easeInOut" }}
           className="w-72 hidden md:block shrink-0"
         >
-          <Sidebar isCollapsed={isCollapsed} chatId={id} handleNewChat={handleNewChat} handleDeleteChat={handleDeleteChat} />
+          <Sidebar
+            isCollapsed={isCollapsed}
+            chatId={id}
+            handleNewChat={handleNewChat}
+            handleDeleteChat={handleDeleteChat}
+          />
         </motion.div>
         <div
           key="divider"
@@ -123,6 +125,7 @@ export default function ChatLayout({ initialMessages, id }: ChatLayoutProps) {
                 onClick={() => {
                   handleNewChat();
                 }}
+                aria-label="New chat"
               >
                 <SquarePen size={18} className="shrink-0 w-5 h-5" />
               </Button>

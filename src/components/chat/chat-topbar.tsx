@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   Popover,
   PopoverContent,
@@ -10,9 +10,8 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "../ui/button";
 import { CaretSortIcon, HamburgerMenuIcon } from "@radix-ui/react-icons";
 import { Sidebar } from "../sidebar";
-import { Message } from "ai/react";
 import useChatStore from "@/hooks/useChatStore";
-import { Models, Model, ModelGroup, modelDetailsList } from "@/lib/models";
+import { Models, Model, modelDetailsList } from "@/lib/models";
 import { Badge } from "../ui/badge";
 import Image from "next/image";
 
@@ -40,14 +39,14 @@ export default function ChatTopbar({ chatId, stop }: ChatTopbarProps) {
   }, []);
 
   const getGroupIcon = (group: string) => {
-    const details = modelDetailsList.find(m => m.group === group);
+    const details = modelDetailsList.find((m) => m.group === group);
     return details?.icon;
   };
 
   return (
     <div className="w-full flex px-4 py-6  items-center justify-between lg:justify-center ">
       <Sheet>
-        <SheetTrigger>
+        <SheetTrigger role="presentation" aria-label="Sidebar chat menu">
           <HamburgerMenuIcon className="md:hidden w-5 h-5" />
         </SheetTrigger>
         <SheetContent side="left">
@@ -63,6 +62,7 @@ export default function ChatTopbar({ chatId, stop }: ChatTopbarProps) {
             role="combobox"
             aria-expanded={open}
             className="w-[180px] md:w-[300px] justify-between bg-accent dark:bg-card"
+            aria-label="Open model dropdown"
           >
             <div className="flex gap-2 items-center truncate">
               <p className="truncate">{selectedModel.displayName}</p>
@@ -92,6 +92,8 @@ export default function ChatTopbar({ chatId, stop }: ChatTopbarProps) {
                   key={model.name}
                   variant="ghost"
                   className="w-full justify-start flex gap-2 items-center truncate"
+                  aria-label="Open popup"
+                  role="button"
                   onClick={() => {
                     setSelectedModel(model);
                     setOpen(false);

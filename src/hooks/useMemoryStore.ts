@@ -1,7 +1,5 @@
-import { Model, Models } from "@/lib/models";
 import { create } from "zustand";
-import { createJSONStorage, persist } from "zustand/middleware";
-import { Document } from "@langchain/core/documents";
+import { persist } from "zustand/middleware";
 
 interface State {
   customizedInstructions: string;

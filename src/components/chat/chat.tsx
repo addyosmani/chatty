@@ -4,16 +4,6 @@ import React from "react";
 import ChatTopbar from "./chat-topbar";
 import ChatList from "./chat-list";
 import ChatBottombar from "./chat-bottombar";
-import { Cross2Icon, FileTextIcon } from "@radix-ui/react-icons";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog";
-import { Button } from "../ui/button";
 import { useChat } from "@/hooks/useChat";
 import { MessageWithFiles } from "@/lib/types";
 import Image from "next/image";
@@ -56,7 +46,7 @@ export default function Chat({ initialMessages, id }: ChatProps) {
             <p className="text-center text-2xl md:text-3xl font-semibold text-muted-foreground/75">
               How can I help you today?
             </p>
-            <p className="text-center text-sm text-muted-foreground/60 max-w-lg">
+            <p className="text-center text-sm text-muted-foreground/75 max-w-lg">
               Models with <strong>(1k)</strong> suffix lowers VRAM requirements
               by ~2-3GB.
             </p>
@@ -64,7 +54,13 @@ export default function Chat({ initialMessages, id }: ChatProps) {
 
           <div className="flex flex-col w-full ">
             {files && fileText && (
-              <AttachedFiles files={files} open={open} setFileText={setFileText} setFiles={setFiles} setOpen={setOpen} />
+              <AttachedFiles
+                files={files}
+                open={open}
+                setFileText={setFileText}
+                setFiles={setFiles}
+                setOpen={setOpen}
+              />
             )}
             <ChatBottombar
               files={files}
@@ -86,7 +82,13 @@ export default function Chat({ initialMessages, id }: ChatProps) {
             onRegenerate={regenerate}
           />
           {files && fileText && (
-            <AttachedFiles files={files} open={open} setFileText={setFileText} setFiles={setFiles} setOpen={setOpen} />
+            <AttachedFiles
+              files={files}
+              open={open}
+              setFileText={setFileText}
+              setFiles={setFiles}
+              setOpen={setOpen}
+            />
           )}
           <ChatBottombar
             files={files}
@@ -98,8 +100,5 @@ export default function Chat({ initialMessages, id }: ChatProps) {
         </>
       )}
     </div>
-
-
-
   );
 }

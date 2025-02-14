@@ -1,14 +1,12 @@
 import React, { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { cn, getImagesFromMessage, getTextContentFromMessage } from "@/lib/utils";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { getImagesFromMessage, getTextContentFromMessage } from "@/lib/utils";
 import Image from "next/image";
 import CodeDisplayBlock from "../code-display-block";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Button } from "../ui/button";
 import { ChatProps } from "@/lib/types";
-import MessageLoading from "../ui/message-loading";
 import {
   CheckIcon,
   CopyIcon,
@@ -20,7 +18,11 @@ import {
 import useChatStore from "@/hooks/useChatStore";
 import ButtonWithTooltip from "../button-with-tooltip";
 import { ChatMessageList } from "../ui/chat/chat-message-list";
-import { ChatBubble, ChatBubbleAvatar, ChatBubbleMessage } from "../ui/chat/chat-bubble";
+import {
+  ChatBubble,
+  ChatBubbleAvatar,
+  ChatBubbleMessage,
+} from "../ui/chat/chat-bubble";
 
 export default function ChatList({
   messages,
@@ -121,14 +123,19 @@ export default function ChatList({
     <div className="flex-1 w-full overflow-y-auto">
       <ChatMessageList>
         {messages.map((message, index) => {
-
           const variant = message.role === "user" ? "sent" : "received";
 
-          const thinkContent = message.role === "assistant" && message.content ?
-            getThinkContent(message.content.toString()) : null;
+          const thinkContent =
+            message.role === "assistant" && message.content
+              ? getThinkContent(message.content.toString())
+              : null;
 
-          const cleanContent = message.content ?
-            message.content.toString().replace(/<think>[\s\S]*?(?:<\/think>|$)/g, '').trim() : '';
+          const cleanContent = message.content
+            ? message.content
+                .toString()
+                .replace(/<think>[\s\S]*?(?:<\/think>|$)/g, "")
+                .trim()
+            : "";
 
           return (
             <motion.div
@@ -155,7 +162,12 @@ export default function ChatList({
                   className="w-7 h-7 dark:invert aspect-square"
                   fallback={message.role == "user" ? "US" : ""}
                 />
-                <ChatBubbleMessage isLoading={loadingSubmit && messages.indexOf(message) === messages.length - 1}>
+                <ChatBubbleMessage
+                  isLoading={
+                    loadingSubmit &&
+                    messages.indexOf(message) === messages.length - 1
+                  }
+                >
                   <div className="flex flex-col gap-1">
                     {thinkContent && message.role === "assistant" && (
                       <details className="mb-1 text-sm" open>
@@ -163,7 +175,9 @@ export default function ChatList({
                           Thought process
                         </summary>
                         <div className="mt-1 text-muted-foreground pl-3 border-l-2 border-foreground/10">
-                          <Markdown remarkPlugins={[remarkGfm]}>{thinkContent}</Markdown>
+                          <Markdown remarkPlugins={[remarkGfm]}>
+                            {thinkContent}
+                          </Markdown>
                         </div>
                       </details>
                     )}
@@ -176,7 +190,7 @@ export default function ChatList({
                     )}
 
                     <div className="flex gap-2">
-                      {getImagesFromMessage(message).length > 0 && (
+                      {getImagesFromMessage(message).length > 0 &&
                         getImagesFromMessage(message).map((image, index) => (
                           <Image
                             key={index}
@@ -186,32 +200,33 @@ export default function ChatList({
                             className="rounded-md object-contain"
                             alt=""
                           />
-                        ))
-                      )}
+                        ))}
                     </div>
 
-                    {cleanContent && typeof cleanContent === 'string' && cleanContent
-                      .split("```")
-                      .map((part: string, index: number) => {
-                        if (index % 2 === 0) {
-                          return (
-                            <Markdown key={index} remarkPlugins={[remarkGfm]}>
-                              {part}
-                            </Markdown>
-                          );
-                        } else {
-                          return (
-                            <pre
-                              className="whitespace-pre-wrap pt-2"
-                              key={index}
-                            >
-                              <CodeDisplayBlock code={part} lang="" />
-                            </pre>
-                          );
-                        }
-                      })}
+                    {cleanContent &&
+                      typeof cleanContent === "string" &&
+                      cleanContent
+                        .split("```")
+                        .map((part: string, index: number) => {
+                          if (index % 2 === 0) {
+                            return (
+                              <Markdown key={index} remarkPlugins={[remarkGfm]}>
+                                {part}
+                              </Markdown>
+                            );
+                          } else {
+                            return (
+                              <pre
+                                className="whitespace-pre-wrap pt-2"
+                                key={index}
+                              >
+                                <CodeDisplayBlock code={part} lang="" />
+                              </pre>
+                            );
+                          }
+                        })}
 
-                    {message.content && typeof message.content !== 'string' && (
+                    {message.content && typeof message.content !== "string" && (
                       <p>{getTextContentFromMessage(message)}</p>
                     )}
                   </div>
@@ -222,22 +237,26 @@ export default function ChatList({
                       <div className="pt-2 flex gap-1 items-center text-muted-foreground">
                         {/* Copy button */}
                         {(!isLoading ||
-                          messages.indexOf(message) !== messages.length - 1) && (
-                            <ButtonWithTooltip side="bottom" toolTipText="Copy">
-                              <Button
-                                onClick={copyToClipboard(getTextContentFromMessage(message), index)}
-                                variant="ghost"
-                                size="icon"
-                                className="h-4 w-4"
-                              >
-                                {isCopied[index] ? (
-                                  <CheckIcon className="w-3.5 h-3.5 transition-all" />
-                                ) : (
-                                  <CopyIcon className="w-3.5 h-3.5 transition-all" />
-                                )}
-                              </Button>
-                            </ButtonWithTooltip>
-                          )}
+                          messages.indexOf(message) !==
+                            messages.length - 1) && (
+                          <ButtonWithTooltip side="bottom" toolTipText="Copy">
+                            <Button
+                              onClick={copyToClipboard(
+                                getTextContentFromMessage(message),
+                                index
+                              )}
+                              variant="ghost"
+                              size="icon"
+                              className="h-4 w-4"
+                            >
+                              {isCopied[index] ? (
+                                <CheckIcon className="w-3.5 h-3.5 transition-all" />
+                              ) : (
+                                <CopyIcon className="w-3.5 h-3.5 transition-all" />
+                              )}
+                            </Button>
+                          </ButtonWithTooltip>
+                        )}
 
                         {/* Only show regenerate button on the last ai message */}
                         {!isLoading &&
@@ -259,34 +278,38 @@ export default function ChatList({
 
                         {/* Speaker icon */}
                         {(!isLoading ||
-                          messages.indexOf(message) !== messages.length - 1) && (
-                            <ButtonWithTooltip
-                              side="bottom"
-                              toolTipText={isSpeaking[index] ? "Stop" : "Listen"}
+                          messages.indexOf(message) !==
+                            messages.length - 1) && (
+                          <ButtonWithTooltip
+                            side="bottom"
+                            toolTipText={isSpeaking[index] ? "Stop" : "Listen"}
+                          >
+                            <Button
+                              onClick={() => {
+                                handleTextToSpeech(
+                                  getTextContentFromMessage(message),
+                                  index
+                                );
+                              }}
+                              variant="ghost"
+                              size="icon"
+                              className="h-4 w-4"
                             >
-                              <Button
-                                onClick={() => {
-                                  handleTextToSpeech(getTextContentFromMessage(message), index);
-                                }}
-                                variant="ghost"
-                                size="icon"
-                                className="h-4 w-4"
-                              >
-                                {isSpeaking[index] ? (
-                                  <VolumeX className="w-4 h-4 transition-all " />
-                                ) : (
-                                  <Volume2 className="w-4 h-4 transition-all" />
-                                )}
-                              </Button>
-                            </ButtonWithTooltip>
-                          )}
+                              {isSpeaking[index] ? (
+                                <VolumeX className="w-4 h-4 transition-all " />
+                              ) : (
+                                <Volume2 className="w-4 h-4 transition-all" />
+                              )}
+                            </Button>
+                          </ButtonWithTooltip>
+                        )}
                       </div>
                     </div>
                   )}
                 </ChatBubbleMessage>
               </ChatBubble>
             </motion.div>
-          )
+          );
         })}
       </ChatMessageList>
     </div>

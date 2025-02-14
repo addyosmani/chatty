@@ -123,6 +123,7 @@ export default function ChatBottombar({
                     variant="ghost"
                     size="icon"
                     type="button"
+                    role="presentation"
                     disabled
                   >
                     <Mic className="w-5 h-5" />
@@ -132,6 +133,7 @@ export default function ChatBottombar({
                     variant="ghost"
                     size="icon"
                     type="submit"
+                    role="presentation"
                     onClick={(e) => {
                       e.preventDefault();
                       stop();
@@ -168,6 +170,7 @@ export default function ChatBottombar({
                     type="button"
                     onClick={handleListenClick}
                     disabled={isLoading}
+                    aria-label="Activate voice input"
                   >
                     <Mic className="w-5 h-5" />
                     {isListening && (
@@ -181,6 +184,7 @@ export default function ChatBottombar({
                     variant="ghost"
                     size="icon"
                     type="submit"
+                    aria-label="Submit prompt"
                     disabled={
                       isLoading ||
                       !input.trim() ||
