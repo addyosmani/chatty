@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Sidebar } from "../sidebar";
 import { AnimatePresence, motion } from "framer-motion";
 import { DividerVerticalIcon } from "@radix-ui/react-icons";
-import { ChevronRightIcon, Download, SquarePen } from "lucide-react";
+import { ChevronRightIcon, SquarePen } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -16,7 +16,6 @@ import { MessageWithFiles } from "@/lib/types";
 import { Button } from "../ui/button";
 import useChatStore from "@/hooks/useChatStore";
 import { useRouter } from "next/navigation";
-import useMemoryStore from "@/hooks/useMemoryStore";
 import ButtonWithTooltip from "../button-with-tooltip";
 import ExportChatDialog from "../export-chat-dialog";
 import { useChat } from "@/hooks/useChat";
@@ -77,12 +76,7 @@ export default function ChatLayout({ initialMessages, id }: ChatLayoutProps) {
           transition={{ duration: 0.2, ease: "easeInOut" }}
           className="w-72 hidden md:block shrink-0"
         >
-          <Sidebar
-            isCollapsed={isCollapsed}
-            chatId={id}
-            handleNewChat={handleNewChat}
-            handleDeleteChat={handleDeleteChat}
-          />
+          <Sidebar isCollapsed={isCollapsed} chatId={id} handleNewChat={handleNewChat} handleDeleteChat={handleDeleteChat} />
         </motion.div>
         <div
           key="divider"

@@ -54,13 +54,7 @@ export default function Chat({ initialMessages, id }: ChatProps) {
 
           <div className="flex flex-col w-full ">
             {files && fileText && (
-              <AttachedFiles
-                files={files}
-                open={open}
-                setFileText={setFileText}
-                setFiles={setFiles}
-                setOpen={setOpen}
-              />
+              <AttachedFiles files={files} open={open} setFileText={setFileText} setFiles={setFiles} setOpen={setOpen} />
             )}
             <ChatBottombar
               files={files}
@@ -82,13 +76,7 @@ export default function Chat({ initialMessages, id }: ChatProps) {
             onRegenerate={regenerate}
           />
           {files && fileText && (
-            <AttachedFiles
-              files={files}
-              open={open}
-              setFileText={setFileText}
-              setFiles={setFiles}
-              setOpen={setOpen}
-            />
+            <AttachedFiles files={files} open={open} setFileText={setFileText} setFiles={setFiles} setOpen={setOpen} />
           )}
           <ChatBottombar
             files={files}
