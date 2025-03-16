@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import FileEmbedder from "./file-embedder";
 import { WebPDFLoader } from "langchain/document_loaders/web/pdf";
 import { Button } from "./ui/button";
-import { Cross2Icon } from "@radix-ui/react-icons";
+
 import { PaperclipIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Document } from "@langchain/core/documents";
@@ -94,6 +94,7 @@ export default function FileLoader({
           variant="ghost"
           size="icon"
           className="rounded-full shrink-0"
+          role="presentation"
         >
           <PaperclipIcon className="w-5 h-5 " />
         </Button>

@@ -1,20 +1,19 @@
 "use client";
 
-import { set, z } from "zod";
+import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { ModeToggle } from "./mode-toggle";
 import { toast } from "sonner";
 import useChatStore from "@/hooks/useChatStore";
@@ -30,7 +29,7 @@ interface EditUsernameFormProps {
 }
 
 export default function EditUsernameForm({ setOpen }: EditUsernameFormProps) {
-  const [name, setName] = useState('')
+  const [name, setName] = useState("");
   const userName = useChatStore((state) => state.userName);
   const setUserName = useChatStore((state) => state.setUserName);
 
@@ -42,7 +41,7 @@ export default function EditUsernameForm({ setOpen }: EditUsernameFormProps) {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    setUserName(values.username)
+    setUserName(values.username);
     toast.success("Name updated successfully");
   }
 
@@ -72,7 +71,9 @@ export default function EditUsernameForm({ setOpen }: EditUsernameFormProps) {
                     type="text"
                     onChange={(e) => handleChange(e)}
                   />
-                  <Button type="submit" className="w-full md:w-fit">Change name</Button>
+                  <Button type="submit" className="w-full md:w-fit">
+                    Change name
+                  </Button>
                 </div>
               </FormControl>
               <FormMessage />

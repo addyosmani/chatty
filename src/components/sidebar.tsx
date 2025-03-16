@@ -1,8 +1,6 @@
 "use client";
 
-import Link from "next/link";
 import { SquarePen } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import UserSettings from "./user-settings";
@@ -15,7 +13,12 @@ interface SidebarProps {
   handleNewChat: () => void;
   handleDeleteChat: (chatId: string) => void;
 }
-export function Sidebar({ isCollapsed, chatId, handleNewChat, handleDeleteChat }: SidebarProps) {
+export function Sidebar({
+  isCollapsed,
+  chatId,
+  handleNewChat,
+  handleDeleteChat,
+}: SidebarProps) {
   const chats = useChatStore((state) => state.chats);
   const setChatTitle = useChatStore((state) => state.setChatTitle);
 
@@ -32,6 +35,8 @@ export function Sidebar({ isCollapsed, chatId, handleNewChat, handleDeleteChat }
           onClick={handleNewChat}
           variant="ghost"
           className="flex justify-between w-full h-16 text-sm font-normal items-center shrink-0 rounded-full"
+          aria-label="New chat"
+          role="button"
         >
           <div className="flex gap-3 items-center">
             <Image
@@ -54,7 +59,8 @@ export function Sidebar({ isCollapsed, chatId, handleNewChat, handleDeleteChat }
                 .filter(([, chat]) => chat.messages && chat.messages.length > 0)
                 .sort(
                   ([, a], [, b]) =>
-                    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+                    new Date(b.createdAt).getTime() -
+                    new Date(a.createdAt).getTime()
                 )
                 .map(([id, chat]) => (
                   <ChatItem

@@ -4,7 +4,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
@@ -12,7 +11,7 @@ import ButtonWithTooltip from "./button-with-tooltip";
 import { Button } from "./ui/button";
 import { Download, DownloadIcon } from "lucide-react";
 import useMemoryStore from "@/hooks/useMemoryStore";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import CodeDisplayBlock from "./code-display-block";
 import useChatStore from "@/hooks/useChatStore";
 import Markdown from "react-markdown";
@@ -76,6 +75,7 @@ export default function ExportChatDialog({
             variant="ghost"
             size="icon"
             className="absolute top-5 right-2 sm:right-5 rounded-full"
+            aria-label="Export chat"
           >
             <Download className="w-5 h-5" />
           </Button>

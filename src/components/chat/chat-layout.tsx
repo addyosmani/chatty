@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Sidebar } from "../sidebar";
 import { AnimatePresence, motion } from "framer-motion";
 import { DividerVerticalIcon } from "@radix-ui/react-icons";
-import { ChevronRightIcon, Download, SquarePen } from "lucide-react";
+import { ChevronRightIcon, SquarePen } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -16,7 +16,6 @@ import { MessageWithFiles } from "@/lib/types";
 import { Button } from "../ui/button";
 import useChatStore from "@/hooks/useChatStore";
 import { useRouter } from "next/navigation";
-import useMemoryStore from "@/hooks/useMemoryStore";
 import ButtonWithTooltip from "../button-with-tooltip";
 import ExportChatDialog from "../export-chat-dialog";
 import { useChat } from "@/hooks/useChat";
@@ -32,10 +31,7 @@ export default function ChatLayout({ initialMessages, id }: ChatLayoutProps) {
 
   const router = useRouter();
 
-  const {
-    stop,
-    setStoredMessages
-  } = useChat({ id, initialMessages });
+  const { stop, setStoredMessages } = useChat({ id, initialMessages });
 
   const [open, setOpen] = React.useState(false);
 
@@ -58,15 +54,15 @@ export default function ChatLayout({ initialMessages, id }: ChatLayoutProps) {
     // Clear messages
     stop();
     setTimeout(() => {
-      setStoredMessages(() => [])
+      setStoredMessages(() => []);
       router.push("/");
-    }, 150)
+    }, 150);
   };
 
   function handleDeleteChat(chatId: string) {
     stop();
     handleDelete(chatId);
-    setStoredMessages(() => [])
+    setStoredMessages(() => []);
     router.push("/");
   }
 
@@ -123,6 +119,7 @@ export default function ChatLayout({ initialMessages, id }: ChatLayoutProps) {
                 onClick={() => {
                   handleNewChat();
                 }}
+                aria-label="New chat"
               >
                 <SquarePen size={18} className="shrink-0 w-5 h-5" />
               </Button>
