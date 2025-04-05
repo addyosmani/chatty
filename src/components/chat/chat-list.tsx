@@ -130,8 +130,17 @@ export default function ChatList({
               ? getThinkContent(message.content.toString())
               : null;
 
-          const cleanContent = message.content ? 
-            message.content.toString().replace(/<think>[\s\S]*?(?:<\/think>|$)/g, "").trim() : "";
+          const removeThinkTags = (text: string) => {
+            return text.replace(/<think>[\s\S]*?(?:<\/think>|$)/g, "").trim();
+          };
+
+          const cleanContent = message.content
+            ? removeThinkTags(
+                typeof message.content === "string"
+                  ? message.content
+                  : getTextContentFromMessage(message)
+              )
+            : "";
 
           return (
             <motion.div
@@ -158,7 +167,12 @@ export default function ChatList({
                   className="w-7 h-7 dark:invert aspect-square"
                   fallback={message.role == "user" ? "US" : ""}
                 />
-                <ChatBubbleMessage isLoading={loadingSubmit && messages.indexOf(message) === messages.length - 1}>
+                <ChatBubbleMessage
+                  isLoading={
+                    loadingSubmit &&
+                    messages.indexOf(message) === messages.length - 1
+                  }
+                >
                   <div className="flex flex-col gap-1">
                     {thinkContent && message.role === "assistant" && (
                       <details className="mb-1 text-sm" open>
@@ -195,7 +209,6 @@ export default function ChatList({
                     </div>
 
                     {cleanContent &&
-                      typeof cleanContent === "string" &&
                       cleanContent
                         .split("```")
                         .map((part: string, index: number) => {
@@ -216,10 +229,6 @@ export default function ChatList({
                             );
                           }
                         })}
-
-                    {message.content && typeof message.content !== "string" && (
-                      <p>{getTextContentFromMessage(message)}</p>
-                    )}
                   </div>
 
                   {message.role === "assistant" && (
