@@ -3,10 +3,11 @@ import { documents, documentChunks } from "@/db/schema";
 import {
   embedText,
   embedTexts,
-  cosineSimilarity,
   embeddingToBuffer,
   bufferToEmbedding,
 } from "./embeddings";
+import { cosineSimilarity } from "ai";
+import { rerank } from "./reranker";
 import { parseFile, splitIntoChunks } from "./pdf-parser";
 import { generateUUID } from "./utils";
 import { eq } from "drizzle-orm";
@@ -14,6 +15,7 @@ import { eq } from "drizzle-orm";
 const CHUNK_SIZE = 1000;
 const CHUNK_OVERLAP = 100;
 const TOP_K = 5;
+const RERANK_CANDIDATES = 15; // Broader initial retrieval for reranking
 const SIMILARITY_THRESHOLD = 0.3;
 
 export type RetrievalResult = {
@@ -151,28 +153,33 @@ export async function getRAGContext(
     })
     .filter((chunk): chunk is ScoredChunk => chunk !== null);
 
-  // Sort by similarity and take top K
+  // Sort by similarity and take broader candidate set for reranking
   scoredChunks.sort(
     (a: ScoredChunk, b: ScoredChunk) => b.similarity - a.similarity
   );
-  const topChunks = scoredChunks.slice(0, TOP_K);
+  const candidateChunks = scoredChunks
+    .filter((chunk: ScoredChunk) => chunk.similarity >= SIMILARITY_THRESHOLD)
+    .slice(0, RERANK_CANDIDATES);
 
-  // Filter by similarity threshold
-  const relevantChunks = topChunks.filter(
-    (chunk: ScoredChunk) => chunk.similarity >= SIMILARITY_THRESHOLD
-  );
-
-  if (relevantChunks.length === 0) {
+  if (candidateChunks.length === 0) {
     return null;
   }
 
+  // Rerank candidates using cross-encoder for better accuracy
+  const reranked = await rerank(
+    query,
+    candidateChunks,
+    (chunk) => chunk.content,
+    TOP_K
+  );
+
   // Build structured results
-  const results: RetrievalResult[] = relevantChunks.map((chunk, index) => ({
+  const results: RetrievalResult[] = reranked.map(({ item: chunk, relevanceScore }) => ({
     documentId: chunk.documentId,
     fileName: chunk.fileName,
     chunkIndex: chunk.chunkIndex,
     content: chunk.content,
-    similarity: chunk.similarity,
+    similarity: relevanceScore,
   }));
 
   // Build context string with numbered citations

@@ -1,11 +1,17 @@
 "use client";
 
+import { useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useDocumentStore, useHasDocuments } from "@/hooks/useDocumentStore";
 import { FileSearch } from "lucide-react";
 
 export default function RagToggle() {
   const hasDocuments = useHasDocuments();
+  const loadDocuments = useDocumentStore((state) => state.loadDocuments);
+
+  useEffect(() => {
+    loadDocuments();
+  }, [loadDocuments]);
   const searchInDocuments = useDocumentStore((state) => state.searchInDocuments);
   const setSearchInDocuments = useDocumentStore(
     (state) => state.setSearchInDocuments
