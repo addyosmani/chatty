@@ -67,7 +67,7 @@ export default function RootLayout({
       <body className={GeistSans.className}>
         <DatabaseProvider>
           <ThemeProvider attribute="class" defaultTheme="system">
-            <Suspense>
+            <Suspense fallback={null}>
               {children}
             </Suspense>
             <Toaster position="top-right" />

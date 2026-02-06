@@ -10,13 +10,11 @@ import { ChatItem } from "./sidebar-chat-item";
 
 interface SidebarProps {
   isCollapsed: boolean;
-  chatId: string;
   handleNewChat: () => void;
   handleDeleteChat: (chatId: string) => void;
 }
 export function Sidebar({
   isCollapsed,
-  chatId,
   handleNewChat,
   handleDeleteChat,
 }: SidebarProps) {
@@ -24,15 +22,16 @@ export function Sidebar({
   const getAllChats = useChatStore((state) => state.getAllChats);
   const setChatTitle = useChatStore((state) => state.setChatTitle);
   const chatListVersion = useChatStore((state) => state.chatListVersion);
+  const currentChatId = useChatStore((state) => state.currentChatId);
 
-  // Load chats on mount, when chatId changes, or when chat list is updated
+  // Load chats on mount or when chat list is updated
   useEffect(() => {
     const loadChats = async () => {
       const allChats = await getAllChats();
       setChats(allChats);
     };
     loadChats();
-  }, [getAllChats, chatId, chatListVersion]);
+  }, [getAllChats, chatListVersion]);
 
   const handleRenameChat = useCallback(async (chatId: string, newTitle: string) => {
     if (newTitle) {
@@ -75,7 +74,7 @@ export function Sidebar({
                   key={chat.id}
                   id={chat.id}
                   chat={chat}
-                  isActive={chat.id === chatId}
+                  isActive={chat.id === currentChatId}
                   onRename={handleRenameChat}
                   onDelete={handleDeleteChat}
                 />
