@@ -12,26 +12,22 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import Chat from "./chat";
-import { MessageWithFiles } from "@/lib/types";
 import { Button } from "../ui/button";
 import useChatStore from "@/hooks/useChatStore";
 import { useRouter } from "next/navigation";
 import ButtonWithTooltip from "../button-with-tooltip";
 import ExportChatDialog from "../export-chat-dialog";
-import { useChat } from "@/hooks/useChat";
 
 interface ChatLayoutProps {
   id: string;
-  initialMessages: MessageWithFiles[];
 }
 
-export default function ChatLayout({ initialMessages, id }: ChatLayoutProps) {
+export default function ChatLayout({ id }: ChatLayoutProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const handleDelete = useChatStore((state) => state.handleDelete);
+  const deleteChat = useChatStore((state) => state.deleteChat);
+  const setCurrentChatId = useChatStore((state) => state.setCurrentChatId);
 
   const router = useRouter();
-
-  const { stop, setStoredMessages } = useChat({ id, initialMessages });
 
   const [open, setOpen] = React.useState(false);
 
@@ -51,18 +47,12 @@ export default function ChatLayout({ initialMessages, id }: ChatLayoutProps) {
   }, [isCollapsed]);
 
   const handleNewChat = () => {
-    // Clear messages
-    stop();
-    setTimeout(() => {
-      setStoredMessages(() => []);
-      router.push("/");
-    }, 150);
+    setCurrentChatId(null);
+    router.push("/");
   };
 
-  function handleDeleteChat(chatId: string) {
-    stop();
-    handleDelete(chatId);
-    setStoredMessages(() => []);
+  async function handleDeleteChat(chatId: string) {
+    await deleteChat(chatId);
     router.push("/");
   }
 
@@ -76,7 +66,12 @@ export default function ChatLayout({ initialMessages, id }: ChatLayoutProps) {
           transition={{ duration: 0.2, ease: "easeInOut" }}
           className="w-72 hidden md:block shrink-0"
         >
-          <Sidebar isCollapsed={isCollapsed} chatId={id} handleNewChat={handleNewChat} handleDeleteChat={handleDeleteChat} />
+          <Sidebar
+            isCollapsed={isCollapsed}
+            chatId={id}
+            handleNewChat={handleNewChat}
+            handleDeleteChat={handleDeleteChat}
+          />
         </motion.div>
         <div
           key="divider"
@@ -128,7 +123,7 @@ export default function ChatLayout({ initialMessages, id }: ChatLayoutProps) {
         </div>
       </AnimatePresence>
       <div className="h-full w-full flex flex-col items-center justify-center">
-        <Chat id={id} initialMessages={initialMessages} />
+        <Chat id={id} />
 
         {/* Export chat button */}
         <ExportChatDialog open={open} setOpen={setOpen} />

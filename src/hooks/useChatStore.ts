@@ -1,200 +1,273 @@
-import { Model, Models } from "@/lib/models";
-import * as webllm from "@mlc-ai/web-llm";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { Document } from "@langchain/core/documents";
-import { MessageWithFiles } from "@/lib/types";
+import { getDatabase, saveDatabase, isDatabaseInitialized } from "@/lib/db";
+import { chats, messages } from "@/db/schema";
+import { eq, desc } from "drizzle-orm";
+import { generateUUID } from "@/lib/utils";
 
-interface ChatSession {
-  messages: MessageWithFiles[];
+export interface ChatMessage {
+  id: string;
+  role: "user" | "assistant" | "system";
+  content: string;
+  contentType?: "text" | "multimodal";
+  metadata?: string; // JSON string for images etc.
+  createdAt?: string;
+}
+
+export interface ChatSession {
+  id: string;
+  title: string | null;
   createdAt: string;
-  title?: string;
-  fileInfo?: {
-    fileName: string;
-    fileType: string;
-    fileText: Document<Record<string, any>>[] | string,
-  };
+  updatedAt: string;
+  messages: ChatMessage[];
 }
 
-interface State {
-  chats: Record<string, ChatSession>;
-  userName: string;
-  selectedModel: Model;
+interface ChatState {
+  // UI state (not persisted to DB)
   input: string;
-  modelHasChanged: boolean;
   isLoading: boolean;
-  messages: MessageWithFiles[];
-  engine: webllm.MLCEngineInterface | null;
-  fileText: Document<Record<string, any>>[] | null;
-  files: File[] | undefined;
   base64Images: string[] | null;
+  userName: string;
+  currentChatId: string | null;
+  chatListVersion: number;
 }
 
-interface Actions {
-  setSelectedModel: (model: Model) => void;
-  handleInputChange: (
-    e:
-      | React.ChangeEvent<HTMLInputElement>
-      | React.ChangeEvent<HTMLTextAreaElement>
-  ) => void;
+interface ChatActions {
+  // Input handling
   setInput: (input: string) => void;
-  setModelHasChanged: (changed: boolean) => void;
-  setIsLoading: (loading: boolean) => void;
-  setMessages: (
-    fn: (
-      messages: MessageWithFiles[]
-    ) => MessageWithFiles[]
+  handleInputChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
-  setEngine: (engine: webllm.MLCEngineInterface | null) => void;
-  setFileText: (text: Document<Record<string, any>>[] | null) => void;
-  setFiles: (files: File[] | undefined) => void;
-  setBase64Images: (base64Images: string[] | null) => void;
-  getChatById: (chatId: string) => ChatSession | undefined;
-  getMessagesById: (chatId: string) => MessageWithFiles[];
-  saveMessages: (chatId: string, messages: MessageWithFiles[]) => void;
-  handleDelete: (chatId: string, messageId?: string) => void;
-  setUserName: (userName: string) => void;
-  saveFileToChat: (chatId: string, fileInfo: ChatSession['fileInfo']) => void;
-  getFileInfoById: (chatId: string) => ChatSession['fileInfo'] | null;
-  setChatTitle: (chatId: string, title: ChatSession['title']) => void;
+
+  // Loading state
+  setIsLoading: (loading: boolean) => void;
+
+  // Images for vision models
+  setBase64Images: (images: string[] | null) => void;
+
+  // User
+  setUserName: (name: string) => void;
+
+  // Current chat
+  setCurrentChatId: (id: string | null) => void;
+
+  // Database operations (async)
+  createChat: (chatId?: string, title?: string) => Promise<string>;
+  deleteChat: (chatId: string) => Promise<void>;
+  setChatTitle: (chatId: string, title: string) => Promise<void>;
+  getChat: (chatId: string) => Promise<ChatSession | null>;
+  getAllChats: () => Promise<ChatSession[]>;
+  addMessage: (chatId: string, message: Omit<ChatMessage, "id" | "createdAt">) => Promise<string>;
+  getMessages: (chatId: string) => Promise<ChatMessage[]>;
+  deleteMessage: (chatId: string, messageId: string) => Promise<void>;
 }
 
-const useChatStore = create<State & Actions>()(
+const useChatStore = create<ChatState & ChatActions>()(
   persist(
     (set, get) => ({
-      userName: 'User',
-      setUserName: (userName) => set({ userName }),
-
-      selectedModel: Models[7],
-      setSelectedModel: (model: Model) =>
-        set((state: State) => ({
-          selectedModel:
-            state.selectedModel !== model ? model : state.selectedModel,
-          modelHasChanged: true,
-        })),
-
+      // Initial state
       input: "",
-      handleInputChange: (
-        e:
-          | React.ChangeEvent<HTMLInputElement>
-          | React.ChangeEvent<HTMLTextAreaElement>
-      ) => set({ input: e.target.value }),
-      setInput: (input) => set({ input }),
-
-      modelHasChanged: false,
-      setModelHasChanged: (changed) => set({ modelHasChanged: changed }),
-
       isLoading: false,
+      base64Images: null,
+      userName: "User",
+      currentChatId: null,
+      chatListVersion: 0,
+
+      // Input handling
+      setInput: (input) => set({ input }),
+      handleInputChange: (e) => set({ input: e.target.value }),
+
+      // Loading state
       setIsLoading: (loading) => set({ isLoading: loading }),
 
-      messages: [],
-      setMessages: (fn) => set((state) => ({ messages: fn(state.messages) })),
+      // Images
+      setBase64Images: (images) => set({ base64Images: images }),
 
-      engine: null,
-      setEngine: (engine) => set({ engine }),
+      // User
+      setUserName: (name) => set({ userName: name }),
 
-      fileText: null,
-      setFileText: (text) => set({ fileText: text }),
+      // Current chat
+      setCurrentChatId: (id) => set({ currentChatId: id }),
 
-      files: undefined,
-      setFiles: (files) => set({ files }),
+      // Database operations
+      createChat: async (chatId?: string, title?: string) => {
+        if (!isDatabaseInitialized()) {
+          throw new Error("Database not initialized");
+        }
 
-      base64Images: null,
-      setBase64Images: (base64Images) => set({ base64Images }),
+        const db = getDatabase();
+        const id = chatId || generateUUID();
+        const now = new Date().toISOString();
 
-      chats: {},
-      getChatById: (chatId) => {
-        const state = get();
-        return state.chats[chatId];
-      },
-      getMessagesById: (chatId) => {
-        const state = get();
-        return state.chats[chatId]?.messages || [];
-      },
-
-      saveMessages: (chatId, messages) => {
-        set((state) => {
-          const existingChat = state.chats[chatId];
-
-          return {
-            chats: {
-              ...state.chats,
-              [chatId]: {
-                messages: [...messages],
-                createdAt: existingChat?.createdAt || new Date().toISOString(),
-                fileInfo: existingChat?.fileInfo,
-                title: existingChat?.title
-              },
-            },
-          };
+        await db.insert(chats).values({
+          id,
+          title: title || null,
+          createdAt: now,
+          updatedAt: now,
         });
+
+        await saveDatabase();
+        set((state) => ({ currentChatId: id, chatListVersion: state.chatListVersion + 1 }));
+        return id;
       },
 
-      handleDelete: (chatId, messageId) => {
-        set((state) => {
-          const chat = state.chats[chatId];
-          if (!chat) return state;
+      deleteChat: async (chatId: string) => {
+        if (!isDatabaseInitialized()) return;
 
-          // If messageId is provided, delete specific message
-          if (messageId) {
-            const updatedMessages = chat.messages.filter(
-              (message) => message.id !== messageId
-            );
-            return {
-              chats: {
-                ...state.chats,
-                [chatId]: {
-                  ...chat,
-                  messages: updatedMessages,
-                },
-              },
-            };
+        const db = getDatabase();
+        await db.delete(chats).where(eq(chats.id, chatId));
+        await saveDatabase();
+
+        const { currentChatId } = get();
+        if (currentChatId === chatId) {
+          set((state) => ({ currentChatId: null, chatListVersion: state.chatListVersion + 1 }));
+        } else {
+          set((state) => ({ chatListVersion: state.chatListVersion + 1 }));
+        }
+      },
+
+      setChatTitle: async (chatId: string, title: string) => {
+        if (!isDatabaseInitialized()) return;
+
+        const db = getDatabase();
+        await db
+          .update(chats)
+          .set({ title, updatedAt: new Date().toISOString() })
+          .where(eq(chats.id, chatId));
+        await saveDatabase();
+      },
+
+      getChat: async (chatId: string) => {
+        if (!isDatabaseInitialized()) return null;
+
+        const db = getDatabase();
+        const chatResult = await db
+          .select()
+          .from(chats)
+          .where(eq(chats.id, chatId));
+
+        if (chatResult.length === 0) return null;
+
+        const chat = chatResult[0];
+        const messageResult = await db
+          .select()
+          .from(messages)
+          .where(eq(messages.chatId, chatId));
+
+        return {
+          id: chat.id,
+          title: chat.title,
+          createdAt: chat.createdAt,
+          updatedAt: chat.updatedAt,
+          messages: messageResult.map((m: typeof messageResult[number]) => ({
+            id: m.id,
+            role: m.role,
+            content: m.content,
+            contentType: m.contentType as "text" | "multimodal" | undefined,
+            metadata: m.metadata || undefined,
+            createdAt: m.createdAt,
+          })),
+        };
+      },
+
+      getAllChats: async () => {
+        if (!isDatabaseInitialized()) return [];
+
+        const db = getDatabase();
+        const chatResult = await db
+          .select()
+          .from(chats)
+          .orderBy(desc(chats.updatedAt));
+
+        const result: ChatSession[] = [];
+
+        for (const chat of chatResult) {
+          const messageResult = await db
+            .select()
+            .from(messages)
+            .where(eq(messages.chatId, chat.id));
+
+          // Only include chats with messages
+          if (messageResult.length > 0) {
+            result.push({
+              id: chat.id,
+              title: chat.title,
+              createdAt: chat.createdAt,
+              updatedAt: chat.updatedAt,
+              messages: messageResult.map((m: typeof messageResult[number]) => ({
+                id: m.id,
+                role: m.role,
+                content: m.content,
+                contentType: m.contentType as "text" | "multimodal" | undefined,
+                metadata: m.metadata || undefined,
+                createdAt: m.createdAt,
+              })),
+            });
           }
+        }
 
-          // If no messageId, delete the entire chat
-          const { [chatId]: _, ...remainingChats } = state.chats;
-          return {
-            chats: remainingChats,
-          };
+        return result;
+      },
+
+      addMessage: async (chatId: string, message) => {
+        if (!isDatabaseInitialized()) {
+          throw new Error("Database not initialized");
+        }
+
+        const db = getDatabase();
+        const messageId = generateUUID();
+        const now = new Date().toISOString();
+
+        await db.insert(messages).values({
+          id: messageId,
+          chatId,
+          role: message.role,
+          content: message.content,
+          contentType: message.contentType || "text",
+          metadata: message.metadata || null,
+          createdAt: now,
         });
+
+        // Update chat's updatedAt
+        await db
+          .update(chats)
+          .set({ updatedAt: now })
+          .where(eq(chats.id, chatId));
+
+        await saveDatabase();
+        return messageId;
       },
 
-      saveFileToChat: (chatId, fileInfo) => {
-        set((state) => ({
-          chats: {
-            ...state.chats,
-            [chatId]: {
-              ...state.chats[chatId],
-              fileInfo
-            }
-          }
+      getMessages: async (chatId: string) => {
+        if (!isDatabaseInitialized()) return [];
+
+        const db = getDatabase();
+        const result = await db
+          .select()
+          .from(messages)
+          .where(eq(messages.chatId, chatId));
+
+        return result.map((m: typeof result[number]) => ({
+          id: m.id,
+          role: m.role,
+          content: m.content,
+          contentType: m.contentType as "text" | "multimodal" | undefined,
+          metadata: m.metadata || undefined,
+          createdAt: m.createdAt,
         }));
       },
 
-      getFileInfoById: (chatId) => {
-        const state = get();
-        return state.chats[chatId]?.fileInfo;
-      },
+      deleteMessage: async (chatId: string, messageId: string) => {
+        if (!isDatabaseInitialized()) return;
 
-      setChatTitle: (chatId, title) => {
-        console.log("Setting title:", title);
-        set((state) => ({
-          chats: {
-            ...state.chats,
-            [chatId]: {
-              ...state.chats[chatId],
-              title
-            }
-          }
-        }));
+        const db = getDatabase();
+        await db.delete(messages).where(eq(messages.id, messageId));
+        await saveDatabase();
       },
     }),
     {
-      name: "chatty-ui-state",
-      version: 1,
+      name: "chatty-chat-store",
       partialize: (state) => ({
-        chats: state.chats,
-        selectedModel: state.selectedModel,
         userName: state.userName,
       }),
     }

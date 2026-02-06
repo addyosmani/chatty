@@ -11,9 +11,9 @@ import ButtonWithTooltip from "./button-with-tooltip";
 import { Button } from "./ui/button";
 import { Download, DownloadIcon } from "lucide-react";
 import useMemoryStore from "@/hooks/useMemoryStore";
-import { useState } from "react";
+import useChatStore, { ChatMessage } from "@/hooks/useChatStore";
+import { useState, useEffect } from "react";
 import CodeDisplayBlock from "./code-display-block";
-import useChatStore from "@/hooks/useChatStore";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
@@ -34,8 +34,16 @@ export default function ExportChatDialog({
   setOpen,
 }: ExportChatDialogProps) {
   const chatId = useMemoryStore((state) => state.chatId);
-  const messages = useChatStore((state) => state.messages);
+  const getMessages = useChatStore((state) => state.getMessages);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [fileType, setFileType] = useState<"json" | "md">("json");
+
+  // Load messages when dialog opens
+  useEffect(() => {
+    if (open && chatId) {
+      getMessages(chatId).then(setMessages);
+    }
+  }, [open, chatId, getMessages]);
 
   const markdownMessages = messages.map((message) => {
     return `## **${message.role}**: 

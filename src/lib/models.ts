@@ -127,8 +127,8 @@ export const Models: Model[] = [
   },
   {
     group: ModelGroup.QWEN,
-    name: "Qwen2-1.5B-Instruct-q4f32_1-MLC",
-    displayName: "Qwen2 1.5B Instruct",
+    name: "Qwen3-0.6B-q4f16_1-MLC",
+    displayName: "Qwen3 0.6B",
   },
   {
     group: ModelGroup.QWEN,

@@ -1,10 +1,11 @@
 "use client";
 
+import { useEffect, useState, useCallback } from "react";
 import { SquarePen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import UserSettings from "./user-settings";
-import useChatStore from "@/hooks/useChatStore";
+import useChatStore, { ChatSession } from "@/hooks/useChatStore";
 import { ChatItem } from "./sidebar-chat-item";
 
 interface SidebarProps {
@@ -19,14 +20,28 @@ export function Sidebar({
   handleNewChat,
   handleDeleteChat,
 }: SidebarProps) {
-  const chats = useChatStore((state) => state.chats);
+  const [chats, setChats] = useState<ChatSession[]>([]);
+  const getAllChats = useChatStore((state) => state.getAllChats);
   const setChatTitle = useChatStore((state) => state.setChatTitle);
+  const chatListVersion = useChatStore((state) => state.chatListVersion);
 
-  const handleRenameChat = (chatId: string, newTitle: string) => {
+  // Load chats on mount, when chatId changes, or when chat list is updated
+  useEffect(() => {
+    const loadChats = async () => {
+      const allChats = await getAllChats();
+      setChats(allChats);
+    };
+    loadChats();
+  }, [getAllChats, chatId, chatListVersion]);
+
+  const handleRenameChat = useCallback(async (chatId: string, newTitle: string) => {
     if (newTitle) {
-      setChatTitle(chatId, newTitle);
+      await setChatTitle(chatId, newTitle);
+      // Refresh chats list
+      const allChats = await getAllChats();
+      setChats(allChats);
     }
-  };
+  }, [setChatTitle, getAllChats]);
 
   return (
     <div className="relative overflow-hidden justify-between group md:bg-accent md:dark:bg-card flex flex-col h-full gap-4">
@@ -53,25 +68,18 @@ export function Sidebar({
 
         <div className="flex flex-col pt-10 gap-2">
           <p className="pl-4 text-xs text-muted-foreground">Your chats</p>
-          {chats && (
+          {chats.length > 0 && (
             <div>
-              {Object.entries(chats)
-                .filter(([, chat]) => chat.messages && chat.messages.length > 0)
-                .sort(
-                  ([, a], [, b]) =>
-                    new Date(b.createdAt).getTime() -
-                    new Date(a.createdAt).getTime()
-                )
-                .map(([id, chat]) => (
-                  <ChatItem
-                    key={id}
-                    id={id}
-                    chat={chat}
-                    isActive={id === chatId}
-                    onRename={handleRenameChat}
-                    onDelete={handleDeleteChat}
-                  />
-                ))}
+              {chats.map((chat) => (
+                <ChatItem
+                  key={chat.id}
+                  id={chat.id}
+                  chat={chat}
+                  isActive={chat.id === chatId}
+                  onRename={handleRenameChat}
+                  onDelete={handleDeleteChat}
+                />
+              ))}
             </div>
           )}
         </div>

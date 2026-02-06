@@ -1,32 +1,40 @@
+import * as path from 'path';
+
+const __dirname = path.resolve();
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+
+  // Override the default webpack configuration
   webpack: (config, { isServer }) => {
-    // Fixes npm packages that depend on `fs` module
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback, // if you miss it, all the other options in fallback, specified
-        // by next.js will be dropped. Doesn't make much sense, but how it is
-        fs: false, // the solution
-        module: false,
-        perf_hooks: false,
-      };
-    }
-    // This is to fix transformers.js error
-    // https://github.com/xenova/transformers.js/blob/main/examples/next-client/next.config.js
+    // See https://webpack.js.org/configuration/resolve/#resolvealias
     config.resolve.alias = {
       ...config.resolve.alias,
-      sharp$: false,
+      "sharp$": false,
       "onnxruntime-node$": false,
+      // Handle pdfjs-dist canvas dependency (not needed for text extraction)
+      "canvas": false,
     };
 
+    // Fix for @huggingface/transformers bundling issue
+    // https://huggingface.co/docs/transformers.js/tutorials/next
+    // Point to the web build to avoid node: imports
+    config.resolve.alias['@huggingface/transformers'] = path.resolve(
+      __dirname,
+      'node_modules/@huggingface/transformers/dist/transformers.js',
+    );
+
+    // Provide fallbacks for node modules in browser (for sql.js)
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        path: false,
+        crypto: false,
+      };
+    }
+
     return config;
-  },
-  typescript: {
-    // !! WARN !!
-    // Dangerously allow production builds to successfully complete even if
-    // your project has type errors.
-    // !! WARN !!
-    ignoreBuildErrors: true,
   },
 };
 

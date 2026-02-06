@@ -11,31 +11,38 @@ import { Button } from "../ui/button";
 import { CaretSortIcon, HamburgerMenuIcon } from "@radix-ui/react-icons";
 import { Sidebar } from "../sidebar";
 import useChatStore from "@/hooks/useChatStore";
+import { useModelStore } from "@/hooks/useModelStore";
 import { Models, Model, modelDetailsList } from "@/lib/models";
 import { Badge } from "../ui/badge";
 import Image from "next/image";
 
 interface ChatTopbarProps {
   chatId?: string;
-  stop: () => void;
+  handleNewChat: () => void;
+  handleDeleteChat: (chatId: string) => void;
 }
 
-export default function ChatTopbar({ chatId, stop }: ChatTopbarProps) {
+export default function ChatTopbar({ chatId, handleNewChat, handleDeleteChat }: ChatTopbarProps) {
   const [open, setOpen] = React.useState(false);
 
-  // Zustand store
-  const selectedModel = useChatStore((state) => state.selectedModel);
-  const setSelectedModel = useChatStore((state) => state.setSelectedModel);
+  // Model store
+  const selectedModel = useModelStore((state) => state.selectedModel);
+  const setSelectedModel = useModelStore((state) => state.setSelectedModel);
+
+  // Chat store
   const isLoading = useChatStore((state) => state.isLoading);
 
   const groupedModels = React.useMemo(() => {
-    return Models.reduce((acc, model) => {
-      if (!acc[model.group]) {
-        acc[model.group] = [];
-      }
-      acc[model.group].push(model);
-      return acc;
-    }, {} as Record<string, Model[]>);
+    return Models.reduce(
+      (acc, model) => {
+        if (!acc[model.group]) {
+          acc[model.group] = [];
+        }
+        acc[model.group].push(model);
+        return acc;
+      },
+      {} as Record<string, Model[]>,
+    );
   }, []);
 
   const getGroupIcon = (group: string) => {
@@ -50,7 +57,7 @@ export default function ChatTopbar({ chatId, stop }: ChatTopbarProps) {
           <HamburgerMenuIcon className="md:hidden w-5 h-5" />
         </SheetTrigger>
         <SheetContent side="left">
-          <Sidebar chatId={chatId || ""} isCollapsed={false} stop={stop} />
+          <Sidebar chatId={chatId || ""} isCollapsed={false} handleNewChat={handleNewChat} handleDeleteChat={handleDeleteChat} />
         </SheetContent>
       </Sheet>
 

@@ -2,50 +2,40 @@
 
 import React, { useEffect } from "react";
 import { Button } from "../ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import Image from "next/image";
-import TextareaAutosize from "react-textarea-autosize";
 import { AnimatePresence } from "framer-motion";
 import { Cross2Icon, StopIcon } from "@radix-ui/react-icons";
-import { ChatProps } from "@/lib/types";
 import useChatStore from "@/hooks/useChatStore";
-import FileLoader from "../file-loader";
-import { Mic, Send, SendHorizonal } from "lucide-react";
+import { Mic, SendHorizonal } from "lucide-react";
 import useSpeechToText from "@/hooks/useSpeechRecognition";
 import MultiImagePicker from "../image-embedder";
-import { Models } from "@/lib/models";
 import { ChatInput } from "../ui/chat/chat-input";
+import RagToggle from "../rag-toggle";
+import { useModelStore } from "@/hooks/useModelStore";
 
-interface MergedProps extends ChatProps {
-  files: File[] | undefined;
-  setFiles: (files: File[] | undefined) => void;
+interface ChatBottombarProps {
+  input: string;
+  handleInputChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
+  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  stop: () => void;
+  isLoading: boolean;
 }
 
 export default function ChatBottombar({
+  input,
+  handleInputChange,
   handleSubmit,
   stop,
-  files,
-  setFiles,
-}: MergedProps) {
-  const input = useChatStore((state) => state.input);
-  const handleInputChange = useChatStore((state) => state.handleInputChange);
+  isLoading,
+}: ChatBottombarProps) {
   const inputRef = React.useRef<HTMLTextAreaElement>(null);
-  const [open, setOpen] = React.useState(false);
 
-  const isLoading = useChatStore((state) => state.isLoading);
-  const fileText = useChatStore((state) => state.fileText);
-  const setFileText = useChatStore((state) => state.setFileText);
   const setInput = useChatStore((state) => state.setInput);
   const base64Images = useChatStore((state) => state.base64Images);
   const setBase64Images = useChatStore((state) => state.setBase64Images);
-  const selectedModel = useChatStore((state) => state.selectedModel);
+  const selectedModel = useModelStore((state) => state.selectedModel);
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -89,7 +79,7 @@ export default function ChatBottombar({
       <AnimatePresence initial={false}>
         <form
           onSubmit={handleSubmit}
-          className="w-full items-center flex flex-col  bg-accent dark:bg-card rounded-lg "
+          className="w-full items-center flex flex-col bg-accent dark:bg-card rounded-lg "
         >
           <ChatInput
             autoComplete="off"
@@ -108,14 +98,10 @@ export default function ChatBottombar({
               <div className="flex w-full justify-between">
                 <div className="flex">
                   <MultiImagePicker
-                    disabled={!selectedModel.vision}
+                    disabled={!selectedModel?.vision}
                     onImagesPick={setBase64Images}
                   />
-                  <FileLoader
-                    setFileText={setFileText}
-                    files={files}
-                    setFiles={setFiles}
-                  />
+                  <RagToggle />
                 </div>
                 <div>
                   <Button
@@ -148,14 +134,10 @@ export default function ChatBottombar({
               <div className="flex w-full justify-between">
                 <div className="flex">
                   <MultiImagePicker
-                    disabled={!selectedModel.vision}
+                    disabled={!selectedModel?.vision}
                     onImagesPick={setBase64Images}
                   />
-                  <FileLoader
-                    setFileText={setFileText}
-                    files={files}
-                    setFiles={setFiles}
-                  />
+                  <RagToggle />
                 </div>
                 <div>
                   {/* Microphone button with animation when listening */}
@@ -222,7 +204,7 @@ export default function ChatBottombar({
                         setBase64Images(updatedImages(base64Images));
                       }}
                       size="icon"
-                      className="absolute -top-1.5 -right-1.5 text-white cursor-pointer  bg-red-500 hover:bg-red-600 w-4 h-4 rounded-full flex items-center justify-center"
+                      className="absolute -top-1.5 -right-1.5 text-white cursor-pointer bg-red-500 hover:bg-red-600 w-4 h-4 rounded-full flex items-center justify-center"
                     >
                       <Cross2Icon className="w-3 h-3" />
                     </Button>
