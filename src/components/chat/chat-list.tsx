@@ -33,7 +33,7 @@ import {
  */
 function parseCitationsInText(
   text: string,
-  retrievalResults: RetrievalResult[]
+  retrievalResults: RetrievalResult[],
 ): ReactNode {
   const citationRegex = /\[(\d+)\]/g;
   const parts: ReactNode[] = [];
@@ -59,7 +59,7 @@ function parseCitationsInText(
               <InlineCitationSource result={result} />
             </InlineCitationBody>
           </InlineCitationCard>
-        </InlineCitation>
+        </InlineCitation>,
       );
     } else {
       // Unknown citation number — render as plain text
@@ -79,7 +79,7 @@ function parseCitationsInText(
 
 function processChildren(
   children: ReactNode,
-  retrievalResults: RetrievalResult[]
+  retrievalResults: RetrievalResult[],
 ): ReactNode {
   if (typeof children === "string") {
     return parseCitationsInText(children, retrievalResults);
@@ -145,7 +145,7 @@ export default function ChatList({
   const [textToSpeech, setTextToSpeech] =
     useState<SpeechSynthesisUtterance | null>(null);
   const [isSpeaking, setIsSpeaking] = React.useState<Record<number, boolean>>(
-    {}
+    {},
   );
   const [currentSpeakingIndex, setCurrentSpeakingIndex] = useState<
     number | null
@@ -184,23 +184,37 @@ export default function ChatList({
   }, []);
 
   const copyMessageToClipboard = (message: WebLLMUIMessage) => {
-    const textContent = message.parts
-      ?.filter((part): part is { type: "text"; text: string } => part.type === "text")
-      .map((part) => part.text)
-      .join("\n") || "";
+    const textContent =
+      message.parts
+        ?.filter(
+          (part): part is { type: "text"; text: string } =>
+            part.type === "text",
+        )
+        .map((part) => part.text)
+        .join("\n") || "";
 
     navigator.clipboard.writeText(textContent);
-    setisCopied((prevState) => ({ ...prevState, [messages.indexOf(message)]: true }));
+    setisCopied((prevState) => ({
+      ...prevState,
+      [messages.indexOf(message)]: true,
+    }));
     setTimeout(() => {
-      setisCopied((prevState) => ({ ...prevState, [messages.indexOf(message)]: false }));
+      setisCopied((prevState) => ({
+        ...prevState,
+        [messages.indexOf(message)]: false,
+      }));
     }, 1500);
   };
 
   const handleTextToSpeech = (message: WebLLMUIMessage, index: number) => {
-    const text = message.parts
-      ?.filter((part): part is { type: "text"; text: string } => part.type === "text")
-      .map((part) => part.text)
-      .join("\n") || "";
+    const text =
+      message.parts
+        ?.filter(
+          (part): part is { type: "text"; text: string } =>
+            part.type === "text",
+        )
+        .map((part) => part.text)
+        .join("\n") || "";
 
     if (!textToSpeech || !text) return;
     if (currentSpeakingIndex !== null) {
@@ -237,18 +251,6 @@ export default function ChatList({
           return (
             <motion.div
               key={message.id || index}
-              layout
-              initial={{ opacity: 0, scale: 1, y: 20, x: 0 }}
-              animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
-              exit={{ opacity: 0, scale: 1, y: 20, x: 0 }}
-              transition={{
-                opacity: { duration: 0.1 },
-                layout: {
-                  type: "spring",
-                  bounce: 0.3,
-                  duration: index * 0.025,
-                },
-              }}
               className="flex flex-col gap-2 px-4 py-2"
             >
               <ChatBubble variant={variant}>
@@ -312,8 +314,9 @@ export default function ChatList({
                       const text = (part as any).text as string;
                       if (!text) return null;
 
-                      const messageResults =
-                        message.id ? retrievalResultsMap[message.id] : undefined;
+                      const messageResults = message.id
+                        ? retrievalResultsMap[message.id]
+                        : undefined;
                       const hasCitations =
                         message.role === "assistant" &&
                         !!messageResults?.length;
@@ -407,7 +410,6 @@ export default function ChatList({
                         </ButtonWithTooltip>
                       </div>
                     )}
-
                 </ChatBubbleMessage>
               </ChatBubble>
             </motion.div>
