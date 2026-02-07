@@ -1,10 +1,8 @@
 "use client";
 
 import React, { useEffect, useCallback, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useChat } from "@ai-sdk/react";
 import { WebLLMUIMessage } from "@browser-ai/web-llm";
-import ChatTopbar from "./chat-topbar";
 import ChatList from "./chat-list";
 import ChatBottombar from "./chat-bottombar";
 import Image from "next/image";
@@ -16,18 +14,17 @@ import {
   RetrievalStatus,
   RetrievalResult,
 } from "@/lib/chat-transport";
+import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 
 interface ChatProps {
   id: string;
 }
 
 export default function Chat({ id }: ChatProps) {
-  const router = useRouter();
   const setCurrentChatId = useChatStore((state) => state.setCurrentChatId);
   const setIsLoadingStore = useChatStore((state) => state.setIsLoading);
   const addMessage = useChatStore((state) => state.addMessage);
   const createChat = useChatStore((state) => state.createChat);
-  const deleteChat = useChatStore((state) => state.deleteChat);
   const deleteMessage = useChatStore((state) => state.deleteMessage);
   const getChat = useChatStore((state) => state.getChat);
 
@@ -184,6 +181,9 @@ export default function Chat({ id }: ChatProps) {
             createdAt: m.createdAt ? new Date(m.createdAt) : new Date(),
           }))
         );
+      } else {
+        // New chat — clear any stale messages from the previous conversation
+        setUIMessages([]);
       }
     };
 
@@ -204,10 +204,8 @@ export default function Chat({ id }: ChatProps) {
 
   // Submit handler: sends to transport immediately, saves to DB in background
   const handleSubmit = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-
-      const trimmedInput = input.trim();
+    (message: PromptInputMessage) => {
+      const trimmedInput = message.text.trim();
       if (!trimmedInput || status !== "ready") return;
 
       // Clear pending retrieval results for new message
@@ -235,7 +233,7 @@ export default function Chat({ id }: ChatProps) {
         }
       })();
     },
-    [input, status, id, getChat, createChat, addMessage, sendMessage]
+    [status, id, getChat, createChat, addMessage, sendMessage]
   );
 
   // Delete the old assistant message from DB before regenerating
@@ -252,29 +250,8 @@ export default function Chat({ id }: ChatProps) {
     regenerate();
   }, [id, getChat, deleteMessage, regenerate]);
 
-  const handleNewChat = useCallback(async () => {
-    const newChatId = await createChat();
-    router.push(`/c/${newChatId}`);
-  }, [createChat, router]);
-
-  const handleDeleteChat = useCallback(
-    async (chatId: string) => {
-      await deleteChat(chatId);
-      if (chatId === id) {
-        router.push("/");
-      }
-    },
-    [deleteChat, id, router]
-  );
-
   return (
     <div className="flex flex-col justify-between w-full max-w-3xl h-full">
-      <ChatTopbar
-        chatId={id}
-        handleNewChat={handleNewChat}
-        handleDeleteChat={handleDeleteChat}
-      />
-
       {uiMessages.length === 0 ? (
         <div className="flex flex-col h-full w-full items-center gap-4 justify-center">
           <div className="flex flex-col gap-1 items-center">
@@ -300,7 +277,7 @@ export default function Chat({ id }: ChatProps) {
               handleInputChange={handleInputChange}
               handleSubmit={handleSubmit}
               stop={stop}
-              isLoading={isLoading}
+              status={status}
             />
           </div>
         </div>
@@ -319,7 +296,7 @@ export default function Chat({ id }: ChatProps) {
             handleInputChange={handleInputChange}
             handleSubmit={handleSubmit}
             stop={stop}
-            isLoading={isLoading}
+            status={status}
           />
         </>
       )}

@@ -17,6 +17,8 @@ const CHUNK_OVERLAP = 100;
 const TOP_K = 5;
 const RERANK_CANDIDATES = 15; // Broader initial retrieval for reranking
 const SIMILARITY_THRESHOLD = 0.3;
+const RERANK_RELEVANCE_THRESHOLD = 0.5; // Reranker sigmoid score minimum (0-1)
+const MIN_QUERY_LENGTH = 10; // Skip RAG for very short/trivial queries
 
 export type RetrievalResult = {
   documentId: string;
@@ -113,6 +115,11 @@ export async function getDocumentById(documentId: string) {
 export async function getRAGContext(
   query: string
 ): Promise<RAGResponse | null> {
+  // Skip RAG for very short/trivial queries (greetings, single words, etc.)
+  if (query.trim().length < MIN_QUERY_LENGTH) {
+    return null;
+  }
+
   const db = getDatabase();
 
   // Get all chunks with embeddings, joined with document info
@@ -173,18 +180,24 @@ export async function getRAGContext(
     TOP_K
   );
 
-  // Build structured results
-  const results: RetrievalResult[] = reranked.map(({ item: chunk, relevanceScore }) => ({
-    documentId: chunk.documentId,
-    fileName: chunk.fileName,
-    chunkIndex: chunk.chunkIndex,
-    content: chunk.content,
-    similarity: relevanceScore,
-  }));
+  // Build structured results, filtering out low-relevance reranked items
+  const results: RetrievalResult[] = reranked
+    .filter(({ relevanceScore }) => relevanceScore >= RERANK_RELEVANCE_THRESHOLD)
+    .map(({ item: chunk, relevanceScore }) => ({
+      documentId: chunk.documentId,
+      fileName: chunk.fileName,
+      chunkIndex: chunk.chunkIndex,
+      content: chunk.content,
+      similarity: relevanceScore,
+    }));
 
-  // Build context string with numbered citations
+  if (results.length === 0) {
+    return null;
+  }
+
+  // Build context string from retrieved chunks
   const context = results
-    .map((r, i) => `[${i + 1}] ${r.content}`)
+    .map((r) => r.content)
     .join("\n\n---\n\n");
 
   return { context, results };

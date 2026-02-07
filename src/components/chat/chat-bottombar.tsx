@@ -1,220 +1,243 @@
 "use client";
 
-import React, { useEffect } from "react";
-import { Button } from "../ui/button";
-import Image from "next/image";
-import { AnimatePresence } from "framer-motion";
-import { Cross2Icon, StopIcon } from "@radix-ui/react-icons";
-import useChatStore from "@/hooks/useChatStore";
-import { Mic, SendHorizonal } from "lucide-react";
-import useSpeechToText from "@/hooks/useSpeechRecognition";
+import React, { useCallback, useEffect, useMemo } from "react";
+import type { ChatStatus } from "ai";
+import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
+import {
+  PromptInput,
+  PromptInputBody,
+  PromptInputTextarea,
+  PromptInputFooter,
+  PromptInputTools,
+  PromptInputSubmit,
+  PromptInputButton,
+} from "@/components/ai-elements/prompt-input";
+import {
+  ModelSelector,
+  ModelSelectorContent,
+  ModelSelectorEmpty,
+  ModelSelectorGroup,
+  ModelSelectorInput,
+  ModelSelectorItem,
+  ModelSelectorList,
+  ModelSelectorLogo,
+  ModelSelectorName,
+  ModelSelectorTrigger,
+} from "@/components/ai-elements/model-selector";
+import { SpeechInput } from "@/components/ai-elements/speech-input";
 import MultiImagePicker from "../image-embedder";
-import { ChatInput } from "../ui/chat/chat-input";
-import RagToggle from "../rag-toggle";
 import { useModelStore } from "@/hooks/useModelStore";
+import useChatStore from "@/hooks/useChatStore";
+import { useDocumentStore, useHasDocuments } from "@/hooks/useDocumentStore";
+import { Models, Model, modelDetailsList, ModelGroup } from "@/lib/models";
+import { Badge } from "../ui/badge";
+import { CheckIcon, FileSearch } from "lucide-react";
+import Image from "next/image";
 
 interface ChatBottombarProps {
   input: string;
   handleInputChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => void;
-  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  handleSubmit: (message: PromptInputMessage) => void;
   stop: () => void;
-  isLoading: boolean;
+  status: ChatStatus;
 }
+
+// Map model groups to ModelSelectorLogo provider slugs
+const groupToProvider: Record<string, string | null> = {
+  [ModelGroup.QWEN]: "alibaba",
+  [ModelGroup.LLAMA]: "llama",
+  [ModelGroup.MISTRAL]: "mistral",
+  [ModelGroup.DEEPSEEK]: "deepseek",
+  [ModelGroup.PHI]: null,
+  [ModelGroup.GEMMA]: "google",
+  [ModelGroup.REDPAJAMA]: "togetherai",
+};
 
 export default function ChatBottombar({
   input,
   handleInputChange,
   handleSubmit,
   stop,
-  isLoading,
+  status,
 }: ChatBottombarProps) {
-  const inputRef = React.useRef<HTMLTextAreaElement>(null);
+  const [modelSelectorOpen, setModelSelectorOpen] = React.useState(false);
 
-  const setInput = useChatStore((state) => state.setInput);
-  const base64Images = useChatStore((state) => state.base64Images);
   const setBase64Images = useChatStore((state) => state.setBase64Images);
   const selectedModel = useModelStore((state) => state.selectedModel);
+  const setSelectedModel = useModelStore((state) => state.setSelectedModel);
+  const isLoading = useChatStore((state) => state.isLoading);
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      if (isLoading) return;
-
-      e.preventDefault();
-      handleSubmit(e as unknown as React.FormEvent<HTMLFormElement>);
-    }
-  };
-
-  const { isListening, transcript, startListening, stopListening } =
-    useSpeechToText({ continuous: true });
-
-  const listen = () => {
-    isListening ? stopVoiceInput() : startListening();
-  };
-
-  const stopVoiceInput = () => {
-    setInput(transcript.length ? transcript : "");
-    stopListening();
-  };
-
-  const handleListenClick = () => {
-    listen();
-  };
+  const hasDocuments = useHasDocuments();
+  const loadDocuments = useDocumentStore((state) => state.loadDocuments);
+  const searchInDocuments = useDocumentStore(
+    (state) => state.searchInDocuments,
+  );
+  const setSearchInDocuments = useDocumentStore(
+    (state) => state.setSearchInDocuments,
+  );
 
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
+    loadDocuments();
+  }, [loadDocuments]);
+
+  const toggleRag = useCallback(() => {
+    setSearchInDocuments(!searchInDocuments);
+  }, [searchInDocuments, setSearchInDocuments]);
+
+  const groupedModels = useMemo(() => {
+    return Models.reduce(
+      (acc, model) => {
+        if (!acc[model.group]) {
+          acc[model.group] = [];
+        }
+        acc[model.group].push(model);
+        return acc;
+      },
+      {} as Record<string, Model[]>,
+    );
   }, []);
 
-  useEffect(() => {
-    if (isLoading) {
-      stopVoiceInput();
-    }
-  }, [isLoading]);
+  const getGroupIcon = (group: string) => {
+    const details = modelDetailsList.find((m) => m.group === group);
+    return details?.icon;
+  };
+
+  const handleModelSelect = useCallback(
+    (model: Model) => {
+      setSelectedModel(model);
+      setModelSelectorOpen(false);
+    },
+    [setSelectedModel],
+  );
+
+  const handleTranscriptionChange = useCallback(
+    (transcript: string) => {
+      const syntheticEvent = {
+        target: { value: input ? `${input} ${transcript}` : transcript },
+      } as React.ChangeEvent<HTMLTextAreaElement>;
+      handleInputChange(syntheticEvent);
+    },
+    [input, handleInputChange],
+  );
+
+  const onTextareaChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      handleInputChange(e);
+    },
+    [handleInputChange],
+  );
 
   return (
-    <div className="px-4 pb-7 flex justify-between w-full items-center relative ">
-      <AnimatePresence initial={false}>
-        <form
-          onSubmit={handleSubmit}
-          className="w-full items-center flex flex-col bg-accent dark:bg-card rounded-lg "
-        >
-          <ChatInput
-            autoComplete="off"
-            value={isListening ? (transcript.length ? transcript : "") : input}
-            ref={inputRef}
-            onKeyDown={handleKeyPress}
-            onChange={handleInputChange}
-            name="message"
-            placeholder={!isListening ? "Enter your prompt here" : "Listening"}
-            className="max-h-40 px-6 pt-6 border-0 shadow-none bg-accent rounded-lg text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed dark:bg-card"
+    <div className="px-4 pb-7 w-full">
+      <PromptInput onSubmit={handleSubmit}>
+        <PromptInputBody>
+          <PromptInputTextarea
+            value={input}
+            onChange={onTextareaChange}
+            placeholder="Enter your prompt here"
           />
-
-          <div className="flex w-full items-center p-2">
-            {isLoading ? (
-              // Loading state
-              <div className="flex w-full justify-between">
-                <div className="flex">
-                  <MultiImagePicker
-                    disabled={!selectedModel?.vision}
-                    onImagesPick={setBase64Images}
-                  />
-                  <RagToggle />
-                </div>
-                <div>
-                  <Button
-                    className="shrink-0 rounded-full"
-                    variant="ghost"
-                    size="icon"
-                    type="button"
-                    role="presentation"
-                    disabled
-                  >
-                    <Mic className="w-5 h-5" />
-                  </Button>
-                  <Button
-                    className="shrink-0 rounded-full"
-                    variant="ghost"
-                    size="icon"
-                    type="submit"
-                    role="presentation"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      stop();
-                    }}
-                  >
-                    <StopIcon className="w-5 h-5" />
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              // Default state
-              <div className="flex w-full justify-between">
-                <div className="flex">
-                  <MultiImagePicker
-                    disabled={!selectedModel?.vision}
-                    onImagesPick={setBase64Images}
-                  />
-                  <RagToggle />
-                </div>
-                <div>
-                  {/* Microphone button with animation when listening */}
-                  <Button
-                    className={`shrink-0 rounded-full ${
-                      isListening
-                        ? "relative bg-blue-500/30 hover:bg-blue-400/30"
-                        : ""
-                    }`}
-                    variant="ghost"
-                    size="icon"
-                    type="button"
-                    onClick={handleListenClick}
-                    disabled={isLoading}
-                    aria-label="Activate voice input"
-                  >
-                    <Mic className="w-5 h-5" />
-                    {isListening && (
-                      <span className="animate-pulse absolute h-[120%] w-[120%] rounded-full bg-blue-500/30" />
-                    )}
-                  </Button>
-
-                  {/* Send button */}
-                  <Button
-                    className="shrink-0 rounded-full"
-                    variant="ghost"
-                    size="icon"
-                    type="submit"
-                    aria-label="Submit prompt"
-                    disabled={
-                      isLoading ||
-                      !input.trim() ||
-                      isListening ||
-                      !selectedModel
-                    }
-                  >
-                    <SendHorizonal className="w-5 h-5" />
-                  </Button>
-                </div>
-              </div>
+        </PromptInputBody>
+        <PromptInputFooter>
+          <PromptInputTools>
+            <MultiImagePicker
+              disabled={!selectedModel?.vision}
+              onImagesPick={setBase64Images}
+            />
+            {hasDocuments && (
+              <PromptInputButton
+                onClick={toggleRag}
+                variant={searchInDocuments ? "default" : "ghost"}
+              >
+                <FileSearch size={16} />
+                <span>RAG</span>
+              </PromptInputButton>
             )}
-          </div>
-          {base64Images && (
-            <div className="w-full flex px-2 pb-2 gap-2 ">
-              {base64Images.map((image, index) => {
-                return (
-                  <div
-                    key={index}
-                    className="relative bg-muted-foreground/20 flex w-fit flex-col gap-2 p-1 border-t border-x rounded-md"
-                  >
-                    <div className="flex text-sm">
-                      <Image
-                        src={image}
-                        width={20}
-                        height={20}
-                        className="h-auto rounded-md w-auto max-w-[100px] max-h-[100px]"
-                        alt={""}
-                      />
-                    </div>
-                    <Button
-                      onClick={() => {
-                        const updatedImages = (prevImages: string[]) =>
-                          prevImages.filter((_, i) => i !== index);
-                        setBase64Images(updatedImages(base64Images));
-                      }}
-                      size="icon"
-                      className="absolute -top-1.5 -right-1.5 text-white cursor-pointer bg-red-500 hover:bg-red-600 w-4 h-4 rounded-full flex items-center justify-center"
-                    >
-                      <Cross2Icon className="w-3 h-3" />
-                    </Button>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </form>
-      </AnimatePresence>
+            <ModelSelector
+              open={modelSelectorOpen}
+              onOpenChange={setModelSelectorOpen}
+            >
+              <ModelSelectorTrigger asChild>
+                <PromptInputButton disabled={isLoading}>
+                  {(() => {
+                    const provider = groupToProvider[selectedModel.group];
+                    if (provider) {
+                      return <ModelSelectorLogo provider={provider} />;
+                    }
+                    const icon = getGroupIcon(selectedModel.group);
+                    if (icon) {
+                      return (
+                        <Image
+                          src={icon}
+                          alt=""
+                          width={12}
+                          height={12}
+                          className="size-3 object-contain shrink-0"
+                        />
+                      );
+                    }
+                    return null;
+                  })()}
+                  <ModelSelectorName>
+                    {selectedModel.displayName}
+                  </ModelSelectorName>
+                </PromptInputButton>
+              </ModelSelectorTrigger>
+              <ModelSelectorContent>
+                <ModelSelectorInput placeholder="Search models..." />
+                <ModelSelectorList>
+                  <ModelSelectorEmpty>No models found.</ModelSelectorEmpty>
+                  {Object.entries(groupedModels).map(([group, models]) => (
+                    <ModelSelectorGroup heading={group} key={group}>
+                      {models.map((model) => (
+                        <ModelSelectorItem
+                          key={model.name}
+                          value={model.name}
+                          onSelect={() => handleModelSelect(model)}
+                        >
+                          {groupToProvider[group] ? (
+                            <ModelSelectorLogo
+                              provider={groupToProvider[group]!}
+                            />
+                          ) : (
+                            getGroupIcon(group) && (
+                              <Image
+                                src={getGroupIcon(group)!}
+                                alt={`${group} Logo`}
+                                width={12}
+                                height={12}
+                                className="size-3 object-contain shrink-0"
+                              />
+                            )
+                          )}
+                          <ModelSelectorName>
+                            {model.displayName}
+                          </ModelSelectorName>
+                          {model.badge && (
+                            <Badge className="ml-auto">{model.badge}</Badge>
+                          )}
+                          {model.vision && (
+                            <Badge className="ml-1">Vision</Badge>
+                          )}
+                          {selectedModel.name === model.name && (
+                            <CheckIcon className="ml-auto size-4" />
+                          )}
+                        </ModelSelectorItem>
+                      ))}
+                    </ModelSelectorGroup>
+                  ))}
+                </ModelSelectorList>
+              </ModelSelectorContent>
+            </ModelSelector>
+          </PromptInputTools>
+          <PromptInputSubmit
+            status={status}
+            onStop={stop}
+            disabled={!input.trim() && status === "ready"}
+          />
+        </PromptInputFooter>
+      </PromptInput>
     </div>
   );
 }

@@ -6,6 +6,8 @@ import {
   ChatRequestOptions,
   createUIMessageStream,
   UIMessage,
+  wrapLanguageModel,
+  extractReasoningMiddleware,
 } from "ai";
 import {
   WebLLMLanguageModel,
@@ -123,9 +125,9 @@ export class WebLLMChatTransport implements ChatTransport<WebLLMUIMessage> {
 
     if (ragContext) {
       systemPrompt +=
-        "\n\nRelevant context from uploaded documents (each prefixed with a citation number like [1], [2], etc.):\n" +
+        "\n\nRelevant context from uploaded documents:\n" +
         ragContext +
-        "\n\nWhen using information from the above context, include the citation number (e.g. [1], [2]) in your response. " +
+        "\n\nUse the above context to inform your response when relevant. " +
         "If using general knowledge, do NOT reference the context.";
     }
 
@@ -206,7 +208,12 @@ export class WebLLMChatTransport implements ChatTransport<WebLLMUIMessage> {
 
         // 5. Stream the AI response
         const result = streamText({
-          model,
+          model:  wrapLanguageModel({
+            model,
+            middleware: extractReasoningMiddleware({
+              tagName: "think",
+            }),
+          }),
           system: systemPrompt,
           messages: prompt,
           abortSignal,
