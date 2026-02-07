@@ -229,6 +229,28 @@ export default function ChatList({
                       );
                     }
 
+                    // Handle file/image parts
+                    if (part.type === "file") {
+                      const filePart = part as {
+                        type: "file";
+                        mediaType: string;
+                        url: string;
+                        filename?: string;
+                      };
+                      if (filePart.mediaType.startsWith("image/")) {
+                        return (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            key={partIndex}
+                            src={filePart.url}
+                            alt={filePart.filename || "Attached image"}
+                            className="max-w-xs rounded-lg"
+                          />
+                        );
+                      }
+                      return null;
+                    }
+
                     // Handle text parts
                     if (part.type === "text") {
                       const text = (part as any).text as string;

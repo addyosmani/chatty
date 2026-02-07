@@ -8,10 +8,19 @@ import {
   PromptInputBody,
   PromptInputTextarea,
   PromptInputFooter,
+  PromptInputHeader,
   PromptInputTools,
   PromptInputSubmit,
   PromptInputButton,
+  usePromptInputAttachments,
 } from "@/components/ai-elements/prompt-input";
+import {
+  Attachment,
+  AttachmentPreview,
+  AttachmentRemove,
+  Attachments,
+  type AttachmentData,
+} from "@/components/ai-elements/attachments";
 import {
   ModelSelector,
   ModelSelectorContent,
@@ -24,14 +33,12 @@ import {
   ModelSelectorName,
   ModelSelectorTrigger,
 } from "@/components/ai-elements/model-selector";
-import { SpeechInput } from "@/components/ai-elements/speech-input";
-import MultiImagePicker from "../image-embedder";
 import { useModelStore } from "@/hooks/useModelStore";
 import useChatStore from "@/hooks/useChatStore";
 import { useDocumentStore, useHasDocuments } from "@/hooks/useDocumentStore";
 import { Models, Model, modelDetailsList, ModelGroup } from "@/lib/models";
 import { Badge } from "../ui/badge";
-import { CheckIcon, FileSearch } from "lucide-react";
+import { CheckIcon, FileSearch, ImageIcon } from "lucide-react";
 import Image from "next/image";
 
 interface ChatBottombarProps {
@@ -55,6 +62,66 @@ const groupToProvider: Record<string, string | null> = {
   [ModelGroup.REDPAJAMA]: "togetherai",
 };
 
+const AttachmentItem = ({
+  attachment,
+  onRemove,
+}: {
+  attachment: AttachmentData;
+  onRemove: (id: string) => void;
+}) => {
+  const handleRemove = useCallback(() => {
+    onRemove(attachment.id);
+  }, [onRemove, attachment.id]);
+
+  return (
+    <Attachment data={attachment} onRemove={handleRemove}>
+      <AttachmentPreview />
+      <AttachmentRemove />
+    </Attachment>
+  );
+};
+
+const PromptInputAttachmentsDisplay = () => {
+  const attachments = usePromptInputAttachments();
+
+  const handleRemove = useCallback(
+    (id: string) => {
+      attachments.remove(id);
+    },
+    [attachments],
+  );
+
+  if (attachments.files.length === 0) {
+    return null;
+  }
+
+  return (
+    <Attachments variant="inline">
+      {attachments.files.map((attachment) => (
+        <AttachmentItem
+          attachment={attachment}
+          key={attachment.id}
+          onRemove={handleRemove}
+        />
+      ))}
+    </Attachments>
+  );
+};
+
+const AddAttachmentsButton = ({ disabled }: { disabled?: boolean }) => {
+  const attachments = usePromptInputAttachments();
+
+  const handleClick = useCallback(() => {
+    attachments.openFileDialog();
+  }, [attachments]);
+
+  return (
+    <PromptInputButton onClick={handleClick} variant="ghost" aria-label="Attach images" disabled={disabled}>
+      <ImageIcon className="size-4" />
+    </PromptInputButton>
+  );
+};
+
 export default function ChatBottombar({
   input,
   handleInputChange,
@@ -64,7 +131,6 @@ export default function ChatBottombar({
 }: ChatBottombarProps) {
   const [modelSelectorOpen, setModelSelectorOpen] = React.useState(false);
 
-  const setBase64Images = useChatStore((state) => state.setBase64Images);
   const selectedModel = useModelStore((state) => state.selectedModel);
   const setSelectedModel = useModelStore((state) => state.setSelectedModel);
   const isLoading = useChatStore((state) => state.isLoading);
@@ -112,16 +178,6 @@ export default function ChatBottombar({
     [setSelectedModel],
   );
 
-  const handleTranscriptionChange = useCallback(
-    (transcript: string) => {
-      const syntheticEvent = {
-        target: { value: input ? `${input} ${transcript}` : transcript },
-      } as React.ChangeEvent<HTMLTextAreaElement>;
-      handleInputChange(syntheticEvent);
-    },
-    [input, handleInputChange],
-  );
-
   const onTextareaChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       handleInputChange(e);
@@ -131,7 +187,10 @@ export default function ChatBottombar({
 
   return (
     <div className="px-4 pb-7 w-full">
-      <PromptInput onSubmit={handleSubmit}>
+      <PromptInput globalDrop multiple onSubmit={handleSubmit}>
+        <PromptInputHeader>
+          <PromptInputAttachmentsDisplay />
+        </PromptInputHeader>
         <PromptInputBody>
           <PromptInputTextarea
             value={input}
@@ -141,10 +200,7 @@ export default function ChatBottombar({
         </PromptInputBody>
         <PromptInputFooter>
           <PromptInputTools>
-            <MultiImagePicker
-              disabled={!selectedModel?.vision}
-              onImagesPick={setBase64Images}
-            />
+            <AddAttachmentsButton disabled={!selectedModel?.vision} />
             {hasDocuments && (
               <PromptInputButton
                 onClick={toggleRag}

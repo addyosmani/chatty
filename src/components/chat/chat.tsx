@@ -174,12 +174,37 @@ export default function Chat({ id }: ChatProps) {
         setRetrievalResultsMap(resultsMap);
 
         setUIMessages(
-          chat.messages.map((m) => ({
-            id: m.id,
-            role: m.role as "user" | "assistant",
-            parts: [{ type: "text" as const, text: m.content }],
-            createdAt: m.createdAt ? new Date(m.createdAt) : new Date(),
-          }))
+          chat.messages.map((m) => {
+            const parts: WebLLMUIMessage["parts"] = [
+              { type: "text" as const, text: m.content },
+            ];
+
+            // Restore image file parts from metadata
+            if (m.contentType === "multimodal" && m.metadata) {
+              try {
+                const parsed = JSON.parse(m.metadata);
+                if (parsed.images?.length) {
+                  for (const img of parsed.images) {
+                    parts.push({
+                      type: "file" as const,
+                      mediaType: img.mediaType,
+                      url: img.url,
+                      filename: img.filename,
+                    });
+                  }
+                }
+              } catch {
+                // Ignore invalid metadata
+              }
+            }
+
+            return {
+              id: m.id,
+              role: m.role as "user" | "assistant",
+              parts,
+              createdAt: m.createdAt ? new Date(m.createdAt) : new Date(),
+            };
+          })
         );
       } else {
         // New chat — clear any stale messages from the previous conversation
@@ -206,14 +231,20 @@ export default function Chat({ id }: ChatProps) {
   const handleSubmit = useCallback(
     (message: PromptInputMessage) => {
       const trimmedInput = message.text.trim();
-      if (!trimmedInput || status !== "ready") return;
+      const hasFiles = message.files && message.files.length > 0;
+      if ((!trimmedInput && !hasFiles) || status !== "ready") return;
 
       // Clear pending retrieval results for new message
       pendingRetrievalResults.current = [];
 
       // Send message to AI immediately (no blocking on DB)
       setInput("");
-      sendMessage({ text: trimmedInput });
+      if (trimmedInput) {
+        sendMessage({ text: trimmedInput, files: hasFiles ? message.files : undefined });
+      } else if (hasFiles) {
+        sendMessage({ files: message.files! });
+      }
+
 
       // Save to database in background (non-blocking)
       (async () => {
@@ -224,9 +255,27 @@ export default function Chat({ id }: ChatProps) {
             // Update URL to /c/{id} without full navigation
             window.history.replaceState(null, "", `/c/${id}`);
           }
+
+          // Build metadata with images if files are attached
+          const imageFiles = message.files?.filter((f) =>
+            f.mediaType.startsWith("image/")
+          );
+          const metadata =
+            imageFiles && imageFiles.length > 0
+              ? JSON.stringify({
+                  images: imageFiles.map((f) => ({
+                    url: f.url,
+                    mediaType: f.mediaType,
+                    filename: f.filename,
+                  })),
+                })
+              : undefined;
+
           await addMessage(id, {
             role: "user",
-            content: trimmedInput,
+            content: trimmedInput || "(image)",
+            contentType: metadata ? "multimodal" : "text",
+            metadata,
           });
         } catch (error) {
           console.error("[Chat Page] Error saving to DB:", error);

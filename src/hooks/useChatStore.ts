@@ -26,7 +26,6 @@ interface ChatState {
   // UI state (not persisted to DB)
   input: string;
   isLoading: boolean;
-  base64Images: string[] | null;
   userName: string;
   currentChatId: string | null;
   chatListVersion: number;
@@ -41,9 +40,6 @@ interface ChatActions {
 
   // Loading state
   setIsLoading: (loading: boolean) => void;
-
-  // Images for vision models
-  setBase64Images: (images: string[] | null) => void;
 
   // User
   setUserName: (name: string) => void;
@@ -68,7 +64,6 @@ const useChatStore = create<ChatState & ChatActions>()(
       // Initial state
       input: "",
       isLoading: false,
-      base64Images: null,
       userName: "User",
       currentChatId: null,
       chatListVersion: 0,
@@ -79,9 +74,6 @@ const useChatStore = create<ChatState & ChatActions>()(
 
       // Loading state
       setIsLoading: (loading) => set({ isLoading: loading }),
-
-      // Images
-      setBase64Images: (images) => set({ base64Images: images }),
 
       // User
       setUserName: (name) => set({ userName: name }),
