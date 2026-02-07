@@ -13,7 +13,6 @@ import { Download, DownloadIcon } from "lucide-react";
 import useMemoryStore from "@/hooks/useMemoryStore";
 import useChatStore, { ChatMessage } from "@/hooks/useChatStore";
 import { useState, useEffect } from "react";
-import CodeDisplayBlock from "./code-display-block";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
@@ -111,10 +110,9 @@ export default function ExportChatDialog({
           <DialogDescription>Preview</DialogDescription>
           <pre className="whitespace-pre-wrap overflow-scroll max-h-80 pt-2 text-xs">
             {fileType === "json" ? (
-              <CodeDisplayBlock
-                code={JSON.stringify(messages, null, 2)}
-                lang={""}
-              />
+              <code className="block bg-accent p-2 overflow-scroll text-xs">
+                {JSON.stringify(messages, null, 2)}
+              </code>
             ) : (
               <div className="bg-accent p-2 overflow-scroll">
                 <Markdown remarkPlugins={[remarkGfm]}>

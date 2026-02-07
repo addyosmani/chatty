@@ -130,7 +130,7 @@ export const Reasoning = memo(
     );
 
     const contextValue = useMemo(
-      () => ({ duration, isOpen, isStreaming, setIsOpen }),
+      () => ({ duration, isOpen: isOpen ?? false, isStreaming, setIsOpen }),
       [duration, isOpen, isStreaming, setIsOpen]
     );
 
