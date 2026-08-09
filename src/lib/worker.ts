@@ -1,9 +1,9 @@
-// https://www.npmjs.com/package/@mlc-ai/web-llm
-import { WebWorkerMLCEngineHandler } from "@mlc-ai/web-llm";
+// Runs WebLLM model inference off the main thread.
+// https://www.npmjs.com/package/@browser-ai/web-llm
+import { WebWorkerMLCEngineHandler } from "@browser-ai/web-llm";
 
-
-// Hookup an Engine to a worker handler
 const handler = new WebWorkerMLCEngineHandler();
+
 self.onmessage = (msg: MessageEvent) => {
   handler.onmessage(msg);
 };

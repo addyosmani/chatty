@@ -1,59 +1,89 @@
 "use client";
 
+import { useState } from "react";
+import { SettingsIcon, UserIcon } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { useAppStore } from "@/lib/store";
 
-import { Button } from "./ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { useEffect, useState } from "react";
-import { Skeleton } from "./ui/skeleton";
-import UserSettingsDialog from "./user-settings-dialog";
-import CustomMemoryDialog from "./custom-memory-dialog";
-import useChatStore from "@/hooks/useChatStore";
-
-export default function UserSettings() {
-  const [openCustomMemoryDialog, setOpenCustomMemoryDialog] = useState(false);
-  const [openUserSettingsDialog, setOpenUserSettingsDialog] = useState(false);
-
-  const name = useChatStore((state) => state.userName);
+export function UserSettings() {
+  const [open, setOpen] = useState(false);
+  const userName = useAppStore((state) => state.userName);
+  const setUserName = useAppStore((state) => state.setUserName);
+  const customizedInstructions = useAppStore(
+    (state) => state.customizedInstructions
+  );
+  const setCustomizedInstructions = useAppStore(
+    (state) => state.setCustomizedInstructions
+  );
+  const isEnabled = useAppStore((state) => state.isCustomizedInstructionsEnabled);
+  const setIsEnabled = useAppStore(
+    (state) => state.setIsCustomizedInstructionsEnabled
+  );
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+    <Dialog onOpenChange={setOpen} open={open}>
+      <DialogTrigger asChild>
         <Button
+          className="flex w-full justify-start gap-3"
           variant="ghost"
-          className="flex justify-start gap-3 w-full h-14 text-base font-normal items-center  rounded-full"
+          aria-label="Open settings"
         >
-          <Avatar className="flex justify-start items-center overflow-hidden">
-            <AvatarImage
-              src=""
-              alt="AI"
-              width={4}
-              height={4}
-              className="object-contain"
-            />
-            <AvatarFallback>
-              {name && name.substring(0, 2).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <div className="text-xs truncate">
-            {name}
-          </div>
+          <UserIcon className="size-4 shrink-0" />
+          <span className="truncate">{userName}</span>
+          <SettingsIcon className="ml-auto size-4 shrink-0 text-muted-foreground" />
         </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="p-2">
-        <CustomMemoryDialog
-          setOpen={setOpenCustomMemoryDialog}
-          open={openCustomMemoryDialog}
-        />
-        <UserSettingsDialog
-          setOpen={setOpenUserSettingsDialog}
-          open={openUserSettingsDialog}
-        />
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Settings</DialogTitle>
+          <DialogDescription>
+            Your name and instructions are stored locally in this browser.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="user-name">Name</Label>
+          <Input
+            id="user-name"
+            onChange={(event) => setUserName(event.target.value)}
+            placeholder="Your name"
+            value={userName}
+          />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between gap-4">
+            <Label htmlFor="custom-instructions">Custom instructions</Label>
+            <Switch
+              aria-label="Enable custom instructions"
+              checked={isEnabled}
+              id="custom-instructions-enabled"
+              onCheckedChange={setIsEnabled}
+            />
+          </div>
+          <Textarea
+            disabled={!isEnabled}
+            id="custom-instructions"
+            onChange={(event) => setCustomizedInstructions(event.target.value)}
+            placeholder="What would you like the assistant to know about you?"
+            rows={5}
+            value={customizedInstructions}
+          />
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

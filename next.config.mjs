@@ -1,32 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   webpack: (config, { isServer }) => {
-    // Fixes npm packages that depend on `fs` module
     if (!isServer) {
+      // WebLLM and pdfjs pull in Node built-ins they never use in the browser.
       config.resolve.fallback = {
-        ...config.resolve.fallback, // if you miss it, all the other options in fallback, specified
-        // by next.js will be dropped. Doesn't make much sense, but how it is
-        fs: false, // the solution
+        ...config.resolve.fallback,
+        fs: false,
+        path: false,
         module: false,
         perf_hooks: false,
       };
     }
-    // This is to fix transformers.js error
-    // https://github.com/xenova/transformers.js/blob/main/examples/next-client/next.config.js
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      sharp$: false,
-      "onnxruntime-node$": false,
-    };
 
     return config;
-  },
-  typescript: {
-    // !! WARN !!
-    // Dangerously allow production builds to successfully complete even if
-    // your project has type errors.
-    // !! WARN !!
-    ignoreBuildErrors: true,
   },
 };
 

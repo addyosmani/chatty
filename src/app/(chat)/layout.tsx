@@ -3,7 +3,6 @@ import { GeistSans } from "geist/font/sans";
 import "../globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/providers/theme-provider";
-import { WebLLMProvider } from "@/providers/web-llm-provider";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { Suspense } from "react";
 
@@ -63,16 +62,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={GeistSans.className}>
-        <WebLLMProvider>
-          <ThemeProvider attribute="class" defaultTheme="system">
-            <Suspense>
-              {children}
-            </Suspense>
-            <Toaster position="top-right" />
-          </ThemeProvider>
-        </WebLLMProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          disableTransitionOnChange
+          enableSystem
+        >
+          <Suspense>{children}</Suspense>
+          <Toaster position="top-right" />
+        </ThemeProvider>
       </body>
       <GoogleAnalytics gaId="G-6X7CQT49KF" />
     </html>

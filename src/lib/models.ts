@@ -61,6 +61,9 @@ export interface Model {
   vision?: boolean;
 }
 
+/** Small enough to download and run on most machines. */
+export const DEFAULT_MODEL_ID = "gemma-2-2b-it-q4f32_1-MLC";
+
 // source is AppConfig
 // https://github.com/mlc-ai/web-llm/blob/main/src/config.ts
 export const Models: Model[] = [

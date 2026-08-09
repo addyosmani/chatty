@@ -1,15 +1,13 @@
 "use client";
 
-import ChatLayout from "@/components/chat/chat-layout";
+import { useState } from "react";
+
+import { ChatLayout } from "@/components/chat-layout";
 import { generateUUID } from "@/lib/utils";
-import React from "react";
 
 export default function Home() {
-  const id = generateUUID();
+  // One id per mount; the chat adopts /c/<id> once the first message is sent.
+  const [chatId] = useState(generateUUID);
 
-  return (
-    <main className="flex h-[calc(100dvh)] flex-col items-center ">
-      <ChatLayout key={id} initialMessages={[]} id={id} />
-    </main>
-  );
+  return <ChatLayout chatId={chatId} />;
 }
